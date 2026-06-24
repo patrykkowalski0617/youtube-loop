@@ -5,27 +5,61 @@
   top: 80px;
   right: 24px;
   z-index: 2147483600;
-  width: 320px;
+  width: 330px;
   max-width: calc(100vw - 32px);
   font-family: "Roboto", "Arial", sans-serif;
-  padding: 12px 16px 14px;
-  border-radius: 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 14px 16px 16px;
+  border-radius: 14px;
   background: #ffffff;
   color: #0f0f0f;
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), 0 2px 8px rgba(0, 0, 0, 0.12);
+  -webkit-font-smoothing: antialiased;
 }
 
 html[dark] #ytloop-panel,
 [dark] #ytloop-panel {
-  background: #212121;
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.12);
+  background: #1f1f1f;
+  color: #f1f1f1;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
+#ytloop-panel * {
+  box-sizing: border-box;
+}
+
+/* ---------- Nagłówek ---------- */
+
 #ytloop-panel .ytloop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -2px -2px 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.18);
   cursor: move;
   user-select: none;
+}
+
+#ytloop-panel .ytloop-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+#ytloop-panel .ytloop-title-icon {
+  display: inline-flex;
+  color: #ff0033;
+}
+#ytloop-panel .ytloop-title-icon svg {
+  width: 18px;
+  height: 18px;
 }
 
 #ytloop-panel .ytloop-header-right {
@@ -38,63 +72,86 @@ html[dark] #ytloop-panel,
   background: transparent !important;
   color: inherit !important;
   padding: 2px 6px !important;
-  font-size: 14px !important;
-  opacity: 0.6;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  border-radius: 6px !important;
+  opacity: 0.55;
 }
 #ytloop-panel .ytloop-close:hover {
   opacity: 1;
+  background: rgba(128, 128, 128, 0.18) !important;
 }
 
-#ytloop-toggle-btn.ytloop-active {
-  color: #ff0033;
-}
-
-#ytloop-panel * {
-  box-sizing: border-box;
-}
-
-#ytloop-panel .ytloop-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-
-#ytloop-panel .ytloop-title {
-  font-size: 14px;
-  font-weight: 600;
-}
+/* ---------- Przełączniki ---------- */
 
 #ytloop-panel .ytloop-switch {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 13px;
   cursor: pointer;
 }
 
+/* Własny przełącznik (toggle) zamiast systemowego checkboxa */
 #ytloop-panel .ytloop-switch input {
-  width: 16px;
-  height: 16px;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  margin: 0;
+  border-radius: 999px;
+  background: rgba(128, 128, 128, 0.45);
   cursor: pointer;
-  accent-color: #ff0033;
+  transition: background 0.18s ease;
 }
+#ytloop-panel .ytloop-switch input::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
+  transition: transform 0.18s ease;
+}
+#ytloop-panel .ytloop-switch input:checked {
+  background: linear-gradient(180deg, #ff2a4d, #e60028);
+}
+#ytloop-panel .ytloop-switch input:checked::before {
+  transform: translateX(16px);
+}
+#ytloop-panel .ytloop-switch input:focus-visible {
+  outline: 2px solid rgba(255, 51, 85, 0.6);
+  outline-offset: 2px;
+}
+
+/* ---------- Pola ---------- */
 
 #ytloop-panel .ytloop-row {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+#ytloop-panel .ytloop-row + .ytloop-row {
+  margin-top: 10px;
 }
 
 #ytloop-panel .ytloop-field {
-  flex: 1 1 180px;
+  flex: 1 1 130px;
 }
 
 #ytloop-panel .ytloop-field > label {
   display: block;
-  font-size: 12px;
-  opacity: 0.7;
-  margin-bottom: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.55;
+  margin-bottom: 5px;
 }
 
 #ytloop-panel .ytloop-input-group {
@@ -102,105 +159,202 @@ html[dark] #ytloop-panel,
   gap: 6px;
 }
 
-#ytloop-panel .ytloop-input-group input {
+#ytloop-panel input[type="text"] {
   flex: 1;
+  width: 100%;
   min-width: 0;
-  padding: 6px 8px;
+  padding: 7px 9px;
   font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: #fff;
+  font-variant-numeric: tabular-nums;
+  border-radius: 9px;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  background: #f7f7f7;
   color: #0f0f0f;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background 0.15s ease;
 }
 
-html[dark] #ytloop-panel .ytloop-input-group input,
-[dark] #ytloop-panel .ytloop-input-group input {
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+#ytloop-panel input[type="text"]:focus {
+  border-color: #ff3355;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 51, 85, 0.18);
 }
+
+html[dark] #ytloop-panel input[type="text"],
+[dark] #ytloop-panel input[type="text"] {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.16);
+}
+html[dark] #ytloop-panel input[type="text"]:focus,
+[dark] #ytloop-panel input[type="text"]:focus {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #ff3355;
+}
+
+/* ---------- Przyciski ---------- */
 
 #ytloop-panel button {
   cursor: pointer;
   border: none;
-  border-radius: 8px;
-  padding: 6px 10px;
+  border-radius: 9px;
+  padding: 7px 11px;
   font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
-  background: #ff0033;
+  background: linear-gradient(180deg, #ff2a4d, #e60028);
   color: #fff;
-  transition: filter 0.15s ease;
+  transition: filter 0.15s ease, transform 0.05s ease, background 0.15s ease;
+}
+#ytloop-panel button:hover {
+  filter: brightness(1.08);
+}
+#ytloop-panel button:active {
+  transform: translateY(1px);
 }
 
-#ytloop-panel button:hover {
-  filter: brightness(1.1);
+#ytloop-panel .ytloop-input-group button {
+  padding: 7px 9px;
+  font-size: 12px;
+  background: linear-gradient(180deg, #3a3a3a, #2a2a2a);
 }
 
 #ytloop-panel button.ytloop-secondary {
+  flex: 1;
   background: transparent;
-  color: var(--yt-spec-text-primary, #0f0f0f);
-  border: 1px solid rgba(0, 0, 0, 0.25);
+  color: inherit;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  font-weight: 500;
 }
-
+#ytloop-panel button.ytloop-secondary:hover {
+  filter: none;
+  background: rgba(128, 128, 128, 0.14);
+}
 html[dark] #ytloop-panel button.ytloop-secondary,
 [dark] #ytloop-panel button.ytloop-secondary {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
+/* ---------- Sekcja prędkości ---------- */
+
 #ytloop-panel .ytloop-speed {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(128, 128, 128, 0.25);
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.18);
 }
 
 #ytloop-panel .ytloop-speed-toggle {
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 10px;
+  font-weight: 600;
 }
 
-#ytloop-panel .ytloop-speed .ytloop-field > input {
-  width: 100%;
-  padding: 6px 8px;
-  font-size: 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  background: #fff;
-  color: #0f0f0f;
-}
-
-html[dark] #ytloop-panel .ytloop-speed .ytloop-field > input,
-[dark] #ytloop-panel .ytloop-speed .ytloop-field > input {
-  background: rgba(0, 0, 0, 0.3);
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.2);
+#ytloop-panel #ytloop-speed-fields {
+  transition: opacity 0.2s ease;
 }
 
 #ytloop-panel .ytloop-hint {
-  margin-top: 6px;
+  margin-top: 8px;
   font-size: 11px;
-  opacity: 0.6;
+  opacity: 0.5;
 }
+
+/* ---------- Akcje ---------- */
 
 #ytloop-panel .ytloop-actions {
   display: flex;
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 14px;
 }
 
+/* ---------- Status ---------- */
+
 #ytloop-panel .ytloop-status {
-  margin-top: 10px;
+  margin-top: 12px;
   font-size: 12px;
-  opacity: 0.75;
+  opacity: 0.7;
 }
 
 #ytloop-panel .ytloop-status.active {
+  display: block;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
   color: #ffffff;
   opacity: 1;
   font-weight: 700;
   font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  text-align: center;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
 }
+
+/* ---------- Poświata po osiągnięciu prędkości docelowej ---------- */
+
+@property --ytloop-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+#ytloop-panel.ytloop-maxed {
+  border: 2px solid #ff4d12;
+  animation: ytloop-glow 4.5s ease-in-out infinite;
+}
+
+/* Refleks okrążający ramkę - cienka, rozżarzona smuga światła */
+#ytloop-panel.ytloop-maxed::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 14px;
+  padding: 1px;
+  background: repeating-conic-gradient(
+    from var(--ytloop-angle),
+    rgba(255, 70, 0, 0) 0deg,
+    rgba(255, 120, 30, 0.45) 30deg,
+    #ffe1b0 45deg,
+    rgba(255, 120, 30, 0.45) 60deg,
+    rgba(255, 70, 0, 0) 90deg
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ytloop-orbit 26s linear infinite;
+  pointer-events: none;
+}
+
+#ytloop-panel.ytloop-maxed .ytloop-status.active {
+  background: linear-gradient(180deg, #cf3a0a, #6b1500);
+  color: #ffe6c2;
+  text-shadow: 0 0 10px rgba(255, 120, 30, 0.9);
+}
+
+@keyframes ytloop-orbit {
+  to {
+    --ytloop-angle: 360deg;
+  }
+}
+
+@keyframes ytloop-glow {
+  0%,
+  100% {
+    box-shadow: inset 0 0 6px rgba(255, 70, 0, 0.35),
+      0 0 14px 1px rgba(255, 70, 0, 0.5), 0 0 30px 6px rgba(255, 40, 0, 0.26),
+      0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+  50% {
+    box-shadow: inset 0 0 9px rgba(255, 110, 20, 0.5),
+      0 0 20px 3px rgba(255, 100, 10, 0.7), 0 0 44px 12px rgba(255, 50, 0, 0.4),
+      0 10px 30px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ---------- Migotanie przy pokazaniu panelu ---------- */
 
 #ytloop-panel.ytloop-flash {
   animation: ytloop-flash 0.9s ease;
@@ -209,30 +363,38 @@ html[dark] #ytloop-panel .ytloop-speed .ytloop-field > input,
 @keyframes ytloop-flash {
   0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(255, 0, 51, 0);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), 0 0 0 0 rgba(255, 0, 51, 0);
   }
   30% {
-    box-shadow: 0 0 0 3px rgba(255, 0, 51, 0.6);
+    box-shadow: 0 10px 32px rgba(0, 0, 0, 0.28), 0 0 0 4px rgba(255, 0, 51, 0.55);
   }
 }
 
-/* Przycisk w pasku odtwarzacza */
+/* ---------- Przycisk w pasku odtwarzacza ---------- */
+
 .ytloop-ytp-button {
   display: inline-flex !important;
   align-items: center;
   justify-content: center;
   vertical-align: top;
   padding: 0 !important;
-  font-size: 18px !important;
-  line-height: 1 !important;
-  text-align: center;
   opacity: 0.9;
+  color: #fff;
+}
+.ytloop-ytp-button svg {
+  width: 24px;
+  height: 24px;
 }
 .ytloop-ytp-button:hover {
   opacity: 1;
 }
+#ytloop-toggle-btn.ytloop-active {
+  color: #ff0033;
+  opacity: 1;
+}
 
-/* Markery na pasku postępu */
+/* ---------- Markery na pasku postępu ---------- */
+
 #ytloop-markers {
   position: absolute;
   left: 0;
