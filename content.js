@@ -13,11 +13,16 @@
     end: null, // sekundy lub null
     enabled: false,
     videoId: null,
+    tail: 1, // sekundy pauzy między odtworzeniami (ustawienie globalne)
   };
+
+  const GLOBAL_KEY = "ytloop:settings";
+  const DEFAULT_TAIL = 1;
 
   let video = null;
   let panel = null;
-  let rafScheduled = false;
+  let inTail = false; // czy trwa pauza między odtworzeniami
+  let tailTimer = null;
 
   // ---------- Pomocnicze: czas ----------
 
@@ -91,16 +96,53 @@
     });
   }
 
+  function saveGlobalSettings() {
+    if (!chrome?.storage?.local) return;
+    chrome.storage.local.set({ [GLOBAL_KEY]: { tail: state.tail } });
+  }
+
+  function loadGlobalSettings(cb) {
+    if (!chrome?.storage?.local) {
+      cb(null);
+      return;
+    }
+    chrome.storage.local.get(GLOBAL_KEY, (res) => cb(res ? res[GLOBAL_KEY] : null));
+  }
+
   // ---------- Logika pętli ----------
 
+  function restartLoop() {
+    if (!video) return;
+    video.currentTime = state.start != null ? state.start : 0;
+    if (video.paused) video.play().catch(() => {});
+  }
+
+  function cancelTail() {
+    if (tailTimer) {
+      clearTimeout(tailTimer);
+      tailTimer = null;
+    }
+    inTail = false;
+  }
+
   function onTimeUpdate() {
-    if (!state.enabled || !video) return;
+    if (!state.enabled || !video || inTail) return;
     const { start, end } = state;
     if (end == null) return;
-    // Gdy przekroczymy koniec -> wróć do początku.
+    // Gdy przekroczymy koniec -> przerwa (tail), potem wróć do początku.
     if (video.currentTime >= end - 0.05) {
-      video.currentTime = start != null ? start : 0;
-      if (video.paused) video.play().catch(() => {});
+      const tail = state.tail > 0 ? state.tail : 0;
+      if (tail > 0) {
+        inTail = true;
+        video.pause();
+        tailTimer = setTimeout(() => {
+          tailTimer = null;
+          inTail = false;
+          if (state.enabled) restartLoop();
+        }, tail * 1000);
+      } else {
+        restartLoop();
+      }
     } else if (start != null && video.currentTime < start - 0.5) {
       // Jeśli użytkownik przewinął przed początek, podciągnij do startu.
       video.currentTime = start;
@@ -176,6 +218,14 @@
           </div>
         </div>
       </div>
+      <div class="ytloop-row">
+        <div class="ytloop-field">
+          <label>Przerwa między pętlami (s)</label>
+          <div class="ytloop-input-group">
+            <input type="text" id="ytloop-tail" placeholder="1" autocomplete="off" inputmode="decimal">
+          </div>
+        </div>
+      </div>
       <div class="ytloop-actions">
         <button id="ytloop-goto-start" class="ytloop-secondary">⏮ Do początku</button>
         <button id="ytloop-clear" class="ytloop-secondary">✕ Wyczyść</button>
@@ -194,6 +244,9 @@
       startInput.value = state.start != null ? fmt(state.start) : "";
     if (document.activeElement !== endInput)
       endInput.value = state.end != null ? fmt(state.end) : "";
+    const tailInput = panel.querySelector("#ytloop-tail");
+    if (tailInput && document.activeElement !== tailInput)
+      tailInput.value = String(state.tail);
     updateStatus();
     updateMarkers();
   }
@@ -220,9 +273,7 @@
 
     enable.addEventListener("change", () => {
       state.enabled = enable.checked;
-      if (state.enabled && state.end == null && video?.duration) {
-        // Domyślnie: brak końca -> ustaw na koniec filmu nie ma sensu; wymagaj końca.
-      }
+      if (!state.enabled) cancelTail();
       saveState();
       syncInputs();
     });
@@ -254,11 +305,21 @@
       saveState();
       syncInputs();
     };
+    const tailInput = panel.querySelector("#ytloop-tail");
+    const commitTail = () => {
+      const v = parseFloat(String(tailInput.value).replace(",", "."));
+      state.tail = !isNaN(v) && v >= 0 ? v : DEFAULT_TAIL;
+      saveGlobalSettings();
+      syncInputs();
+    };
+    tailInput.addEventListener("change", commitTail);
+    tailInput.addEventListener("blur", commitTail);
+
     startInput.addEventListener("change", commitStart);
     startInput.addEventListener("blur", commitStart);
     endInput.addEventListener("change", commitEnd);
     endInput.addEventListener("blur", commitEnd);
-    [startInput, endInput].forEach((inp) =>
+    [startInput, endInput, tailInput].forEach((inp) =>
       inp.addEventListener("keydown", (e) => {
         if (e.key === "Enter") inp.blur();
         e.stopPropagation(); // nie wyzwalaj skrótów YouTube
@@ -275,6 +336,7 @@
       state.start = null;
       state.end = null;
       state.enabled = false;
+      cancelTail();
       saveState();
       syncInputs();
     });
@@ -381,6 +443,7 @@
   function loadForCurrentVideo() {
     const id = getVideoId();
     state.videoId = id;
+    cancelTail();
     loadState(id, (saved) => {
       state.start = saved?.start ?? null;
       state.end = saved?.end ?? null;
@@ -400,6 +463,10 @@
     attachVideo();
     mountPanel();
     injectPlayerButton();
+    loadGlobalSettings((g) => {
+      state.tail = g && typeof g.tail === "number" ? g.tail : DEFAULT_TAIL;
+      syncInputs();
+    });
     loadForCurrentVideo();
   }
 
