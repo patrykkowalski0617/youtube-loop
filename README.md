@@ -9,6 +9,11 @@ wybrany fragment w kółko.
 - Ustawianie początku i końca pętli przyciskiem **⏱ Teraz** (bierze aktualny czas
   filmu) lub ręcznie w polu tekstowym (format `m:ss`, `h:mm:ss` albo same sekundy).
 - Włącznik pętli – po dojściu do końca film automatycznie wraca do początku.
+- Przerwa („tail") między kolejnymi odtworzeniami – domyślnie 1 s, edytowalna,
+  zapisywana globalnie.
+- Stopniowa zmiana prędkości – opcjonalnie każda kolejna pętla jest szybsza
+  (lub wolniejsza) o zadany krok, od prędkości początkowej do docelowej
+  (zakres 0.25–2x); ustawienia zapisywane osobno dla każdego filmu.
 - Markery zaznaczające fragment na pasku postępu odtwarzacza.
 - Przycisk 🔁 w pasku odtwarzacza, który przewija do panelu sterowania.
 - Ustawienia zapamiętywane osobno dla każdego filmu (`chrome.storage.local`).
