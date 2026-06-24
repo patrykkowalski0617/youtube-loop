@@ -19,6 +19,9 @@ segment over and over.
 - **Spacebar control** (while the loop is active): if the video is playing, space
   stops it (the current speed stays, visible in the UI); if it is stopped, space
   jumps to the segment start and plays from the start speed.
+- **Saved videos** — save the current video together with its settings (and
+  title) to a list, opened as a drawer sliding in from the right edge. Clicking an
+  entry loads its settings; if you are not on that video, it navigates there first.
 - Markers highlighting the segment on the player's progress bar.
 - A 🔁 button in the player control bar that toggles the control panel.
 - A draggable floating panel; settings remembered per video
@@ -48,6 +51,10 @@ The floating "🔁 Loop segment" panel appears in the top-right corner.
   loops (defaults: start `0.65`, target `1`, step `0.05`).
 - **⏮ To start** — jump to the start of the segment (resets the speed).
 - **✕ Clear** — remove the loop settings for the current video.
+- **★ Save** — add the current video and its settings to the saved list.
+- **☰ Saved** (or the "★ Saved" tab on the right edge) — open the saved-videos
+  drawer; click an entry to load it (navigating to that video if needed), or ✕ to
+  remove it.
 - **Space** — toggle stop / restart-from-start (see Features).
 
 ## Files

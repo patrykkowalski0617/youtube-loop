@@ -251,6 +251,11 @@ html[dark] #ytloop-panel button.ytloop-secondary,
 
 #ytloop-panel #ytloop-speed-fields {
   transition: opacity 0.2s ease;
+  flex-wrap: nowrap;
+}
+#ytloop-panel #ytloop-speed-fields .ytloop-field {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 #ytloop-panel .ytloop-hint {
@@ -424,4 +429,144 @@ html[dark] #ytloop-panel button.ytloop-secondary,
   top: 0;
   height: 100%;
   background: rgba(255, 212, 0, 0.35);
+}
+
+/* ---------- Saved videos drawer ---------- */
+
+#ytloop-drawer-handle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 2147483600;
+  border: none;
+  cursor: pointer;
+  padding: 12px 8px;
+  border-radius: 10px 0 0 10px;
+  background: linear-gradient(180deg, #ff2a4d, #e60028);
+  color: #fff;
+  font-family: "Roboto", "Arial", sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: -2px 2px 10px rgba(0, 0, 0, 0.35);
+}
+#ytloop-drawer-handle span {
+  display: inline-block;
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  letter-spacing: 0.5px;
+}
+#ytloop-drawer-handle:hover {
+  filter: brightness(1.08);
+}
+
+#ytloop-drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 2147483601;
+  width: 340px;
+  max-width: 90vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #1f1f1f;
+  color: #f1f1f1;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: -8px 0 28px rgba(0, 0, 0, 0.4);
+  font-family: "Roboto", "Arial", sans-serif;
+  transform: translateX(100%);
+  transition: transform 0.25s ease;
+}
+#ytloop-drawer.open {
+  transform: translateX(0);
+}
+
+#ytloop-drawer .ytloop-drawer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  font-size: 15px;
+  font-weight: 700;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+#ytloop-drawer .ytloop-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 14px;
+  opacity: 0.6;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+#ytloop-drawer .ytloop-close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+#ytloop-drawer #ytloop-drawer-list {
+  list-style: none;
+  margin: 0;
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+#ytloop-drawer .ytloop-empty {
+  padding: 20px 12px;
+  opacity: 0.6;
+  font-size: 13px;
+  text-align: center;
+}
+
+#ytloop-drawer .ytloop-saved-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+#ytloop-drawer .ytloop-saved-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+#ytloop-drawer .ytloop-saved-item.current {
+  background: rgba(255, 51, 85, 0.16);
+}
+
+#ytloop-drawer .ytloop-saved-main {
+  flex: 1;
+  min-width: 0;
+}
+#ytloop-drawer .ytloop-saved-title {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#ytloop-drawer .ytloop-saved-sub {
+  margin-top: 3px;
+  font-size: 11px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-drawer .ytloop-saved-del {
+  flex: none;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 13px;
+  opacity: 0.45;
+  border-radius: 6px;
+  padding: 4px 7px;
+}
+#ytloop-drawer .ytloop-saved-del:hover {
+  opacity: 1;
+  background: rgba(255, 80, 80, 0.2);
 }
