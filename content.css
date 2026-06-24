@@ -148,6 +148,40 @@ html[dark] #ytloop-panel button.ytloop-secondary,
   border-color: rgba(255, 255, 255, 0.25);
 }
 
+#ytloop-panel .ytloop-speed {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+#ytloop-panel .ytloop-speed-toggle {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+#ytloop-panel .ytloop-speed .ytloop-field > input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  background: #fff;
+  color: #0f0f0f;
+}
+
+html[dark] #ytloop-panel .ytloop-speed .ytloop-field > input,
+[dark] #ytloop-panel .ytloop-speed .ytloop-field > input {
+  background: rgba(0, 0, 0, 0.3);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+#ytloop-panel .ytloop-hint {
+  margin-top: 6px;
+  font-size: 11px;
+  opacity: 0.6;
+}
+
 #ytloop-panel .ytloop-actions {
   display: flex;
   gap: 8px;

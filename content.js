@@ -14,15 +14,24 @@
     enabled: false,
     videoId: null,
     tail: 1, // sekundy pauzy między odtworzeniami (ustawienie globalne)
+    // Stopniowa zmiana prędkości (per film):
+    speedEnabled: false,
+    speedStart: 1, // prędkość pierwszej pętli
+    speedTarget: 1.5, // prędkość docelowa
+    speedStep: 0.1, // o ile zmienić co pętlę
   };
 
   const GLOBAL_KEY = "ytloop:settings";
   const DEFAULT_TAIL = 1;
+  const SPEED_MIN = 0.25;
+  const SPEED_MAX = 2;
 
   let video = null;
   let panel = null;
   let inTail = false; // czy trwa pauza między odtworzeniami
   let tailTimer = null;
+  let currentSpeed = 1; // aktualna prędkość bieżącej sesji pętli
+  let applyingSpeed = false; // strażnik przed pętlą zdarzeń ratechange
 
   // ---------- Pomocnicze: czas ----------
 
@@ -82,6 +91,10 @@
         start: state.start,
         end: state.end,
         enabled: state.enabled,
+        speedEnabled: state.speedEnabled,
+        speedStart: state.speedStart,
+        speedTarget: state.speedTarget,
+        speedStep: state.speedStep,
       },
     });
   }
@@ -111,8 +124,49 @@
 
   // ---------- Logika pętli ----------
 
+  // ---------- Prędkość odtwarzania ----------
+
+  function clampSpeed(v) {
+    return Math.min(SPEED_MAX, Math.max(SPEED_MIN, v));
+  }
+
+  /** Ustaw prędkość bieżącej sesji na początkową. */
+  function resetSpeed() {
+    currentSpeed = clampSpeed(state.speedStart);
+  }
+
+  /** Wymuś prędkość na elemencie wideo (z ochroną przed pętlą zdarzeń). */
+  function applySpeed() {
+    if (!video) return;
+    applyingSpeed = true;
+    try {
+      video.playbackRate = currentSpeed;
+    } catch {}
+    applyingSpeed = false;
+    updateStatus();
+  }
+
+  /** Zwiększ/zmniejsz prędkość o krok w stronę celu (z zatrzymaniem na celu). */
+  function stepSpeed() {
+    const start = clampSpeed(state.speedStart);
+    const target = clampSpeed(state.speedTarget);
+    const step = Math.abs(state.speedStep) || 0;
+    if (step === 0 || target === start) {
+      currentSpeed = target;
+      return;
+    }
+    const dir = target > start ? 1 : -1;
+    let next = currentSpeed + dir * step;
+    next = dir > 0 ? Math.min(next, target) : Math.max(next, target);
+    currentSpeed = clampSpeed(next);
+  }
+
   function restartLoop() {
     if (!video) return;
+    if (state.speedEnabled) {
+      stepSpeed();
+      applySpeed();
+    }
     video.currentTime = state.start != null ? state.start : 0;
     if (video.paused) video.play().catch(() => {});
   }
@@ -226,6 +280,27 @@
           </div>
         </div>
       </div>
+      <div class="ytloop-speed">
+        <label class="ytloop-switch ytloop-speed-toggle">
+          <input type="checkbox" id="ytloop-speed-enable">
+          <span>Stopniowo zmieniaj prędkość</span>
+        </label>
+        <div class="ytloop-row" id="ytloop-speed-fields">
+          <div class="ytloop-field">
+            <label>Początkowa</label>
+            <input type="text" id="ytloop-speed-start" autocomplete="off" inputmode="decimal">
+          </div>
+          <div class="ytloop-field">
+            <label>Docelowa</label>
+            <input type="text" id="ytloop-speed-target" autocomplete="off" inputmode="decimal">
+          </div>
+          <div class="ytloop-field">
+            <label>Krok</label>
+            <input type="text" id="ytloop-speed-step" autocomplete="off" inputmode="decimal">
+          </div>
+        </div>
+        <div class="ytloop-hint">Zakres 0.25–2x (jak YouTube).</div>
+      </div>
       <div class="ytloop-actions">
         <button id="ytloop-goto-start" class="ytloop-secondary">⏮ Do początku</button>
         <button id="ytloop-clear" class="ytloop-secondary">✕ Wyczyść</button>
@@ -247,6 +322,21 @@
     const tailInput = panel.querySelector("#ytloop-tail");
     if (tailInput && document.activeElement !== tailInput)
       tailInput.value = String(state.tail);
+
+    const speedEnable = panel.querySelector("#ytloop-speed-enable");
+    const speedStartInput = panel.querySelector("#ytloop-speed-start");
+    const speedTargetInput = panel.querySelector("#ytloop-speed-target");
+    const speedStepInput = panel.querySelector("#ytloop-speed-step");
+    if (speedEnable) speedEnable.checked = state.speedEnabled;
+    const setIf = (inp, val) => {
+      if (inp && document.activeElement !== inp) inp.value = String(val);
+    };
+    setIf(speedStartInput, state.speedStart);
+    setIf(speedTargetInput, state.speedTarget);
+    setIf(speedStepInput, state.speedStep);
+    const fields = panel.querySelector("#ytloop-speed-fields");
+    if (fields) fields.style.opacity = state.speedEnabled ? "1" : "0.45";
+
     updateStatus();
     updateMarkers();
   }
@@ -255,7 +345,9 @@
     const status = panel?.querySelector("#ytloop-status");
     if (!status) return;
     if (state.enabled && state.end != null) {
-      status.textContent = `Pętla: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
+      let txt = `Pętla: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
+      if (state.speedEnabled) txt += ` · ${currentSpeed.toFixed(2)}x`;
+      status.textContent = txt;
       status.className = "ytloop-status active";
     } else if (state.start != null || state.end != null) {
       status.textContent = "Pętla wyłączona (zaznacz „Włącz”)";
@@ -273,7 +365,12 @@
 
     enable.addEventListener("change", () => {
       state.enabled = enable.checked;
-      if (!state.enabled) cancelTail();
+      if (!state.enabled) {
+        cancelTail();
+      } else if (state.speedEnabled) {
+        resetSpeed();
+        applySpeed();
+      }
       saveState();
       syncInputs();
     });
@@ -305,6 +402,64 @@
       saveState();
       syncInputs();
     };
+    // --- Prędkość ---
+    const speedEnable = panel.querySelector("#ytloop-speed-enable");
+    const speedStartInput = panel.querySelector("#ytloop-speed-start");
+    const speedTargetInput = panel.querySelector("#ytloop-speed-target");
+    const speedStepInput = panel.querySelector("#ytloop-speed-step");
+    const parseNum = (s) => parseFloat(String(s).replace(",", "."));
+
+    speedEnable.addEventListener("change", () => {
+      state.speedEnabled = speedEnable.checked;
+      saveState();
+      if (state.speedEnabled) {
+        resetSpeed();
+        if (state.enabled) applySpeed();
+      } else if (video) {
+        applyingSpeed = true;
+        try {
+          video.playbackRate = 1;
+        } catch {}
+        applyingSpeed = false;
+      }
+      syncInputs();
+    });
+
+    const commitSpeedStart = () => {
+      const v = parseNum(speedStartInput.value);
+      state.speedStart = !isNaN(v) ? clampSpeed(v) : 1;
+      if (state.speedEnabled) {
+        resetSpeed();
+        if (state.enabled) applySpeed();
+      }
+      saveState();
+      syncInputs();
+    };
+    const commitSpeedTarget = () => {
+      const v = parseNum(speedTargetInput.value);
+      state.speedTarget = !isNaN(v) ? clampSpeed(v) : 1.5;
+      saveState();
+      syncInputs();
+    };
+    const commitSpeedStep = () => {
+      const v = parseNum(speedStepInput.value);
+      state.speedStep = !isNaN(v) && v > 0 ? v : 0.1;
+      saveState();
+      syncInputs();
+    };
+    speedStartInput.addEventListener("change", commitSpeedStart);
+    speedStartInput.addEventListener("blur", commitSpeedStart);
+    speedTargetInput.addEventListener("change", commitSpeedTarget);
+    speedTargetInput.addEventListener("blur", commitSpeedTarget);
+    speedStepInput.addEventListener("change", commitSpeedStep);
+    speedStepInput.addEventListener("blur", commitSpeedStep);
+    [speedStartInput, speedTargetInput, speedStepInput].forEach((inp) =>
+      inp.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") inp.blur();
+        e.stopPropagation();
+      })
+    );
+
     const tailInput = panel.querySelector("#ytloop-tail");
     const commitTail = () => {
       const v = parseFloat(String(tailInput.value).replace(",", "."));
@@ -436,7 +591,11 @@
       video = v;
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("loadedmetadata", () => updateMarkers());
-      video.addEventListener("seeking", () => {});
+      video.addEventListener("ratechange", () => {
+        // Gdy aktywny tryb prędkości, przywróć naszą wartość po resecie YT.
+        if (!state.enabled || !state.speedEnabled || applyingSpeed) return;
+        if (Math.abs(video.playbackRate - currentSpeed) > 0.001) applySpeed();
+      });
     }
   }
 
@@ -448,6 +607,12 @@
       state.start = saved?.start ?? null;
       state.end = saved?.end ?? null;
       state.enabled = saved?.enabled ?? false;
+      state.speedEnabled = saved?.speedEnabled ?? false;
+      state.speedStart = saved?.speedStart ?? 1;
+      state.speedTarget = saved?.speedTarget ?? 1.5;
+      state.speedStep = saved?.speedStep ?? 0.1;
+      resetSpeed();
+      if (state.enabled && state.speedEnabled) applySpeed();
       syncInputs();
     });
   }
