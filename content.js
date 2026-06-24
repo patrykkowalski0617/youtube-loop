@@ -7,6 +7,12 @@
   const PANEL_ID = "ytloop-panel";
   const BTN_ID = "ytloop-toggle-btn";
 
+  // Monochromatyczna ikona pętli (dziedziczy currentColor).
+  const LOOP_SVG =
+    '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
+    '<path fill="currentColor" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>' +
+    "</svg>";
+
   /** Stan dla aktualnego filmu. */
   const state = {
     start: null, // sekundy lub null
@@ -16,9 +22,9 @@
     tail: 1, // sekundy pauzy między odtworzeniami (ustawienie globalne)
     // Stopniowa zmiana prędkości (per film):
     speedEnabled: false,
-    speedStart: 1, // prędkość pierwszej pętli
-    speedTarget: 1.5, // prędkość docelowa
-    speedStep: 0.1, // o ile zmienić co pętlę
+    speedStart: 0.65, // prędkość pierwszej pętli
+    speedTarget: 1, // prędkość docelowa
+    speedStep: 0.05, // o ile zmienić co pętlę
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -291,7 +297,7 @@
     el.id = PANEL_ID;
     el.innerHTML = `
       <div class="ytloop-header" id="ytloop-drag">
-        <span class="ytloop-title">🔁 Pętla fragmentu</span>
+        <span class="ytloop-title"><span class="ytloop-title-icon">${LOOP_SVG}</span>Pętla fragmentu</span>
         <div class="ytloop-header-right">
           <label class="ytloop-switch">
             <input type="checkbox" id="ytloop-enable">
@@ -385,12 +391,29 @@
     updateMarkers();
   }
 
+  /** Czy rampa prędkości doszła do prędkości docelowej. */
+  function isAtSpeedTarget() {
+    if (!state.enabled || !state.speedEnabled) return false;
+    const start = clampSpeed(state.speedStart);
+    const target = clampSpeed(state.speedTarget);
+    if (target === start) return false; // brak rampy = brak efektu
+    return Math.abs(currentSpeed - target) < 0.001;
+  }
+
+  function updateGlow() {
+    if (!panel) return;
+    panel.classList.toggle("ytloop-maxed", isAtSpeedTarget());
+  }
+
   function updateStatus() {
     const status = panel?.querySelector("#ytloop-status");
     if (!status) return;
     if (state.enabled && state.end != null) {
       let txt = `Pętla: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
-      if (state.speedEnabled) txt += ` · ${currentSpeed.toFixed(2)}x`;
+      if (state.speedEnabled) {
+        txt += ` · ${currentSpeed.toFixed(2)}x`;
+        if (isAtSpeedTarget()) txt += " ✓";
+      }
       status.textContent = txt;
       status.className = "ytloop-status active";
     } else if (state.start != null || state.end != null) {
@@ -400,6 +423,7 @@
       status.textContent = "Ustaw początek i koniec fragmentu.";
       status.className = "ytloop-status";
     }
+    updateGlow();
   }
 
   function wirePanel() {
@@ -471,7 +495,7 @@
 
     const commitSpeedStart = () => {
       const v = parseNum(speedStartInput.value);
-      state.speedStart = !isNaN(v) ? clampSpeed(v) : 1;
+      state.speedStart = !isNaN(v) ? clampSpeed(v) : 0.65;
       if (state.speedEnabled) {
         resetSpeed();
         if (state.enabled) applySpeed();
@@ -481,13 +505,13 @@
     };
     const commitSpeedTarget = () => {
       const v = parseNum(speedTargetInput.value);
-      state.speedTarget = !isNaN(v) ? clampSpeed(v) : 1.5;
+      state.speedTarget = !isNaN(v) ? clampSpeed(v) : 1;
       saveState();
       syncInputs();
     };
     const commitSpeedStep = () => {
       const v = parseNum(speedStepInput.value);
-      state.speedStep = !isNaN(v) && v > 0 ? v : 0.1;
+      state.speedStep = !isNaN(v) && v > 0 ? v : 0.05;
       saveState();
       syncInputs();
     };
@@ -594,7 +618,7 @@
     btn.id = BTN_ID;
     btn.className = "ytp-button ytloop-ytp-button";
     btn.title = "Pętla fragmentu (YouTube Loop)";
-    btn.textContent = "🔁";
+    btn.innerHTML = LOOP_SVG;
     btn.addEventListener("click", () => {
       if (!panel) mountPanel();
       if (!panel) return;
@@ -649,9 +673,9 @@
       state.end = saved?.end ?? null;
       state.enabled = saved?.enabled ?? false;
       state.speedEnabled = saved?.speedEnabled ?? false;
-      state.speedStart = saved?.speedStart ?? 1;
-      state.speedTarget = saved?.speedTarget ?? 1.5;
-      state.speedStep = saved?.speedStep ?? 0.1;
+      state.speedStart = saved?.speedStart ?? 0.65;
+      state.speedTarget = saved?.speedTarget ?? 1;
+      state.speedStep = saved?.speedStep ?? 0.05;
       resetSpeed();
       if (state.enabled && state.speedEnabled) applySpeed();
       syncInputs();
