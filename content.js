@@ -32,6 +32,7 @@
   let tailTimer = null;
   let currentSpeed = 1; // aktualna prędkość bieżącej sesji pętli
   let applyingSpeed = false; // strażnik przed pętlą zdarzeń ratechange
+  let desiredPlayState = null; // "play" | "pause" - wymuszane po naciśnięciu spacji
 
   // ---------- Pomocnicze: czas ----------
 
@@ -169,6 +170,49 @@
     }
     video.currentTime = state.start != null ? state.start : 0;
     if (video.paused) video.play().catch(() => {});
+  }
+
+  /** Skok na początek fragmentu + odtwarzanie od prędkości początkowej. */
+  function gotoStartAndPlay() {
+    if (!video) return;
+    cancelTail();
+    resetSpeed();
+    if (state.speedEnabled) applySpeed();
+    video.currentTime = state.start != null ? state.start : 0;
+    video.play().catch(() => {});
+    syncInputs();
+  }
+
+  /** Wymuś docelowy stan play/pause przez kilka klatek, by pobić handler YT. */
+  function enforceDesiredState() {
+    let tries = 0;
+    const enforce = () => {
+      if (!video || desiredPlayState == null) return;
+      if (desiredPlayState === "pause" && !video.paused) video.pause();
+      if (desiredPlayState === "play" && video.paused)
+        video.play().catch(() => {});
+      if (++tries < 6) setTimeout(enforce, 40);
+      else desiredPlayState = null;
+    };
+    enforce();
+  }
+
+  /** Spacja: jeśli gra -> stop + reset prędkości; jeśli stoi -> od początku. */
+  function toggleLoopPlayback() {
+    if (!video) return;
+    cancelTail();
+    if (!video.paused) {
+      // Gra -> stop. Prędkość zostaje (widoczna w UI), reset dopiero przy starcie.
+      desiredPlayState = "pause";
+    } else {
+      // Stoi -> od początku fragmentu, prędkość początkowa.
+      desiredPlayState = "play";
+      resetSpeed();
+      if (state.speedEnabled) applySpeed();
+      video.currentTime = state.start != null ? state.start : 0;
+    }
+    enforceDesiredState();
+    syncInputs();
   }
 
   function cancelTail() {
@@ -482,10 +526,7 @@
     );
 
     panel.querySelector("#ytloop-goto-start").addEventListener("click", () => {
-      if (video && state.start != null) {
-        video.currentTime = state.start;
-        video.play().catch(() => {});
-      }
+      gotoStartAndPlay();
     });
     panel.querySelector("#ytloop-clear").addEventListener("click", () => {
       state.start = null;
@@ -638,6 +679,30 @@
   // YouTube to SPA - nasłuchuj zmian nawigacji.
   window.addEventListener("yt-navigate-finish", () => setTimeout(init, 300));
   document.addEventListener("yt-navigate-finish", () => setTimeout(init, 300));
+
+  // Spacja steruje pętlą (gdy pętla aktywna). Przechwytujemy na window w fazie
+  // capture (najwcześniej), żeby ubiec natywny skrót YouTube.
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (e.code !== "Space" && e.key !== " ") return;
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+      if (!location.pathname.startsWith("/watch")) return;
+      const t = e.target;
+      if (
+        t &&
+        (t.tagName === "INPUT" ||
+          t.tagName === "TEXTAREA" ||
+          t.isContentEditable)
+      )
+        return;
+      if (!video || !state.enabled || state.start == null) return;
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      toggleLoopPlayback();
+    },
+    true
+  );
 
   // Obserwuj DOM dopóki kluczowe elementy się nie pojawią (pierwsze wejście).
   const observer = new MutationObserver(() => {
