@@ -765,6 +765,7 @@
     }
     if (!document.body) return;
     panel = buildPanel();
+    panel.style.display = "none"; // closed by default; opened via the player icon
     document.body.appendChild(panel);
     wirePanel();
     syncInputs();
