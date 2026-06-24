@@ -28,6 +28,7 @@
   };
 
   const GLOBAL_KEY = "ytloop:settings";
+  const SAVED_KEY = "ytloop:saved";
   const DEFAULT_TAIL = 1;
   const SPEED_MIN = 0.25;
   const SPEED_MAX = 2;
@@ -127,6 +128,114 @@
       return;
     }
     chrome.storage.local.get(GLOBAL_KEY, (res) => cb(res ? res[GLOBAL_KEY] : null));
+  }
+
+  // ---------- Saved videos list ----------
+
+  function loadSavedList(cb) {
+    if (!chrome?.storage?.local) {
+      cb([]);
+      return;
+    }
+    chrome.storage.local.get(SAVED_KEY, (res) =>
+      cb((res && res[SAVED_KEY]) || [])
+    );
+  }
+
+  function writeSavedList(list, cb) {
+    if (!chrome?.storage?.local) {
+      cb && cb();
+      return;
+    }
+    chrome.storage.local.set({ [SAVED_KEY]: list }, cb || (() => {}));
+  }
+
+  /** Best-effort video title from the watch page. */
+  function getVideoTitle() {
+    const h = document.querySelector(
+      "ytd-watch-metadata #title h1, #title h1.ytd-watch-metadata, h1.ytd-watch-metadata"
+    );
+    let t = h && h.textContent ? h.textContent.trim() : "";
+    if (!t) t = (document.title || "").replace(/\s*-\s*YouTube\s*$/, "").trim();
+    return t || state.videoId || "(no title)";
+  }
+
+  /** Snapshot of the current per-video settings + identifying info. */
+  function currentSnapshot() {
+    return {
+      videoId: state.videoId,
+      title: getVideoTitle(),
+      start: state.start,
+      end: state.end,
+      enabled: state.enabled,
+      speedEnabled: state.speedEnabled,
+      speedStart: state.speedStart,
+      speedTarget: state.speedTarget,
+      speedStep: state.speedStep,
+      savedAt: Date.now(),
+    };
+  }
+
+  /** Add/update the current video in the saved list. */
+  function saveCurrentToList() {
+    if (!state.videoId) return;
+    const entry = currentSnapshot();
+    loadSavedList((list) => {
+      const i = list.findIndex((e) => e.videoId === entry.videoId);
+      if (i >= 0) list[i] = entry;
+      else list.unshift(entry);
+      writeSavedList(list, renderSavedList);
+    });
+  }
+
+  function removeSaved(videoId) {
+    loadSavedList((list) => {
+      writeSavedList(
+        list.filter((e) => e.videoId !== videoId),
+        renderSavedList
+      );
+    });
+  }
+
+  /** Apply a saved snapshot to the current (already matching) video. */
+  function applySnapshot(e) {
+    state.start = e.start ?? null;
+    state.end = e.end ?? null;
+    state.enabled = e.enabled ?? false;
+    state.speedEnabled = e.speedEnabled ?? false;
+    state.speedStart = e.speedStart ?? 0.65;
+    state.speedTarget = e.speedTarget ?? 1;
+    state.speedStep = e.speedStep ?? 0.05;
+    cancelTail();
+    resetSpeed();
+    if (state.enabled && state.speedEnabled) applySpeed();
+    saveState();
+    syncInputs();
+  }
+
+  /** Load a saved entry; navigate to its video first if not already there. */
+  function loadEntry(e) {
+    if (e.videoId === state.videoId) {
+      applySnapshot(e);
+      setDrawerOpen(false);
+      return;
+    }
+    const settings = {
+      start: e.start,
+      end: e.end,
+      enabled: e.enabled,
+      speedEnabled: e.speedEnabled,
+      speedStart: e.speedStart,
+      speedTarget: e.speedTarget,
+      speedStep: e.speedStep,
+    };
+    const go = () => {
+      location.href =
+        "https://www.youtube.com/watch?v=" + encodeURIComponent(e.videoId);
+    };
+    if (chrome?.storage?.local)
+      chrome.storage.local.set({ [storageKey(e.videoId)]: settings }, go);
+    else go();
   }
 
   // ---------- Playback speed ----------
@@ -335,11 +444,11 @@
         </label>
         <div class="ytloop-row" id="ytloop-speed-fields">
           <div class="ytloop-field">
-            <label>Start</label>
+            <label>Start speed</label>
             <input type="text" id="ytloop-speed-start" autocomplete="off" inputmode="decimal">
           </div>
           <div class="ytloop-field">
-            <label>Target</label>
+            <label>Target speed</label>
             <input type="text" id="ytloop-speed-target" autocomplete="off" inputmode="decimal">
           </div>
           <div class="ytloop-field">
@@ -352,6 +461,10 @@
       <div class="ytloop-actions">
         <button id="ytloop-goto-start" class="ytloop-secondary">⏮ To start</button>
         <button id="ytloop-clear" class="ytloop-secondary">✕ Clear</button>
+      </div>
+      <div class="ytloop-actions">
+        <button id="ytloop-save" class="ytloop-secondary">★ Save</button>
+        <button id="ytloop-open-saved" class="ytloop-secondary">☰ Saved</button>
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
     `;
@@ -563,6 +676,17 @@
       setPanelVisible(false);
     });
 
+    panel.querySelector("#ytloop-save").addEventListener("click", (e) => {
+      saveCurrentToList();
+      const b = e.currentTarget;
+      const prev = b.textContent;
+      b.textContent = "★ Saved!";
+      setTimeout(() => (b.textContent = prev), 1200);
+    });
+    panel.querySelector("#ytloop-open-saved").addEventListener("click", () => {
+      setDrawerOpen(true);
+    });
+
     enableDrag(panel.querySelector("#ytloop-drag"), panel);
   }
 
@@ -646,6 +770,102 @@
     syncInputs();
   }
 
+  // ---------- Saved videos drawer ----------
+
+  function mountDrawer() {
+    if (!document.body || document.getElementById("ytloop-drawer")) return;
+
+    const handle = document.createElement("button");
+    handle.id = "ytloop-drawer-handle";
+    handle.title = "Saved videos";
+    handle.innerHTML = "<span>★ Saved</span>";
+    handle.addEventListener("click", toggleDrawer);
+    document.body.appendChild(handle);
+
+    const d = document.createElement("div");
+    d.id = "ytloop-drawer";
+    d.innerHTML =
+      '<div class="ytloop-drawer-head">' +
+      "<span>★ Saved videos</span>" +
+      '<button id="ytloop-drawer-close" class="ytloop-close" title="Close">✕</button>' +
+      "</div>" +
+      '<ul id="ytloop-drawer-list"></ul>';
+    document.body.appendChild(d);
+    d.querySelector("#ytloop-drawer-close").addEventListener("click", () =>
+      setDrawerOpen(false)
+    );
+    renderSavedList();
+  }
+
+  function setDrawerOpen(open) {
+    const d = document.getElementById("ytloop-drawer");
+    if (!d) return;
+    d.classList.toggle("open", open);
+    if (open) renderSavedList();
+  }
+
+  function toggleDrawer() {
+    const d = document.getElementById("ytloop-drawer");
+    if (d) setDrawerOpen(!d.classList.contains("open"));
+  }
+
+  function updateSavedCount(n) {
+    const b = panel && panel.querySelector("#ytloop-open-saved");
+    if (b) b.textContent = `☰ Saved (${n})`;
+  }
+
+  function renderSavedList() {
+    const ul = document.getElementById("ytloop-drawer-list");
+    loadSavedList((list) => {
+      updateSavedCount(list.length);
+      if (!ul) return;
+      ul.innerHTML = "";
+      if (!list.length) {
+        const li = document.createElement("li");
+        li.className = "ytloop-empty";
+        li.textContent = "No saved videos yet.";
+        ul.appendChild(li);
+        return;
+      }
+      for (const e of list) {
+        const li = document.createElement("li");
+        li.className = "ytloop-saved-item";
+        if (e.videoId === state.videoId) li.classList.add("current");
+        const range =
+          e.start != null || e.end != null
+            ? `${fmt(e.start ?? 0)} – ${fmt(e.end)}`
+            : "no range";
+        const spd = e.speedEnabled
+          ? ` · ${Number(e.speedStart).toFixed(2)}→${Number(
+              e.speedTarget
+            ).toFixed(2)}x`
+          : "";
+        const main = document.createElement("div");
+        main.className = "ytloop-saved-main";
+        const title = document.createElement("div");
+        title.className = "ytloop-saved-title";
+        title.textContent = e.title || e.videoId;
+        const sub = document.createElement("div");
+        sub.className = "ytloop-saved-sub";
+        sub.textContent = range + spd;
+        main.appendChild(title);
+        main.appendChild(sub);
+        main.addEventListener("click", () => loadEntry(e));
+        const del = document.createElement("button");
+        del.className = "ytloop-saved-del";
+        del.title = "Remove";
+        del.textContent = "✕";
+        del.addEventListener("click", (ev) => {
+          ev.stopPropagation();
+          removeSaved(e.videoId);
+        });
+        li.appendChild(main);
+        li.appendChild(del);
+        ul.appendChild(li);
+      }
+    });
+  }
+
   // ---------- Initialization / SPA navigation ----------
 
   function attachVideo() {
@@ -682,20 +902,24 @@
 
   function init() {
     if (!location.pathname.startsWith("/watch")) {
-      // Remove the panel outside of a video page.
+      // Remove the panel and drawer outside of a video page.
       document.getElementById(PANEL_ID)?.remove();
       document.getElementById("ytloop-markers")?.remove();
+      document.getElementById("ytloop-drawer")?.remove();
+      document.getElementById("ytloop-drawer-handle")?.remove();
       panel = null;
       return;
     }
     attachVideo();
     mountPanel();
     injectPlayerButton();
+    mountDrawer();
     loadGlobalSettings((g) => {
       state.tail = g && typeof g.tail === "number" ? g.tail : DEFAULT_TAIL;
       syncInputs();
     });
     loadForCurrentVideo();
+    renderSavedList();
   }
 
   // YouTube is a SPA - listen for navigation changes.
