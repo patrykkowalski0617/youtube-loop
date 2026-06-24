@@ -1,5 +1,5 @@
 /* YouTube Loop - content script
- * Pozwala wyznaczyć początek i koniec pętli i odtwarzać fragment filmu w kółko.
+ * Lets you mark the start and end of a loop and replay a video segment over and over.
  */
 (() => {
   "use strict";
@@ -7,24 +7,24 @@
   const PANEL_ID = "ytloop-panel";
   const BTN_ID = "ytloop-toggle-btn";
 
-  // Monochromatyczna ikona pętli (dziedziczy currentColor).
+  // Monochrome loop icon (inherits currentColor).
   const LOOP_SVG =
     '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +
     '<path fill="currentColor" d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/>' +
     "</svg>";
 
-  /** Stan dla aktualnego filmu. */
+  /** State for the current video. */
   const state = {
-    start: null, // sekundy lub null
-    end: null, // sekundy lub null
+    start: null, // seconds or null
+    end: null, // seconds or null
     enabled: false,
     videoId: null,
-    tail: 1, // sekundy pauzy między odtworzeniami (ustawienie globalne)
-    // Stopniowa zmiana prędkości (per film):
+    tail: 1, // pause in seconds between replays (global setting)
+    // Gradual speed change (per video):
     speedEnabled: false,
-    speedStart: 0.65, // prędkość pierwszej pętli
-    speedTarget: 1, // prędkość docelowa
-    speedStep: 0.05, // o ile zmienić co pętlę
+    speedStart: 0.65, // speed of the first loop
+    speedTarget: 1, // target speed
+    speedStep: 0.05, // how much to change each loop
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -34,15 +34,15 @@
 
   let video = null;
   let panel = null;
-  let inTail = false; // czy trwa pauza między odtworzeniami
+  let inTail = false; // whether a pause between replays is in progress
   let tailTimer = null;
-  let currentSpeed = 1; // aktualna prędkość bieżącej sesji pętli
-  let applyingSpeed = false; // strażnik przed pętlą zdarzeń ratechange
-  let desiredPlayState = null; // "play" | "pause" - wymuszane po naciśnięciu spacji
+  let currentSpeed = 1; // current speed of the active loop session
+  let applyingSpeed = false; // guard against a ratechange event loop
+  let desiredPlayState = null; // "play" | "pause" - enforced after pressing space
 
-  // ---------- Pomocnicze: czas ----------
+  // ---------- Helpers: time ----------
 
-  /** Sekundy -> "m:ss" lub "h:mm:ss". */
+  /** Seconds -> "m:ss" or "h:mm:ss". */
   function fmt(sec) {
     if (sec == null || isNaN(sec)) return "--:--";
     sec = Math.max(0, Math.floor(sec));
@@ -53,7 +53,7 @@
     return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
   }
 
-  /** "1:23" / "1:02:03" / "83" / "83.5" -> sekundy (number) lub null. */
+  /** "1:23" / "1:02:03" / "83" / "83.5" -> seconds (number) or null. */
   function parseTime(str) {
     if (str == null) return null;
     str = String(str).trim();
@@ -69,7 +69,7 @@
     return isNaN(n) ? null : n;
   }
 
-  // ---------- Wideo ----------
+  // ---------- Video ----------
 
   function getVideo() {
     return document.querySelector(
@@ -85,7 +85,7 @@
     }
   }
 
-  // ---------- Trwałość (per film) ----------
+  // ---------- Persistence (per video) ----------
 
   function storageKey(id) {
     return "ytloop:" + id;
@@ -129,20 +129,18 @@
     chrome.storage.local.get(GLOBAL_KEY, (res) => cb(res ? res[GLOBAL_KEY] : null));
   }
 
-  // ---------- Logika pętli ----------
-
-  // ---------- Prędkość odtwarzania ----------
+  // ---------- Playback speed ----------
 
   function clampSpeed(v) {
     return Math.min(SPEED_MAX, Math.max(SPEED_MIN, v));
   }
 
-  /** Ustaw prędkość bieżącej sesji na początkową. */
+  /** Reset the current session speed to the start speed. */
   function resetSpeed() {
     currentSpeed = clampSpeed(state.speedStart);
   }
 
-  /** Wymuś prędkość na elemencie wideo (z ochroną przed pętlą zdarzeń). */
+  /** Force the speed on the video element (guarded against an event loop). */
   function applySpeed() {
     if (!video) return;
     applyingSpeed = true;
@@ -153,7 +151,7 @@
     updateStatus();
   }
 
-  /** Zwiększ/zmniejsz prędkość o krok w stronę celu (z zatrzymaniem na celu). */
+  /** Step the speed toward the target by one step (stopping at the target). */
   function stepSpeed() {
     const start = clampSpeed(state.speedStart);
     const target = clampSpeed(state.speedTarget);
@@ -178,7 +176,7 @@
     if (video.paused) video.play().catch(() => {});
   }
 
-  /** Skok na początek fragmentu + odtwarzanie od prędkości początkowej. */
+  /** Jump to the segment start + play from the start speed. */
   function gotoStartAndPlay() {
     if (!video) return;
     cancelTail();
@@ -189,7 +187,7 @@
     syncInputs();
   }
 
-  /** Wymuś docelowy stan play/pause przez kilka klatek, by pobić handler YT. */
+  /** Enforce the desired play/pause state for a few frames to beat YT's handler. */
   function enforceDesiredState() {
     let tries = 0;
     const enforce = () => {
@@ -203,15 +201,15 @@
     enforce();
   }
 
-  /** Spacja: jeśli gra -> stop + reset prędkości; jeśli stoi -> od początku. */
+  /** Space: if playing -> stop + reset speed; if stopped -> from the start. */
   function toggleLoopPlayback() {
     if (!video) return;
     cancelTail();
     if (!video.paused) {
-      // Gra -> stop. Prędkość zostaje (widoczna w UI), reset dopiero przy starcie.
+      // Playing -> stop. Speed stays (visible in the UI), reset only on start.
       desiredPlayState = "pause";
     } else {
-      // Stoi -> od początku fragmentu, prędkość początkowa.
+      // Stopped -> from the segment start, start speed.
       desiredPlayState = "play";
       resetSpeed();
       if (state.speedEnabled) applySpeed();
@@ -233,7 +231,7 @@
     if (!state.enabled || !video || inTail) return;
     const { start, end } = state;
     if (end == null) return;
-    // Gdy przekroczymy koniec -> przerwa (tail), potem wróć do początku.
+    // When we pass the end -> pause (tail), then return to the start.
     if (video.currentTime >= end - 0.05) {
       const tail = state.tail > 0 ? state.tail : 0;
       if (tail > 0) {
@@ -248,12 +246,12 @@
         restartLoop();
       }
     } else if (start != null && video.currentTime < start - 0.5) {
-      // Jeśli użytkownik przewinął przed początek, podciągnij do startu.
+      // If the user scrubbed before the start, pull back to the start.
       video.currentTime = start;
     }
   }
 
-  // ---------- Markery na pasku postępu ----------
+  // ---------- Markers on the progress bar ----------
 
   function updateMarkers() {
     const bar = document.querySelector(".ytp-progress-bar");
@@ -297,34 +295,34 @@
     el.id = PANEL_ID;
     el.innerHTML = `
       <div class="ytloop-header" id="ytloop-drag">
-        <span class="ytloop-title"><span class="ytloop-title-icon">${LOOP_SVG}</span>Pętla fragmentu</span>
+        <span class="ytloop-title"><span class="ytloop-title-icon">${LOOP_SVG}</span>Loop segment</span>
         <div class="ytloop-header-right">
           <label class="ytloop-switch">
             <input type="checkbox" id="ytloop-enable">
-            <span>Włącz</span>
+            <span>Enable</span>
           </label>
-          <button id="ytloop-close" class="ytloop-close" title="Ukryj panel">✕</button>
+          <button id="ytloop-close" class="ytloop-close" title="Hide panel">✕</button>
         </div>
       </div>
       <div class="ytloop-row">
         <div class="ytloop-field">
-          <label>Początek</label>
+          <label>Start</label>
           <div class="ytloop-input-group">
             <input type="text" id="ytloop-start" placeholder="0:00" autocomplete="off">
-            <button id="ytloop-set-start" title="Ustaw na aktualny czas">⏱ Teraz</button>
+            <button id="ytloop-set-start" title="Set to current time">⏱ Now</button>
           </div>
         </div>
         <div class="ytloop-field">
-          <label>Koniec</label>
+          <label>End</label>
           <div class="ytloop-input-group">
             <input type="text" id="ytloop-end" placeholder="0:00" autocomplete="off">
-            <button id="ytloop-set-end" title="Ustaw na aktualny czas">⏱ Teraz</button>
+            <button id="ytloop-set-end" title="Set to current time">⏱ Now</button>
           </div>
         </div>
       </div>
       <div class="ytloop-row">
         <div class="ytloop-field">
-          <label>Przerwa między pętlami (s)</label>
+          <label>Gap between loops (s)</label>
           <div class="ytloop-input-group">
             <input type="text" id="ytloop-tail" placeholder="1" autocomplete="off" inputmode="decimal">
           </div>
@@ -333,27 +331,27 @@
       <div class="ytloop-speed">
         <label class="ytloop-switch ytloop-speed-toggle">
           <input type="checkbox" id="ytloop-speed-enable">
-          <span>Stopniowo zmieniaj prędkość</span>
+          <span>Gradually change speed</span>
         </label>
         <div class="ytloop-row" id="ytloop-speed-fields">
           <div class="ytloop-field">
-            <label>Początkowa</label>
+            <label>Start</label>
             <input type="text" id="ytloop-speed-start" autocomplete="off" inputmode="decimal">
           </div>
           <div class="ytloop-field">
-            <label>Docelowa</label>
+            <label>Target</label>
             <input type="text" id="ytloop-speed-target" autocomplete="off" inputmode="decimal">
           </div>
           <div class="ytloop-field">
-            <label>Krok</label>
+            <label>Step</label>
             <input type="text" id="ytloop-speed-step" autocomplete="off" inputmode="decimal">
           </div>
         </div>
-        <div class="ytloop-hint">Zakres 0.25–2x (jak YouTube).</div>
+        <div class="ytloop-hint">Range 0.25–2x (same as YouTube).</div>
       </div>
       <div class="ytloop-actions">
-        <button id="ytloop-goto-start" class="ytloop-secondary">⏮ Do początku</button>
-        <button id="ytloop-clear" class="ytloop-secondary">✕ Wyczyść</button>
+        <button id="ytloop-goto-start" class="ytloop-secondary">⏮ To start</button>
+        <button id="ytloop-clear" class="ytloop-secondary">✕ Clear</button>
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
     `;
@@ -391,12 +389,12 @@
     updateMarkers();
   }
 
-  /** Czy rampa prędkości doszła do prędkości docelowej. */
+  /** Whether the speed ramp has reached the target speed. */
   function isAtSpeedTarget() {
     if (!state.enabled || !state.speedEnabled) return false;
     const start = clampSpeed(state.speedStart);
     const target = clampSpeed(state.speedTarget);
-    if (target === start) return false; // brak rampy = brak efektu
+    if (target === start) return false; // no ramp = no effect
     return Math.abs(currentSpeed - target) < 0.001;
   }
 
@@ -409,7 +407,7 @@
     const status = panel?.querySelector("#ytloop-status");
     if (!status) return;
     if (state.enabled && state.end != null) {
-      let txt = `Pętla: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
+      let txt = `Loop: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
       if (state.speedEnabled) {
         txt += ` · ${currentSpeed.toFixed(2)}x`;
         if (isAtSpeedTarget()) txt += " ✓";
@@ -417,10 +415,10 @@
       status.textContent = txt;
       status.className = "ytloop-status active";
     } else if (state.start != null || state.end != null) {
-      status.textContent = "Pętla wyłączona (zaznacz „Włącz”)";
+      status.textContent = "Loop disabled (toggle “Enable”)";
       status.className = "ytloop-status";
     } else {
-      status.textContent = "Ustaw początek i koniec fragmentu.";
+      status.textContent = "Set the start and end of the segment.";
       status.className = "ytloop-status";
     }
     updateGlow();
@@ -470,7 +468,7 @@
       saveState();
       syncInputs();
     };
-    // --- Prędkość ---
+    // --- Speed ---
     const speedEnable = panel.querySelector("#ytloop-speed-enable");
     const speedStartInput = panel.querySelector("#ytloop-speed-start");
     const speedTargetInput = panel.querySelector("#ytloop-speed-target");
@@ -545,7 +543,7 @@
     [startInput, endInput, tailInput].forEach((inp) =>
       inp.addEventListener("keydown", (e) => {
         if (e.key === "Enter") inp.blur();
-        e.stopPropagation(); // nie wyzwalaj skrótów YouTube
+        e.stopPropagation(); // do not trigger YouTube shortcuts
       })
     );
 
@@ -568,7 +566,7 @@
     enableDrag(panel.querySelector("#ytloop-drag"), panel);
   }
 
-  // ---------- Widoczność i przeciąganie ----------
+  // ---------- Visibility and dragging ----------
 
   function setPanelVisible(visible) {
     if (!panel) return;
@@ -587,7 +585,7 @@
     let offX = 0;
     let offY = 0;
     handle.addEventListener("mousedown", (e) => {
-      // Nie przeciągaj, gdy klikamy w kontrolki w nagłówku.
+      // Do not drag when clicking the controls in the header.
       if (e.target.closest("input, button, label")) return;
       dragging = true;
       const rect = target.getBoundingClientRect();
@@ -609,7 +607,7 @@
     });
   }
 
-  // ---------- Przycisk w pasku odtwarzacza ----------
+  // ---------- Button in the player control bar ----------
 
   function injectPlayerButton() {
     const controls = document.querySelector(".ytp-right-controls");
@@ -617,7 +615,7 @@
     const btn = document.createElement("button");
     btn.id = BTN_ID;
     btn.className = "ytp-button ytloop-ytp-button";
-    btn.title = "Pętla fragmentu (YouTube Loop)";
+    btn.title = "Loop segment (YouTube Loop)";
     btn.innerHTML = LOOP_SVG;
     btn.addEventListener("click", () => {
       if (!panel) mountPanel();
@@ -633,7 +631,7 @@
     btn.classList.toggle("ytloop-active", isPanelVisible());
   }
 
-  // ---------- Montaż panelu ----------
+  // ---------- Mounting the panel ----------
 
   function mountPanel() {
     const existing = document.getElementById(PANEL_ID);
@@ -648,7 +646,7 @@
     syncInputs();
   }
 
-  // ---------- Inicjalizacja / nawigacja SPA ----------
+  // ---------- Initialization / SPA navigation ----------
 
   function attachVideo() {
     const v = getVideo();
@@ -657,7 +655,7 @@
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("loadedmetadata", () => updateMarkers());
       video.addEventListener("ratechange", () => {
-        // Gdy aktywny tryb prędkości, przywróć naszą wartość po resecie YT.
+        // When speed mode is active, restore our value after a YT reset.
         if (!state.enabled || !state.speedEnabled || applyingSpeed) return;
         if (Math.abs(video.playbackRate - currentSpeed) > 0.001) applySpeed();
       });
@@ -684,7 +682,7 @@
 
   function init() {
     if (!location.pathname.startsWith("/watch")) {
-      // Usuń panel poza stroną filmu.
+      // Remove the panel outside of a video page.
       document.getElementById(PANEL_ID)?.remove();
       document.getElementById("ytloop-markers")?.remove();
       panel = null;
@@ -700,12 +698,12 @@
     loadForCurrentVideo();
   }
 
-  // YouTube to SPA - nasłuchuj zmian nawigacji.
+  // YouTube is a SPA - listen for navigation changes.
   window.addEventListener("yt-navigate-finish", () => setTimeout(init, 300));
   document.addEventListener("yt-navigate-finish", () => setTimeout(init, 300));
 
-  // Spacja steruje pętlą (gdy pętla aktywna). Przechwytujemy na window w fazie
-  // capture (najwcześniej), żeby ubiec natywny skrót YouTube.
+  // Space controls the loop (when the loop is active). We capture on window in the
+  // capture phase (earliest) to beat YouTube's native shortcut.
   window.addEventListener(
     "keydown",
     (e) => {
@@ -728,14 +726,14 @@
     true
   );
 
-  // Obserwuj DOM dopóki kluczowe elementy się nie pojawią (pierwsze wejście).
+  // Watch the DOM until the key elements appear (first entry).
   const observer = new MutationObserver(() => {
     if (!location.pathname.startsWith("/watch")) return;
     if (!getVideo() || !document.getElementById(PANEL_ID)) init();
   });
   observer.observe(document.documentElement, { childList: true, subtree: true });
 
-  // Pętla aktualizacji markerów (lekka).
+  // Lightweight marker update loop.
   function tick() {
     if (panel && state.enabled) updateMarkers();
     requestAnimationFrame(() => setTimeout(tick, 500));

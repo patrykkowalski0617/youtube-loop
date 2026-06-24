@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "YouTube Loop",
-  "version": "1.2.6",
-  "description": "Zdefiniuj początek i koniec pętli na filmie YouTube i odtwarzaj wybrany fragment w kółko.",
+  "version": "1.2.7",
+  "description": "Mark the start and end of a loop on a YouTube video and replay the chosen segment over and over.",
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

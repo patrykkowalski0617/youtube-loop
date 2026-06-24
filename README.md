@@ -1,47 +1,58 @@
 # YouTube Loop 🔁
 
-Wtyczka do przeglądarki (Chrome / Edge / Brave – Manifest V3), która pozwala
-zdefiniować **początek** i **koniec** pętli na filmie YouTube i odtwarzać
-wybrany fragment w kółko.
+A browser extension (Chrome / Edge / Brave / Opera — Manifest V3) that lets you
+mark the **start** and **end** of a loop on a YouTube video and replay the chosen
+segment over and over.
 
-## Funkcje
+## Features
 
-- Ustawianie początku i końca pętli przyciskiem **⏱ Teraz** (bierze aktualny czas
-  filmu) lub ręcznie w polu tekstowym (format `m:ss`, `h:mm:ss` albo same sekundy).
-- Włącznik pętli – po dojściu do końca film automatycznie wraca do początku.
-- Przerwa („tail") między kolejnymi odtworzeniami – domyślnie 1 s, edytowalna,
-  zapisywana globalnie.
-- Stopniowa zmiana prędkości – opcjonalnie każda kolejna pętla jest szybsza
-  (lub wolniejsza) o zadany krok, od prędkości początkowej do docelowej
-  (zakres 0.25–2x); ustawienia zapisywane osobno dla każdego filmu.
-- Markery zaznaczające fragment na pasku postępu odtwarzacza.
-- Przycisk 🔁 w pasku odtwarzacza, który przewija do panelu sterowania.
-- Ustawienia zapamiętywane osobno dla każdego filmu (`chrome.storage.local`).
-- Działa z nawigacją SPA YouTube (zmiana filmu bez przeładowania strony).
+- Set the start and end of the loop with the **⏱ Now** button (grabs the current
+  video time) or type them manually (`m:ss`, `h:mm:ss`, or plain seconds).
+- Loop toggle — when the video reaches the end it automatically jumps back to the
+  start.
+- **Gap ("tail") between replays** — a pause between consecutive loops, 1 s by
+  default, editable, stored globally.
+- **Gradual speed change** — optionally each loop gets faster (or slower) by a
+  given step, from a start speed to a target speed (range 0.25–2x); stored per
+  video. When the target is reached the panel lights up with an animated ember
+  glow and an orbiting reflection.
+- **Spacebar control** (while the loop is active): if the video is playing, space
+  stops it (the current speed stays, visible in the UI); if it is stopped, space
+  jumps to the segment start and plays from the start speed.
+- Markers highlighting the segment on the player's progress bar.
+- A 🔁 button in the player control bar that toggles the control panel.
+- A draggable floating panel; settings remembered per video
+  (`chrome.storage.local`).
+- Works with YouTube's SPA navigation (switching videos without a page reload).
 
-## Instalacja (tryb deweloperski)
+## Installation (developer mode)
 
-1. Otwórz `chrome://extensions` (lub `edge://extensions`).
-2. Włącz **Tryb dewelopera** (Developer mode) w prawym górnym rogu.
-3. Kliknij **Wczytaj rozpakowane** (Load unpacked) i wskaż ten folder.
-4. Wejdź na dowolny film: `https://www.youtube.com/watch?v=...`.
+1. Open `chrome://extensions` (or `edge://extensions`, `brave://extensions`,
+   `opera://extensions`).
+2. Enable **Developer mode** (top-right corner).
+3. Click **Load unpacked** and select this folder.
+4. Open any video: `https://www.youtube.com/watch?v=...`.
 
-Panel „🔁 Pętla fragmentu" pojawi się pod odtwarzaczem.
+The floating "🔁 Loop segment" panel appears in the top-right corner.
 
-## Użycie
+## Usage
 
-1. Przewiń film do momentu, w którym pętla ma się zaczynać → kliknij
-   **⏱ Teraz** przy „Początek".
-2. Przewiń do końca fragmentu → kliknij **⏱ Teraz** przy „Koniec".
-   (Możesz też wpisać czasy ręcznie, np. `1:30` i `2:05`.)
-3. Zaznacz **Włącz**. Film będzie odtwarzał fragment w pętli.
+1. Scrub the video to where the loop should start → click **⏱ Now** next to
+   "Start".
+2. Scrub to the end of the segment → click **⏱ Now** next to "End".
+   (You can also type the times manually, e.g. `1:30` and `2:05`.)
+3. Turn on **Enable**. The video will replay the segment in a loop.
 
-- **⏮ Do początku** – skok na początek fragmentu.
-- **✕ Wyczyść** – kasuje ustawienia pętli dla bieżącego filmu.
+- **Gap between loops (s)** — pause between consecutive replays.
+- **Gradually change speed** — set Start / Target / Step to ramp the speed across
+  loops (defaults: start `0.65`, target `1`, step `0.05`).
+- **⏮ To start** — jump to the start of the segment (resets the speed).
+- **✕ Clear** — remove the loop settings for the current video.
+- **Space** — toggle stop / restart-from-start (see Features).
 
-## Pliki
+## Files
 
-- `manifest.json` – konfiguracja wtyczki (MV3).
-- `content.js` – logika pętli + panel sterowania, wstrzykiwane na stronie YT.
-- `content.css` – style panelu i markerów.
-- `icons/` – ikony wtyczki.
+- `manifest.json` — extension configuration (MV3).
+- `content.js` — loop logic + control panel, injected into the YouTube page.
+- `content.css` — panel and marker styles.
+- `icons/` — extension icons.
