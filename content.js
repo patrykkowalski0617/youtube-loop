@@ -150,12 +150,15 @@
     const el = document.createElement("div");
     el.id = PANEL_ID;
     el.innerHTML = `
-      <div class="ytloop-header">
+      <div class="ytloop-header" id="ytloop-drag">
         <span class="ytloop-title">🔁 Pętla fragmentu</span>
-        <label class="ytloop-switch">
-          <input type="checkbox" id="ytloop-enable">
-          <span>Włącz</span>
-        </label>
+        <div class="ytloop-header-right">
+          <label class="ytloop-switch">
+            <input type="checkbox" id="ytloop-enable">
+            <span>Włącz</span>
+          </label>
+          <button id="ytloop-close" class="ytloop-close" title="Ukryj panel">✕</button>
+        </div>
       </div>
       <div class="ytloop-row">
         <div class="ytloop-field">
@@ -275,6 +278,53 @@
       saveState();
       syncInputs();
     });
+
+    panel.querySelector("#ytloop-close").addEventListener("click", () => {
+      setPanelVisible(false);
+    });
+
+    enableDrag(panel.querySelector("#ytloop-drag"), panel);
+  }
+
+  // ---------- Widoczność i przeciąganie ----------
+
+  function setPanelVisible(visible) {
+    if (!panel) return;
+    panel.style.display = visible ? "block" : "none";
+    const btn = document.getElementById(BTN_ID);
+    if (btn) btn.classList.toggle("ytloop-active", visible);
+  }
+
+  function isPanelVisible() {
+    return panel && panel.style.display !== "none";
+  }
+
+  function enableDrag(handle, target) {
+    if (!handle) return;
+    let dragging = false;
+    let offX = 0;
+    let offY = 0;
+    handle.addEventListener("mousedown", (e) => {
+      // Nie przeciągaj, gdy klikamy w kontrolki w nagłówku.
+      if (e.target.closest("input, button, label")) return;
+      dragging = true;
+      const rect = target.getBoundingClientRect();
+      offX = e.clientX - rect.left;
+      offY = e.clientY - rect.top;
+      target.style.right = "auto";
+      target.style.bottom = "auto";
+      e.preventDefault();
+    });
+    window.addEventListener("mousemove", (e) => {
+      if (!dragging) return;
+      const x = Math.max(0, Math.min(window.innerWidth - 60, e.clientX - offX));
+      const y = Math.max(0, Math.min(window.innerHeight - 30, e.clientY - offY));
+      target.style.left = x + "px";
+      target.style.top = y + "px";
+    });
+    window.addEventListener("mouseup", () => {
+      dragging = false;
+    });
   }
 
   // ---------- Przycisk w pasku odtwarzacza ----------
@@ -288,27 +338,30 @@
     btn.title = "Pętla fragmentu (YouTube Loop)";
     btn.textContent = "🔁";
     btn.addEventListener("click", () => {
+      if (!panel) mountPanel();
       if (!panel) return;
-      panel.scrollIntoView({ behavior: "smooth", block: "center" });
-      panel.classList.add("ytloop-flash");
-      setTimeout(() => panel.classList.remove("ytloop-flash"), 900);
+      const show = !isPanelVisible();
+      setPanelVisible(show);
+      if (show) {
+        panel.classList.add("ytloop-flash");
+        setTimeout(() => panel.classList.remove("ytloop-flash"), 900);
+      }
     });
     controls.insertBefore(btn, controls.firstChild);
+    btn.classList.toggle("ytloop-active", isPanelVisible());
   }
 
   // ---------- Montaż panelu ----------
 
   function mountPanel() {
-    if (document.getElementById(PANEL_ID)) {
-      panel = document.getElementById(PANEL_ID);
+    const existing = document.getElementById(PANEL_ID);
+    if (existing) {
+      panel = existing;
       return;
     }
-    const playerContainer =
-      document.querySelector("#player.ytd-watch-flexy") ||
-      document.querySelector("#player");
-    if (!playerContainer || !playerContainer.parentElement) return;
+    if (!document.body) return;
     panel = buildPanel();
-    playerContainer.after(panel);
+    document.body.appendChild(panel);
     wirePanel();
     syncInputs();
   }
