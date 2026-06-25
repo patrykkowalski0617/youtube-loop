@@ -29,8 +29,7 @@
     speedTarget: 1, // target speed
     speedStep: 0.05, // how much to change each loop
     // Practice stats (per video, runtime mirror of ytloop:stat:<id>):
-    statSeconds: 0, // total played time = sum of completed loop lengths
-    statLoops: 0, // number of completed full loops
+    statSeconds: 0, // total played time = sum of real elapsed loop times
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -46,6 +45,9 @@
   let currentSpeed = 1; // current speed of the active loop session
   let applyingSpeed = false; // guard against a ratechange event loop
   let desiredPlayState = null; // "play" | "pause" - enforced after pressing space
+  let panelOpen = false; // remembered panel visibility (global)
+  let panelLeft = null; // remembered panel position (global)
+  let panelTop = null;
 
   // ---------- Helpers: time ----------
 
@@ -127,7 +129,14 @@
 
   function saveGlobalSettings() {
     if (!chrome?.storage?.local) return;
-    chrome.storage.local.set({ [GLOBAL_KEY]: { tail: state.tail } });
+    chrome.storage.local.set({
+      [GLOBAL_KEY]: {
+        tail: state.tail,
+        panelOpen: panelOpen,
+        panelLeft: panelLeft,
+        panelTop: panelTop,
+      },
+    });
   }
 
   function loadGlobalSettings(cb) {
@@ -146,18 +155,18 @@
 
   function loadStats(id, cb) {
     if (!id || !chrome?.storage?.local) {
-      cb({ seconds: 0, loops: 0 });
+      cb({ seconds: 0 });
       return;
     }
     chrome.storage.local.get(statKey(id), (res) => {
       const s = res && res[statKey(id)];
-      cb({ seconds: (s && s.seconds) || 0, loops: (s && s.loops) || 0 });
+      cb({ seconds: (s && s.seconds) || 0 });
     });
   }
 
-  function saveStats(id, seconds, loops) {
+  function saveStats(id, seconds) {
     if (!id || !chrome?.storage?.local) return;
-    chrome.storage.local.set({ [statKey(id)]: { seconds, loops } });
+    chrome.storage.local.set({ [statKey(id)]: { seconds } });
   }
 
   /** Record one completed full loop (real elapsed time = length / speed). */
@@ -167,9 +176,8 @@
     if (!(len > 0)) return;
     const rate = video && video.playbackRate > 0 ? video.playbackRate : 1;
     state.statSeconds += len / rate;
-    state.statLoops += 1;
-    saveStats(state.videoId, state.statSeconds, state.statLoops);
-    updateStatsWidget();
+    saveStats(state.videoId, state.statSeconds);
+    updateStatus();
   }
 
   // ---------- Saved videos list ----------
@@ -340,17 +348,6 @@
     }
     video.currentTime = state.start != null ? state.start : 0;
     if (video.paused) video.play().catch(() => {});
-  }
-
-  /** Jump to the segment start + play from the start speed. */
-  function gotoStartAndPlay() {
-    if (!video) return;
-    cancelTail();
-    resetSpeed();
-    if (speedActive()) applySpeed();
-    video.currentTime = state.start != null ? state.start : 0;
-    video.play().catch(() => {});
-    syncInputs();
   }
 
   /** Enforce the desired play/pause state for a few frames to beat YT's handler. */
@@ -537,7 +534,6 @@
         <button id="ytloop-open-saved" class="ytloop-secondary">☰ Saved</button>
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
-      <div class="ytloop-stat" id="ytloop-stat"></div>
     `;
     return el;
   }
@@ -576,7 +572,7 @@
     if (fields) fields.style.opacity = state.speedEnabled ? "1" : "0.45";
 
     updateStatus();
-    updateStatsWidget();
+    updateToggleButton();
     updateMarkers();
   }
 
@@ -594,38 +590,33 @@
     panel.classList.toggle("ytloop-maxed", isAtSpeedTarget());
   }
 
-  function updateStatsWidget() {
-    const el = panel && panel.querySelector("#ytloop-stat");
-    if (!el) return;
-    if (state.statSeconds > 0) {
-      el.textContent = `Total played: ${fmt(state.statSeconds)} · ${
-        state.statLoops
-      } loops`;
-      el.style.display = "block";
-    } else {
-      el.textContent = "";
-      el.style.display = "none";
-    }
+  function updateToggleButton() {
+    const b = panel && panel.querySelector("#ytloop-goto-start");
+    if (!b) return;
+    const playing = video && !video.paused;
+    b.textContent = playing ? "⏹ Stop" : "⏮ To start";
   }
 
   function updateStatus() {
     const status = panel?.querySelector("#ytloop-status");
     if (!status) return;
+    let txt;
+    let active = false;
     if (state.enabled && state.end != null) {
-      let txt = `Loop: ${fmt(state.start ?? 0)} – ${fmt(state.end)}`;
+      txt = "Loop active";
       if (state.speedEnabled) {
-        txt += ` · ${currentSpeed.toFixed(2)}x`;
+        txt = `Loop · ${currentSpeed.toFixed(2)}x`;
         if (isAtSpeedTarget()) txt += " ✓";
       }
-      status.textContent = txt;
-      status.className = "ytloop-status active";
+      active = true;
     } else if (state.start != null || state.end != null) {
-      status.textContent = "Loop disabled (toggle “Enable”)";
-      status.className = "ytloop-status";
+      txt = "Loop disabled (toggle “Enable”)";
     } else {
-      status.textContent = "Set the start and end of the segment.";
-      status.className = "ytloop-status";
+      txt = "Set the start and end of the segment.";
     }
+    if (state.statSeconds > 0) txt += ` · Total played: ${fmt(state.statSeconds)}`;
+    status.textContent = txt;
+    status.className = active ? "ytloop-status active" : "ytloop-status";
     updateGlow();
   }
 
@@ -786,7 +777,7 @@
     );
 
     panel.querySelector("#ytloop-goto-start").addEventListener("click", () => {
-      gotoStartAndPlay();
+      toggleLoopPlayback();
     });
     panel.querySelector("#ytloop-clear").addEventListener("click", () => {
       state.start = null;
@@ -817,11 +808,21 @@
 
   // ---------- Visibility and dragging ----------
 
-  function setPanelVisible(visible) {
+  function setPanelVisible(visible, persist = true) {
     if (!panel) return;
     panel.style.display = visible ? "block" : "none";
+    panelOpen = visible;
     const btn = document.getElementById(BTN_ID);
     if (btn) btn.classList.toggle("ytloop-active", visible);
+    if (persist) saveGlobalSettings();
+  }
+
+  function applyPanelPosition() {
+    if (!panel || panelLeft == null || panelTop == null) return;
+    panel.style.left = panelLeft + "px";
+    panel.style.top = panelTop + "px";
+    panel.style.right = "auto";
+    panel.style.bottom = "auto";
   }
 
   function isPanelVisible() {
@@ -850,9 +851,16 @@
       const y = Math.max(0, Math.min(window.innerHeight - 30, e.clientY - offY));
       target.style.left = x + "px";
       target.style.top = y + "px";
+      target.style.right = "auto";
+      target.style.bottom = "auto";
+      panelLeft = x;
+      panelTop = y;
     });
     window.addEventListener("mouseup", () => {
-      dragging = false;
+      if (dragging) {
+        dragging = false;
+        saveGlobalSettings(); // remember the new position
+      }
     });
   }
 
@@ -1030,6 +1038,8 @@
       video = v;
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("loadedmetadata", () => updateMarkers());
+      video.addEventListener("play", updateToggleButton);
+      video.addEventListener("pause", updateToggleButton);
       video.addEventListener("ratechange", () => {
         // When a speed mode is active, restore our value after a YT reset.
         if (!state.enabled || !speedActive() || applyingSpeed) return;
@@ -1043,11 +1053,9 @@
     state.videoId = id;
     cancelTail();
     state.statSeconds = 0;
-    state.statLoops = 0;
     loadStats(id, (s) => {
       state.statSeconds = s.seconds;
-      state.statLoops = s.loops;
-      updateStatsWidget();
+      updateStatus();
     });
     loadState(id, (saved) => {
       state.start = saved?.start ?? null;
@@ -1081,6 +1089,10 @@
     mountDrawer();
     loadGlobalSettings((g) => {
       state.tail = g && typeof g.tail === "number" ? g.tail : DEFAULT_TAIL;
+      panelLeft = g && typeof g.panelLeft === "number" ? g.panelLeft : null;
+      panelTop = g && typeof g.panelTop === "number" ? g.panelTop : null;
+      applyPanelPosition();
+      setPanelVisible(g ? !!g.panelOpen : false, false);
       syncInputs();
     });
     loadForCurrentVideo();
