@@ -12,10 +12,13 @@ segment over and over.
   start.
 - **Gap ("tail") between replays** — a pause between consecutive loops, 1 s by
   default, editable, stored globally.
+- **Constant speed** — optionally play the loop at a fixed playback speed (range
+  0.25–2x); stored per video.
 - **Gradual speed change** — optionally each loop gets faster (or slower) by a
   given step, from a start speed to a target speed (range 0.25–2x); stored per
   video. When the target is reached the panel lights up with an animated ember
-  glow and an orbiting reflection.
+  glow and an orbiting reflection. (Constant and gradual are mutually exclusive;
+  both can be off.)
 - **Spacebar control** (while the loop is active): if the video is playing, space
   stops it (the current speed stays, visible in the UI); if it is stopped, space
   jumps to the segment start and plays from the start speed.
