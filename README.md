@@ -22,6 +22,9 @@ segment over and over.
 - **Spacebar control** (while the loop is active): if the video is playing, space
   stops it (the current speed stays, visible in the UI); if it is stopped, space
   jumps to the segment start and plays from the start speed.
+- **Per-video stats** — counts completed full loops and sums their real elapsed
+  time (segment length divided by playback speed), shown as total played time
+  (in the panel and next to each saved video).
 - **Saved videos** — save the current video together with its settings (and
   title) to a list, opened as a drawer sliding in from the right edge. Clicking an
   entry loads its settings; if you are not on that video, it navigates there first.

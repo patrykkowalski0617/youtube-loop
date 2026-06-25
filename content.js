@@ -28,6 +28,9 @@
     speedStart: 0.65, // speed of the first loop
     speedTarget: 1, // target speed
     speedStep: 0.05, // how much to change each loop
+    // Practice stats (per video, runtime mirror of ytloop:stat:<id>):
+    statSeconds: 0, // total played time = sum of completed loop lengths
+    statLoops: 0, // number of completed full loops
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -133,6 +136,40 @@
       return;
     }
     chrome.storage.local.get(GLOBAL_KEY, (res) => cb(res ? res[GLOBAL_KEY] : null));
+  }
+
+  // ---------- Practice stats (per video) ----------
+
+  function statKey(id) {
+    return "ytloop:stat:" + id;
+  }
+
+  function loadStats(id, cb) {
+    if (!id || !chrome?.storage?.local) {
+      cb({ seconds: 0, loops: 0 });
+      return;
+    }
+    chrome.storage.local.get(statKey(id), (res) => {
+      const s = res && res[statKey(id)];
+      cb({ seconds: (s && s.seconds) || 0, loops: (s && s.loops) || 0 });
+    });
+  }
+
+  function saveStats(id, seconds, loops) {
+    if (!id || !chrome?.storage?.local) return;
+    chrome.storage.local.set({ [statKey(id)]: { seconds, loops } });
+  }
+
+  /** Record one completed full loop (real elapsed time = length / speed). */
+  function recordLoopCompletion() {
+    if (state.start == null || state.end == null) return;
+    const len = state.end - state.start;
+    if (!(len > 0)) return;
+    const rate = video && video.playbackRate > 0 ? video.playbackRate : 1;
+    state.statSeconds += len / rate;
+    state.statLoops += 1;
+    saveStats(state.videoId, state.statSeconds, state.statLoops);
+    updateStatsWidget();
   }
 
   // ---------- Saved videos list ----------
@@ -362,6 +399,7 @@
     if (end == null) return;
     // When we pass the end -> pause (tail), then return to the start.
     if (video.currentTime >= end - 0.05) {
+      recordLoopCompletion();
       const tail = state.tail > 0 ? state.tail : 0;
       if (tail > 0) {
         inTail = true;
@@ -499,6 +537,7 @@
         <button id="ytloop-open-saved" class="ytloop-secondary">☰ Saved</button>
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
+      <div class="ytloop-stat" id="ytloop-stat"></div>
     `;
     return el;
   }
@@ -537,6 +576,7 @@
     if (fields) fields.style.opacity = state.speedEnabled ? "1" : "0.45";
 
     updateStatus();
+    updateStatsWidget();
     updateMarkers();
   }
 
@@ -552,6 +592,20 @@
   function updateGlow() {
     if (!panel) return;
     panel.classList.toggle("ytloop-maxed", isAtSpeedTarget());
+  }
+
+  function updateStatsWidget() {
+    const el = panel && panel.querySelector("#ytloop-stat");
+    if (!el) return;
+    if (state.statSeconds > 0) {
+      el.textContent = `Total played: ${fmt(state.statSeconds)} · ${
+        state.statLoops
+      } loops`;
+      el.style.display = "block";
+    } else {
+      el.textContent = "";
+      el.style.display = "none";
+    }
   }
 
   function updateStatus() {
@@ -886,6 +940,21 @@
     if (b) b.textContent = `☰ Saved (${n})`;
   }
 
+  function loadStatsMap(ids, cb) {
+    if (!ids.length || !chrome?.storage?.local) {
+      cb({});
+      return;
+    }
+    chrome.storage.local.get(ids.map(statKey), (res) => {
+      const map = {};
+      for (const id of ids) {
+        const s = res && res[statKey(id)];
+        map[id] = (s && s.seconds) || 0;
+      }
+      cb(map);
+    });
+  }
+
   function renderSavedList() {
     const ul = document.getElementById("ytloop-drawer-list");
     loadSavedList((list) => {
@@ -899,44 +968,57 @@
         ul.appendChild(li);
         return;
       }
-      for (const e of list) {
-        const li = document.createElement("li");
-        li.className = "ytloop-saved-item";
-        if (e.videoId === state.videoId) li.classList.add("current");
-        const range =
-          e.start != null || e.end != null
-            ? `${fmt(e.start ?? 0)} – ${fmt(e.end)}`
-            : "no range";
-        const spd = e.constEnabled
-          ? ` · ${Number(e.constSpeed).toFixed(2)}x`
-          : e.speedEnabled
-          ? ` · ${Number(e.speedStart).toFixed(2)}→${Number(
-              e.speedTarget
-            ).toFixed(2)}x`
-          : "";
-        const main = document.createElement("div");
-        main.className = "ytloop-saved-main";
-        const title = document.createElement("div");
-        title.className = "ytloop-saved-title";
-        title.textContent = e.title || e.videoId;
-        const sub = document.createElement("div");
-        sub.className = "ytloop-saved-sub";
-        sub.textContent = range + spd;
-        main.appendChild(title);
-        main.appendChild(sub);
-        main.addEventListener("click", () => loadEntry(e));
-        const del = document.createElement("button");
-        del.className = "ytloop-saved-del";
-        del.title = "Remove";
-        del.textContent = "✕";
-        del.addEventListener("click", (ev) => {
-          ev.stopPropagation();
-          removeSaved(e.videoId);
-        });
-        li.appendChild(main);
-        li.appendChild(del);
-        ul.appendChild(li);
-      }
+      loadStatsMap(
+        list.map((e) => e.videoId),
+        (statsMap) => {
+          ul.innerHTML = "";
+          for (const e of list) {
+            const li = document.createElement("li");
+            li.className = "ytloop-saved-item";
+            if (e.videoId === state.videoId) li.classList.add("current");
+            const range =
+              e.start != null || e.end != null
+                ? `${fmt(e.start ?? 0)} – ${fmt(e.end)}`
+                : "no range";
+            const spd = e.constEnabled
+              ? ` · ${Number(e.constSpeed).toFixed(2)}x`
+              : e.speedEnabled
+              ? ` · ${Number(e.speedStart).toFixed(2)}→${Number(
+                  e.speedTarget
+                ).toFixed(2)}x`
+              : "";
+            const played = statsMap[e.videoId] || 0;
+            const main = document.createElement("div");
+            main.className = "ytloop-saved-main";
+            const title = document.createElement("div");
+            title.className = "ytloop-saved-title";
+            title.textContent = e.title || e.videoId;
+            const sub = document.createElement("div");
+            sub.className = "ytloop-saved-sub";
+            sub.textContent = range + spd;
+            main.appendChild(title);
+            main.appendChild(sub);
+            if (played > 0) {
+              const stat = document.createElement("div");
+              stat.className = "ytloop-saved-stat";
+              stat.textContent = `▶ ${fmt(played)} played`;
+              main.appendChild(stat);
+            }
+            main.addEventListener("click", () => loadEntry(e));
+            const del = document.createElement("button");
+            del.className = "ytloop-saved-del";
+            del.title = "Remove";
+            del.textContent = "✕";
+            del.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              removeSaved(e.videoId);
+            });
+            li.appendChild(main);
+            li.appendChild(del);
+            ul.appendChild(li);
+          }
+        }
+      );
     });
   }
 
@@ -960,6 +1042,13 @@
     const id = getVideoId();
     state.videoId = id;
     cancelTail();
+    state.statSeconds = 0;
+    state.statLoops = 0;
+    loadStats(id, (s) => {
+      state.statSeconds = s.seconds;
+      state.statLoops = s.loops;
+      updateStatsWidget();
+    });
     loadState(id, (saved) => {
       state.start = saved?.start ?? null;
       state.end = saved?.end ?? null;
