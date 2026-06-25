@@ -20,6 +20,9 @@
     enabled: false,
     videoId: null,
     tail: 1, // pause in seconds between replays (global setting)
+    // Constant speed (per video) - mutually exclusive with the ramp:
+    constEnabled: false,
+    constSpeed: 1, // fixed playback speed for the loop
     // Gradual speed change (per video):
     speedEnabled: false,
     speedStart: 0.65, // speed of the first loop
@@ -99,6 +102,8 @@
         start: state.start,
         end: state.end,
         enabled: state.enabled,
+        constEnabled: state.constEnabled,
+        constSpeed: state.constSpeed,
         speedEnabled: state.speedEnabled,
         speedStart: state.speedStart,
         speedTarget: state.speedTarget,
@@ -168,6 +173,8 @@
       start: state.start,
       end: state.end,
       enabled: state.enabled,
+      constEnabled: state.constEnabled,
+      constSpeed: state.constSpeed,
       speedEnabled: state.speedEnabled,
       speedStart: state.speedStart,
       speedTarget: state.speedTarget,
@@ -202,13 +209,15 @@
     state.start = e.start ?? null;
     state.end = e.end ?? null;
     state.enabled = e.enabled ?? false;
+    state.constEnabled = e.constEnabled ?? false;
+    state.constSpeed = e.constSpeed ?? 1;
     state.speedEnabled = e.speedEnabled ?? false;
     state.speedStart = e.speedStart ?? 0.65;
     state.speedTarget = e.speedTarget ?? 1;
     state.speedStep = e.speedStep ?? 0.05;
     cancelTail();
     resetSpeed();
-    if (state.enabled && state.speedEnabled) applySpeed();
+    if (state.enabled && speedActive()) applySpeed();
     saveState();
     syncInputs();
   }
@@ -224,6 +233,8 @@
       start: e.start,
       end: e.end,
       enabled: e.enabled,
+      constEnabled: e.constEnabled,
+      constSpeed: e.constSpeed,
       speedEnabled: e.speedEnabled,
       speedStart: e.speedStart,
       speedTarget: e.speedTarget,
@@ -244,9 +255,16 @@
     return Math.min(SPEED_MAX, Math.max(SPEED_MIN, v));
   }
 
-  /** Reset the current session speed to the start speed. */
+  /** Whether any speed mode (constant or ramp) is active. */
+  function speedActive() {
+    return state.constEnabled || state.speedEnabled;
+  }
+
+  /** Reset the current session speed to its starting value for the mode. */
   function resetSpeed() {
-    currentSpeed = clampSpeed(state.speedStart);
+    currentSpeed = clampSpeed(
+      state.constEnabled ? state.constSpeed : state.speedStart
+    );
   }
 
   /** Force the speed on the video element (guarded against an event loop). */
@@ -280,6 +298,8 @@
     if (state.speedEnabled) {
       stepSpeed();
       applySpeed();
+    } else if (state.constEnabled) {
+      applySpeed(); // keep the fixed speed (in case YT reset it)
     }
     video.currentTime = state.start != null ? state.start : 0;
     if (video.paused) video.play().catch(() => {});
@@ -290,7 +310,7 @@
     if (!video) return;
     cancelTail();
     resetSpeed();
-    if (state.speedEnabled) applySpeed();
+    if (speedActive()) applySpeed();
     video.currentTime = state.start != null ? state.start : 0;
     video.play().catch(() => {});
     syncInputs();
@@ -321,7 +341,7 @@
       // Stopped -> from the segment start, start speed.
       desiredPlayState = "play";
       resetSpeed();
-      if (state.speedEnabled) applySpeed();
+      if (speedActive()) applySpeed();
       video.currentTime = state.start != null ? state.start : 0;
     }
     enforceDesiredState();
@@ -439,6 +459,18 @@
       </div>
       <div class="ytloop-speed">
         <label class="ytloop-switch ytloop-speed-toggle">
+          <input type="checkbox" id="ytloop-const-enable">
+          <span>Constant speed</span>
+        </label>
+        <div class="ytloop-row" id="ytloop-const-fields">
+          <div class="ytloop-field">
+            <label>Speed</label>
+            <input type="text" id="ytloop-const-speed" autocomplete="off" inputmode="decimal">
+          </div>
+        </div>
+      </div>
+      <div class="ytloop-speed">
+        <label class="ytloop-switch ytloop-speed-toggle">
           <input type="checkbox" id="ytloop-speed-enable">
           <span>Gradually change speed</span>
         </label>
@@ -484,17 +516,23 @@
     if (tailInput && document.activeElement !== tailInput)
       tailInput.value = String(state.tail);
 
+    const constEnable = panel.querySelector("#ytloop-const-enable");
+    const constSpeedInput = panel.querySelector("#ytloop-const-speed");
     const speedEnable = panel.querySelector("#ytloop-speed-enable");
     const speedStartInput = panel.querySelector("#ytloop-speed-start");
     const speedTargetInput = panel.querySelector("#ytloop-speed-target");
     const speedStepInput = panel.querySelector("#ytloop-speed-step");
+    if (constEnable) constEnable.checked = state.constEnabled;
     if (speedEnable) speedEnable.checked = state.speedEnabled;
     const setIf = (inp, val) => {
       if (inp && document.activeElement !== inp) inp.value = String(val);
     };
+    setIf(constSpeedInput, state.constSpeed);
     setIf(speedStartInput, state.speedStart);
     setIf(speedTargetInput, state.speedTarget);
     setIf(speedStepInput, state.speedStep);
+    const constFields = panel.querySelector("#ytloop-const-fields");
+    if (constFields) constFields.style.opacity = state.constEnabled ? "1" : "0.45";
     const fields = panel.querySelector("#ytloop-speed-fields");
     if (fields) fields.style.opacity = state.speedEnabled ? "1" : "0.45";
 
@@ -546,7 +584,7 @@
       state.enabled = enable.checked;
       if (!state.enabled) {
         cancelTail();
-      } else if (state.speedEnabled) {
+      } else if (speedActive()) {
         resetSpeed();
         applySpeed();
       }
@@ -582,16 +620,17 @@
       syncInputs();
     };
     // --- Speed ---
+    const constEnable = panel.querySelector("#ytloop-const-enable");
+    const constSpeedInput = panel.querySelector("#ytloop-const-speed");
     const speedEnable = panel.querySelector("#ytloop-speed-enable");
     const speedStartInput = panel.querySelector("#ytloop-speed-start");
     const speedTargetInput = panel.querySelector("#ytloop-speed-target");
     const speedStepInput = panel.querySelector("#ytloop-speed-step");
     const parseNum = (s) => parseFloat(String(s).replace(",", "."));
 
-    speedEnable.addEventListener("change", () => {
-      state.speedEnabled = speedEnable.checked;
-      saveState();
-      if (state.speedEnabled) {
+    // Apply the active speed mode, or reset to 1x when no mode is active.
+    const applySpeedMode = () => {
+      if (speedActive()) {
         resetSpeed();
         if (state.enabled) applySpeed();
       } else if (video) {
@@ -601,7 +640,39 @@
         } catch {}
         applyingSpeed = false;
       }
+    };
+
+    constEnable.addEventListener("change", () => {
+      state.constEnabled = constEnable.checked;
+      if (state.constEnabled) state.speedEnabled = false; // mutually exclusive
+      saveState();
+      applySpeedMode();
       syncInputs();
+    });
+
+    speedEnable.addEventListener("change", () => {
+      state.speedEnabled = speedEnable.checked;
+      if (state.speedEnabled) state.constEnabled = false; // mutually exclusive
+      saveState();
+      applySpeedMode();
+      syncInputs();
+    });
+
+    const commitConstSpeed = () => {
+      const v = parseNum(constSpeedInput.value);
+      state.constSpeed = !isNaN(v) ? clampSpeed(v) : 1;
+      if (state.constEnabled) {
+        resetSpeed();
+        if (state.enabled) applySpeed();
+      }
+      saveState();
+      syncInputs();
+    };
+    constSpeedInput.addEventListener("change", commitConstSpeed);
+    constSpeedInput.addEventListener("blur", commitConstSpeed);
+    constSpeedInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") constSpeedInput.blur();
+      e.stopPropagation();
     });
 
     const commitSpeedStart = () => {
@@ -836,7 +907,9 @@
           e.start != null || e.end != null
             ? `${fmt(e.start ?? 0)} – ${fmt(e.end)}`
             : "no range";
-        const spd = e.speedEnabled
+        const spd = e.constEnabled
+          ? ` · ${Number(e.constSpeed).toFixed(2)}x`
+          : e.speedEnabled
           ? ` · ${Number(e.speedStart).toFixed(2)}→${Number(
               e.speedTarget
             ).toFixed(2)}x`
@@ -876,8 +949,8 @@
       video.addEventListener("timeupdate", onTimeUpdate);
       video.addEventListener("loadedmetadata", () => updateMarkers());
       video.addEventListener("ratechange", () => {
-        // When speed mode is active, restore our value after a YT reset.
-        if (!state.enabled || !state.speedEnabled || applyingSpeed) return;
+        // When a speed mode is active, restore our value after a YT reset.
+        if (!state.enabled || !speedActive() || applyingSpeed) return;
         if (Math.abs(video.playbackRate - currentSpeed) > 0.001) applySpeed();
       });
     }
@@ -891,12 +964,14 @@
       state.start = saved?.start ?? null;
       state.end = saved?.end ?? null;
       state.enabled = saved?.enabled ?? false;
+      state.constEnabled = saved?.constEnabled ?? false;
+      state.constSpeed = saved?.constSpeed ?? 1;
       state.speedEnabled = saved?.speedEnabled ?? false;
       state.speedStart = saved?.speedStart ?? 0.65;
       state.speedTarget = saved?.speedTarget ?? 1;
       state.speedStep = saved?.speedStep ?? 0.05;
       resetSpeed();
-      if (state.enabled && state.speedEnabled) applySpeed();
+      if (state.enabled && speedActive()) applySpeed();
       syncInputs();
     });
   }
