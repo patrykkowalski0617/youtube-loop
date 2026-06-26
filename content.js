@@ -30,6 +30,7 @@
     speedStep: 0.05, // how much to change each loop
     // Practice stats (per video, runtime mirror of ytloop:stat:<id>):
     statSeconds: 0, // total played time = sum of real elapsed loop times
+    statDays: {}, // per-day played time: { "YYYY-MM-DD": seconds }
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -153,20 +154,34 @@
     return "ytloop:stat:" + id;
   }
 
+  /** Local date as "YYYY-MM-DD" for the given Date (defaults to now). */
+  function dayKey(d = new Date()) {
+    const pad = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  }
+
+  /** Drop day buckets older than ~30 days to keep storage small. */
+  function pruneDays(days) {
+    const cutoff = dayKey(new Date(Date.now() - 30 * 24 * 3600 * 1000));
+    const out = {};
+    for (const k in days) if (k >= cutoff) out[k] = days[k];
+    return out;
+  }
+
   function loadStats(id, cb) {
     if (!id || !chrome?.storage?.local) {
-      cb({ seconds: 0 });
+      cb({ seconds: 0, days: {} });
       return;
     }
     chrome.storage.local.get(statKey(id), (res) => {
       const s = res && res[statKey(id)];
-      cb({ seconds: (s && s.seconds) || 0 });
+      cb({ seconds: (s && s.seconds) || 0, days: (s && s.days) || {} });
     });
   }
 
-  function saveStats(id, seconds) {
+  function saveStats(id, seconds, days) {
     if (!id || !chrome?.storage?.local) return;
-    chrome.storage.local.set({ [statKey(id)]: { seconds } });
+    chrome.storage.local.set({ [statKey(id)]: { seconds, days: days || {} } });
   }
 
   /** Record one completed full loop (real elapsed time = length / speed). */
@@ -175,8 +190,12 @@
     const len = state.end - state.start;
     if (!(len > 0)) return;
     const rate = video && video.playbackRate > 0 ? video.playbackRate : 1;
-    state.statSeconds += len / rate;
-    saveStats(state.videoId, state.statSeconds);
+    const elapsed = len / rate;
+    state.statSeconds += elapsed;
+    const today = dayKey();
+    state.statDays[today] = (state.statDays[today] || 0) + elapsed;
+    state.statDays = pruneDays(state.statDays);
+    saveStats(state.videoId, state.statSeconds, state.statDays);
     updateStatus();
   }
 
@@ -526,7 +545,7 @@
         <div class="ytloop-hint">Range 0.25–2x (same as YouTube).</div>
       </div>
       <div class="ytloop-actions">
-        <button id="ytloop-goto-start" class="ytloop-secondary">⏮ To start</button>
+        <button id="ytloop-goto-start" class="ytloop-secondary">⏮ Play from beginning</button>
         <button id="ytloop-clear" class="ytloop-secondary">✕ Clear</button>
       </div>
       <div class="ytloop-actions">
@@ -534,6 +553,7 @@
         <button id="ytloop-open-saved" class="ytloop-secondary">☰ Saved</button>
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
+      <div class="ytloop-chart" id="ytloop-chart" style="display:none"></div>
     `;
     return el;
   }
@@ -594,7 +614,7 @@
     const b = panel && panel.querySelector("#ytloop-goto-start");
     if (!b) return;
     const playing = video && !video.paused;
-    b.textContent = playing ? "⏹ Stop" : "⏮ To start";
+    b.textContent = playing ? "⏹ Stop" : "⏮ Play from beginning";
   }
 
   function updateStatus() {
@@ -618,6 +638,74 @@
     status.textContent = txt;
     status.className = active ? "ytloop-status active" : "ytloop-status";
     updateGlow();
+    updateChart();
+  }
+
+  /** Render the "last 7 days" bar chart from per-day stats. */
+  function updateChart() {
+    const chart = panel?.querySelector("#ytloop-chart");
+    if (!chart) return;
+    if (!(state.statSeconds > 0)) {
+      chart.style.display = "none";
+      chart.innerHTML = "";
+      return;
+    }
+    // Build the last 7 days, oldest first, ending today.
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() - i * 24 * 3600 * 1000);
+      const key = dayKey(d);
+      days.push({
+        date: d,
+        key,
+        seconds: state.statDays[key] || 0,
+        isToday: i === 0,
+      });
+    }
+    const max = Math.max(...days.map((d) => d.seconds), 1);
+    const total7 = days.reduce((s, d) => s + d.seconds, 0);
+
+    chart.innerHTML = "";
+    chart.style.display = "block";
+
+    const head = document.createElement("div");
+    head.className = "ytloop-chart-head";
+    const t = document.createElement("span");
+    t.textContent = "Last 7 days";
+    const sum = document.createElement("span");
+    sum.className = "ytloop-chart-sum";
+    sum.textContent = fmt(total7);
+    head.appendChild(t);
+    head.appendChild(sum);
+    chart.appendChild(head);
+
+    const bars = document.createElement("div");
+    bars.className = "ytloop-chart-bars";
+    for (const d of days) {
+      const col = document.createElement("div");
+      col.className = "ytloop-chart-col" + (d.isToday ? " today" : "");
+      col.title = `${d.key}: ${d.seconds > 0 ? fmt(d.seconds) : "0:00"}`;
+
+      const track = document.createElement("div");
+      track.className = "ytloop-chart-track";
+      const bar = document.createElement("div");
+      bar.className = "ytloop-chart-bar";
+      // Visible stub for non-zero days; proportional otherwise.
+      const pct = d.seconds > 0 ? Math.max(8, (d.seconds / max) * 100) : 0;
+      bar.style.height = pct + "%";
+      track.appendChild(bar);
+
+      const label = document.createElement("div");
+      label.className = "ytloop-chart-label";
+      label.textContent = d.date
+        .toLocaleDateString(undefined, { weekday: "short" })
+        .slice(0, 3);
+
+      col.appendChild(track);
+      col.appendChild(label);
+      bars.appendChild(col);
+    }
+    chart.appendChild(bars);
   }
 
   function wirePanel() {
@@ -1053,8 +1141,10 @@
     state.videoId = id;
     cancelTail();
     state.statSeconds = 0;
+    state.statDays = {};
     loadStats(id, (s) => {
       state.statSeconds = s.seconds;
+      state.statDays = s.days;
       updateStatus();
     });
     loadState(id, (saved) => {

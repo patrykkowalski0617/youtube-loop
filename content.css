@@ -304,6 +304,95 @@ html[dark] #ytloop-panel button.ytloop-secondary,
   color: #8ab4f8;
 }
 
+/* ---------- Last 7 days chart ---------- */
+
+#ytloop-panel .ytloop-chart {
+  margin-top: 12px;
+  padding: 10px 12px 8px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[dark] #ytloop-panel .ytloop-chart {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+#ytloop-panel .ytloop-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.7;
+}
+
+#ytloop-panel .ytloop-chart-sum {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#ytloop-panel .ytloop-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 64px;
+}
+
+#ytloop-panel .ytloop-chart-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-chart-track {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#ytloop-panel .ytloop-chart-bar {
+  width: 70%;
+  min-height: 0;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(180deg, #ff5b73, #ff0033);
+  transition: height 0.25s ease;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-bar {
+  background: linear-gradient(180deg, #5b9bff, #1a73e8);
+}
+
+#ytloop-panel .ytloop-chart-label {
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
+  opacity: 1;
+  color: #1a73e8;
+}
+
+[dark] #ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
+  color: #8ab4f8;
+}
+
 /* ---------- Glow once the target speed is reached ---------- */
 
 @property --ytloop-angle {
