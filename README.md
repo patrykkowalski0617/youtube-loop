@@ -55,7 +55,7 @@ The floating "🔁 Loop segment" panel appears in the top-right corner.
 - **Gap between loops (s)** — pause between consecutive replays.
 - **Gradually change speed** — set Start / Target / Step to ramp the speed across
   loops (defaults: start `0.65`, target `1`, step `0.05`).
-- **⏮ To start** — jump to the start of the segment (resets the speed).
+- **⏮ Play from beginning** — jump to the start of the segment (resets the speed).
 - **✕ Clear** — remove the loop settings for the current video.
 - **★ Save** — add the current video and its settings to the saved list.
 - **☰ Saved** (or the "★ Saved" tab on the right edge) — open the saved-videos
