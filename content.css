@@ -344,7 +344,16 @@ html[dark] #ytloop-panel button.ytloop-secondary,
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  height: 64px;
+  height: 98px;
+}
+
+#ytloop-panel .ytloop-chart-time {
+  height: 13px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
 }
 
 #ytloop-panel .ytloop-chart-col {
@@ -354,6 +363,26 @@ html[dark] #ytloop-panel button.ytloop-secondary,
   align-items: center;
   height: 100%;
   min-width: 0;
+}
+
+#ytloop-panel .ytloop-chart-tempo {
+  height: 13px;
+  margin-bottom: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-tempo {
+  opacity: 1;
+  color: #1a73e8;
+}
+
+[dark] #ytloop-panel .ytloop-chart-col.today .ytloop-chart-tempo {
+  color: #8ab4f8;
 }
 
 #ytloop-panel .ytloop-chart-track {
@@ -391,6 +420,47 @@ html[dark] #ytloop-panel button.ytloop-secondary,
 
 [dark] #ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
   color: #8ab4f8;
+}
+
+#ytloop-panel .ytloop-chart-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(128, 128, 128, 0.18);
+}
+
+#ytloop-panel .ytloop-chart-fastest {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-panel .ytloop-undo-record {
+  flex: none;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: 1px solid rgba(128, 128, 128, 0.35);
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-undo-record:hover {
+  background: rgba(255, 0, 51, 0.12);
+  border-color: #ff0033;
+  color: #ff0033;
+}
+
+[dark] #ytloop-panel .ytloop-undo-record:hover {
+  background: rgba(255, 91, 115, 0.18);
+  border-color: #ff5b73;
+  color: #ff5b73;
 }
 
 /* ---------- Glow once the target speed is reached ---------- */
