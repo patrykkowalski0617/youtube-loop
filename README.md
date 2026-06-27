@@ -22,9 +22,14 @@ segment over and over.
 - **Spacebar control** (while the loop is active): if the video is playing, space
   stops it (the current speed stays, visible in the UI); if it is stopped, space
   jumps to the segment start and plays from the start speed.
-- **Per-video stats** — counts completed full loops and sums their real elapsed
-  time (segment length divided by playback speed), shown as total played time
-  (in the panel and next to each saved video).
+- **Per-video stats** — sums the real elapsed time of completed full loops
+  (segment length divided by playback speed), shown as total played time (in the
+  panel and next to each saved video), plus a **"Last 7 days" bar chart** with the
+  daily fastest tempo above each bar.
+- **Fastest tempo** — the highest speed at which a loop was played in full is
+  tracked per day; the overall record is shown under the chart with a
+  **"Don't count last record"** button to undo the most recent record (e.g. after
+  a fluke or scrubbing).
 - **Saved videos** — save the current video together with its settings (and
   title) to a list, opened as a drawer sliding in from the right edge. Clicking an
   entry loads its settings; if you are not on that video, it navigates there first.

@@ -31,6 +31,8 @@
     // Practice stats (per video, runtime mirror of ytloop:stat:<id>):
     statSeconds: 0, // total played time = sum of real elapsed loop times
     statDays: {}, // per-day played time: { "YYYY-MM-DD": seconds }
+    daysBestSpeed: {}, // per-day fastest fully-played loop: { "YYYY-MM-DD": speed }
+    speedRecords: [], // stack of day-best improvements for undo: { day, speed, prevDayBest }
   };
 
   const GLOBAL_KEY = "ytloop:settings";
@@ -46,6 +48,7 @@
   let currentSpeed = 1; // current speed of the active loop session
   let applyingSpeed = false; // guard against a ratechange event loop
   let desiredPlayState = null; // "play" | "pause" - enforced after pressing space
+  let loopRateMin = Infinity; // slowest playbackRate seen during the current loop pass
   let panelOpen = false; // remembered panel visibility (global)
   let panelLeft = null; // remembered panel position (global)
   let panelTop = null;
@@ -160,31 +163,52 @@
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
   }
 
+  const DAY_CUTOFF = () => dayKey(new Date(Date.now() - 30 * 24 * 3600 * 1000));
+
   /** Drop day buckets older than ~30 days to keep storage small. */
   function pruneDays(days) {
-    const cutoff = dayKey(new Date(Date.now() - 30 * 24 * 3600 * 1000));
+    const cutoff = DAY_CUTOFF();
     const out = {};
     for (const k in days) if (k >= cutoff) out[k] = days[k];
     return out;
   }
 
+  /** Overall fastest fully-played tempo across the retained per-day records. */
+  function bestSpeed() {
+    let best = 0;
+    for (const k in state.daysBestSpeed) best = Math.max(best, state.daysBestSpeed[k]);
+    return best;
+  }
+
   function loadStats(id, cb) {
     if (!id || !chrome?.storage?.local) {
-      cb({ seconds: 0, days: {} });
+      cb({ seconds: 0, days: {}, daysBestSpeed: {}, speedRecords: [] });
       return;
     }
     chrome.storage.local.get(statKey(id), (res) => {
       const s = res && res[statKey(id)];
-      cb({ seconds: (s && s.seconds) || 0, days: (s && s.days) || {} });
+      cb({
+        seconds: (s && s.seconds) || 0,
+        days: (s && s.days) || {},
+        daysBestSpeed: (s && s.daysBestSpeed) || {},
+        speedRecords: (s && s.speedRecords) || [],
+      });
     });
   }
 
-  function saveStats(id, seconds, days) {
-    if (!id || !chrome?.storage?.local) return;
-    chrome.storage.local.set({ [statKey(id)]: { seconds, days: days || {} } });
+  function saveStats() {
+    if (!state.videoId || !chrome?.storage?.local) return;
+    chrome.storage.local.set({
+      [statKey(state.videoId)]: {
+        seconds: state.statSeconds,
+        days: state.statDays,
+        daysBestSpeed: state.daysBestSpeed,
+        speedRecords: state.speedRecords,
+      },
+    });
   }
 
-  /** Record one completed full loop (real elapsed time = length / speed). */
+  /** Record one completed full loop: played time + fastest sustained tempo. */
   function recordLoopCompletion() {
     if (state.start == null || state.end == null) return;
     const len = state.end - state.start;
@@ -195,8 +219,36 @@
     const today = dayKey();
     state.statDays[today] = (state.statDays[today] || 0) + elapsed;
     state.statDays = pruneDays(state.statDays);
-    saveStats(state.videoId, state.statSeconds, state.statDays);
+
+    // Fastest tempo = slowest rate sustained across the whole loop pass.
+    const sustained = isFinite(loopRateMin) ? loopRateMin : rate;
+    const tempo = Math.round(sustained * 100) / 100;
+    const prevDayBest = state.daysBestSpeed[today] || 0;
+    if (tempo > prevDayBest) {
+      state.daysBestSpeed[today] = tempo;
+      state.daysBestSpeed = pruneDays(state.daysBestSpeed);
+      const cutoff = DAY_CUTOFF();
+      state.speedRecords.push({ day: today, speed: tempo, prevDayBest });
+      state.speedRecords = state.speedRecords.filter((r) => r.day >= cutoff).slice(-100);
+    }
+    resetLoopRate();
+
+    saveStats();
     updateStatus();
+  }
+
+  /** Undo the most recent fastest-tempo record (button: "don't count it"). */
+  function undoLastSpeedRecord() {
+    const rec = state.speedRecords.pop();
+    if (!rec) return;
+    if (rec.prevDayBest > 0) state.daysBestSpeed[rec.day] = rec.prevDayBest;
+    else delete state.daysBestSpeed[rec.day];
+    saveStats();
+    updateStatus();
+  }
+
+  function resetLoopRate() {
+    loopRateMin = Infinity;
   }
 
   // ---------- Saved videos list ----------
@@ -366,6 +418,7 @@
       applySpeed(); // keep the fixed speed (in case YT reset it)
     }
     video.currentTime = state.start != null ? state.start : 0;
+    resetLoopRate();
     if (video.paused) video.play().catch(() => {});
   }
 
@@ -396,6 +449,7 @@
       resetSpeed();
       if (speedActive()) applySpeed();
       video.currentTime = state.start != null ? state.start : 0;
+      resetLoopRate();
     }
     enforceDesiredState();
     syncInputs();
@@ -413,6 +467,9 @@
     if (!state.enabled || !video || inTail) return;
     const { start, end } = state;
     if (end == null) return;
+    // Track the slowest rate sustained during this pass (for the tempo record).
+    if (video.playbackRate > 0)
+      loopRateMin = Math.min(loopRateMin, video.playbackRate);
     // When we pass the end -> pause (tail), then return to the start.
     if (video.currentTime >= end - 0.05) {
       recordLoopCompletion();
@@ -682,9 +739,20 @@
     const bars = document.createElement("div");
     bars.className = "ytloop-chart-bars";
     for (const d of days) {
+      const tempo = state.daysBestSpeed[d.key] || 0;
       const col = document.createElement("div");
       col.className = "ytloop-chart-col" + (d.isToday ? " today" : "");
-      col.title = `${d.key}: ${d.seconds > 0 ? fmt(d.seconds) : "0:00"}`;
+      col.title =
+        `${d.key} · ${d.seconds > 0 ? fmt(d.seconds) : "0:00"}` +
+        (tempo > 0 ? ` · best ${tempo.toFixed(2)}x` : "");
+
+      const timeEl = document.createElement("div");
+      timeEl.className = "ytloop-chart-time";
+      timeEl.textContent = d.seconds > 0 ? fmt(d.seconds) : "";
+
+      const top = document.createElement("div");
+      top.className = "ytloop-chart-tempo";
+      top.textContent = tempo > 0 ? `${tempo.toFixed(2)}x` : "";
 
       const track = document.createElement("div");
       track.className = "ytloop-chart-track";
@@ -701,11 +769,32 @@
         .toLocaleDateString(undefined, { weekday: "short" })
         .slice(0, 3);
 
+      col.appendChild(timeEl);
+      col.appendChild(top);
       col.appendChild(track);
       col.appendChild(label);
       bars.appendChild(col);
     }
     chart.appendChild(bars);
+
+    // Footer: overall fastest tempo + undo of the last record.
+    const best = bestSpeed();
+    const foot = document.createElement("div");
+    foot.className = "ytloop-chart-foot";
+    const fastest = document.createElement("span");
+    fastest.className = "ytloop-chart-fastest";
+    fastest.textContent = best > 0 ? `Fastest tempo: ${best.toFixed(2)}x` : "No tempo yet";
+    foot.appendChild(fastest);
+    if (state.speedRecords.length) {
+      const undo = document.createElement("button");
+      undo.id = "ytloop-undo-record";
+      undo.className = "ytloop-undo-record";
+      undo.title = "Discard the most recent fastest-tempo record";
+      undo.textContent = "↶ Don't count last record";
+      undo.addEventListener("click", undoLastSpeedRecord);
+      foot.appendChild(undo);
+    }
+    chart.appendChild(foot);
   }
 
   function wirePanel() {
@@ -1140,11 +1229,16 @@
     const id = getVideoId();
     state.videoId = id;
     cancelTail();
+    resetLoopRate();
     state.statSeconds = 0;
     state.statDays = {};
+    state.daysBestSpeed = {};
+    state.speedRecords = [];
     loadStats(id, (s) => {
       state.statSeconds = s.seconds;
       state.statDays = s.days;
+      state.daysBestSpeed = s.daysBestSpeed;
+      state.speedRecords = s.speedRecords;
       updateStatus();
     });
     loadState(id, (saved) => {
