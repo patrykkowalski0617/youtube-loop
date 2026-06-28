@@ -220,16 +220,20 @@
     state.statDays[today] = (state.statDays[today] || 0) + elapsed;
     state.statDays = pruneDays(state.statDays);
 
-    // Fastest tempo = slowest rate sustained across the whole loop pass.
-    const sustained = isFinite(loopRateMin) ? loopRateMin : rate;
-    const tempo = Math.round(sustained * 100) / 100;
-    const prevDayBest = state.daysBestSpeed[today] || 0;
-    if (tempo > prevDayBest) {
-      state.daysBestSpeed[today] = tempo;
-      state.daysBestSpeed = pruneDays(state.daysBestSpeed);
-      const cutoff = DAY_CUTOFF();
-      state.speedRecords.push({ day: today, speed: tempo, prevDayBest });
-      state.speedRecords = state.speedRecords.filter((r) => r.day >= cutoff).slice(-100);
+    // Fastest tempo is only tracked in the "Gradually change speed" mode, where
+    // the point is to reach ever higher tempo. Tempo = slowest rate sustained
+    // across the whole loop pass.
+    if (state.speedEnabled) {
+      const sustained = isFinite(loopRateMin) ? loopRateMin : rate;
+      const tempo = Math.round(sustained * 100) / 100;
+      const prevDayBest = state.daysBestSpeed[today] || 0;
+      if (tempo > prevDayBest) {
+        state.daysBestSpeed[today] = tempo;
+        state.daysBestSpeed = pruneDays(state.daysBestSpeed);
+        const cutoff = DAY_CUTOFF();
+        state.speedRecords.push({ day: today, speed: tempo, prevDayBest });
+        state.speedRecords = state.speedRecords.filter((r) => r.day >= cutoff).slice(-100);
+      }
     }
     resetLoopRate();
 
