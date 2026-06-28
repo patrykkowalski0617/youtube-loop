@@ -26,8 +26,9 @@ segment over and over.
   (segment length divided by playback speed), shown as total played time (in the
   panel and next to each saved video), plus a **"Last 7 days" bar chart** with the
   daily fastest tempo above each bar.
-- **Fastest tempo** — the highest speed at which a loop was played in full is
-  tracked per day; the overall record is shown under the chart with a
+- **Fastest tempo** — only in the **Gradually change speed** mode, the highest
+  speed at which a loop was played in full is tracked per day; the overall record
+  is shown under the chart with a
   **"Don't count last record"** button to undo the most recent record (e.g. after
   a fluke or scrubbing).
 - **Saved videos** — save the current video together with its settings (and
