@@ -28,6 +28,8 @@
     speedStart: 0.65, // speed of the first loop
     speedTarget: 1, // target speed
     speedStep: 0.05, // how much to change each loop
+    // Saved fragments of this video: [{ id, start, end }], sorted by start.
+    fragments: [],
     // Practice stats (per video, runtime mirror of ytloop:stat:<id>):
     statSeconds: 0, // total played time = sum of real elapsed loop times
     statDays: {}, // per-day played time: { "YYYY-MM-DD": seconds }
@@ -117,6 +119,7 @@
         speedStart: state.speedStart,
         speedTarget: state.speedTarget,
         speedStep: state.speedStep,
+        fragments: state.fragments,
       },
     });
   }
@@ -299,6 +302,7 @@
       speedStart: state.speedStart,
       speedTarget: state.speedTarget,
       speedStep: state.speedStep,
+      fragments: state.fragments,
       savedAt: Date.now(),
     };
   }
@@ -335,6 +339,9 @@
     state.speedStart = e.speedStart ?? 0.65;
     state.speedTarget = e.speedTarget ?? 1;
     state.speedStep = e.speedStep ?? 0.05;
+    // Fragments live with the video; adopt the entry's copy only if we have none.
+    if (!state.fragments.length && Array.isArray(e.fragments))
+      state.fragments = normalizeFragments(e.fragments);
     cancelTail();
     resetSpeed();
     if (state.enabled && speedActive()) applySpeed();
@@ -364,9 +371,140 @@
       location.href =
         "https://www.youtube.com/watch?v=" + encodeURIComponent(e.videoId);
     };
-    if (chrome?.storage?.local)
+    if (!chrome?.storage?.local) {
+      go();
+      return;
+    }
+    // Keep the fragments already stored for that video (the entry is a mirror).
+    chrome.storage.local.get(storageKey(e.videoId), (res) => {
+      const prev = res && res[storageKey(e.videoId)];
+      const stored = prev && prev.fragments;
+      settings.fragments = normalizeFragments(
+        stored && stored.length ? stored : e.fragments
+      );
       chrome.storage.local.set({ [storageKey(e.videoId)]: settings }, go);
-    else go();
+    });
+  }
+
+  // ---------- Fragments (saved segments of one video) ----------
+
+  function newFragmentId() {
+    return "f" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  }
+
+  /** Sanitize a stored fragment list and sort it chronologically by start. */
+  function normalizeFragments(list) {
+    if (!Array.isArray(list)) return [];
+    return list
+      .filter(
+        (f) => f && typeof f.start === "number" && typeof f.end === "number"
+      )
+      .map((f) => ({ id: f.id || newFragmentId(), start: f.start, end: f.end }))
+      .sort((a, b) => a.start - b.start || a.end - b.end);
+  }
+
+  /**
+   * Persist the fragments: per-video settings + the saved-videos entry.
+   * With `createSaved` the video is added to the saved list if it is missing.
+   */
+  function persistFragments(createSaved) {
+    saveState();
+    if (!state.videoId) return;
+    loadSavedList((list) => {
+      const i = list.findIndex((e) => e.videoId === state.videoId);
+      if (i >= 0) list[i] = { ...list[i], fragments: state.fragments };
+      else if (createSaved) list.unshift(currentSnapshot());
+      else return;
+      writeSavedList(list, renderSavedList);
+    });
+  }
+
+  const sameTime = (a, b) => Math.abs(a - b) < 0.05;
+
+  /** Save the current start/end as a fragment (saving the video as well). */
+  function addFragment() {
+    if (state.start == null || state.end == null) return false;
+    const dup = state.fragments.some(
+      (f) => sameTime(f.start, state.start) && sameTime(f.end, state.end)
+    );
+    if (!dup) {
+      state.fragments = normalizeFragments([
+        ...state.fragments,
+        { id: newFragmentId(), start: state.start, end: state.end },
+      ]);
+    }
+    persistFragments(true);
+    renderFragments();
+    return true;
+  }
+
+  function removeFragment(id) {
+    state.fragments = state.fragments.filter((f) => f.id !== id);
+    persistFragments(false);
+    renderFragments();
+  }
+
+  /** Load a fragment's start/end into the loop. */
+  function loadFragment(f) {
+    state.start = f.start;
+    state.end = f.end;
+    cancelTail();
+    if (video && state.enabled) {
+      // Jump into the new segment right away, so the pass we interrupted is not
+      // counted as a completed loop by onTimeUpdate.
+      video.currentTime = f.start;
+      resetLoopRate();
+      if (speedActive()) {
+        resetSpeed();
+        applySpeed();
+      }
+    }
+    saveState();
+    syncInputs();
+  }
+
+  function renderFragments() {
+    const ul = panel && panel.querySelector("#ytloop-frag-list");
+    if (!ul) return;
+    ul.innerHTML = "";
+    if (!state.fragments.length) {
+      const li = document.createElement("li");
+      li.className = "ytloop-frag-empty";
+      li.textContent = "No fragments yet.";
+      ul.appendChild(li);
+      return;
+    }
+    for (const f of state.fragments) {
+      const li = document.createElement("li");
+      li.className = "ytloop-frag-item";
+      const label = `${fmt(f.start)} – ${fmt(f.end)}`;
+      if (
+        state.start != null &&
+        state.end != null &&
+        sameTime(f.start, state.start) &&
+        sameTime(f.end, state.end)
+      )
+        li.classList.add("current");
+
+      const btn = document.createElement("button");
+      btn.className = "ytloop-frag-btn";
+      btn.textContent = label;
+      btn.title = "Load " + label;
+      btn.addEventListener("click", () => loadFragment(f));
+
+      const del = document.createElement("button");
+      del.className = "ytloop-frag-del";
+      del.title = "Remove fragment";
+      del.textContent = "✕";
+      del.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        removeFragment(f.id);
+      });
+
+      li.appendChild(btn);
+      li.appendChild(del);
+      ul.appendChild(li);
+    }
   }
 
   // ---------- Playback speed ----------
@@ -548,6 +686,8 @@
           <button id="ytloop-close" class="ytloop-close" title="Hide panel">✕</button>
         </div>
       </div>
+      <div class="ytloop-body">
+      <div class="ytloop-main">
       <div class="ytloop-row">
         <div class="ytloop-field">
           <label>Start</label>
@@ -615,6 +755,13 @@
       </div>
       <div class="ytloop-status" id="ytloop-status"></div>
       <div class="ytloop-chart" id="ytloop-chart" style="display:none"></div>
+      </div>
+      <div class="ytloop-frags">
+        <div class="ytloop-frags-head">Fragments</div>
+        <ul class="ytloop-frag-list" id="ytloop-frag-list"></ul>
+        <button id="ytloop-frag-add" class="ytloop-frag-add" title="Save the current start/end as a fragment">+ Add</button>
+      </div>
+      </div>
     `;
     return el;
   }
@@ -652,6 +799,7 @@
     const fields = panel.querySelector("#ytloop-speed-fields");
     if (fields) fields.style.opacity = state.speedEnabled ? "1" : "0.45";
 
+    renderFragments();
     updateStatus();
     updateToggleButton();
     updateMarkers();
@@ -984,6 +1132,13 @@
       setDrawerOpen(true);
     });
 
+    const addFrag = panel.querySelector("#ytloop-frag-add");
+    addFrag.addEventListener("click", () => {
+      const ok = addFragment();
+      addFrag.textContent = ok ? "✓ Added" : "Set start & end";
+      setTimeout(() => (addFrag.textContent = "+ Add"), 1200);
+    });
+
     enableDrag(panel.querySelector("#ytloop-drag"), panel);
   }
 
@@ -1176,6 +1331,8 @@
                   e.speedTarget
                 ).toFixed(2)}x`
               : "";
+            const nFrag = Array.isArray(e.fragments) ? e.fragments.length : 0;
+            const frags = nFrag ? ` · ${nFrag} frag.` : "";
             const played = statsMap[e.videoId] || 0;
             const main = document.createElement("div");
             main.className = "ytloop-saved-main";
@@ -1184,7 +1341,7 @@
             title.textContent = e.title || e.videoId;
             const sub = document.createElement("div");
             sub.className = "ytloop-saved-sub";
-            sub.textContent = range + spd;
+            sub.textContent = range + spd + frags;
             main.appendChild(title);
             main.appendChild(sub);
             if (played > 0) {
@@ -1234,6 +1391,7 @@
     state.videoId = id;
     cancelTail();
     resetLoopRate();
+    state.fragments = [];
     state.statSeconds = 0;
     state.statDays = {};
     state.daysBestSpeed = {};
@@ -1255,6 +1413,7 @@
       state.speedStart = saved?.speedStart ?? 0.65;
       state.speedTarget = saved?.speedTarget ?? 1;
       state.speedStep = saved?.speedStep ?? 0.05;
+      state.fragments = normalizeFragments(saved?.fragments);
       resetSpeed();
       if (state.enabled && speedActive()) applySpeed();
       syncInputs();

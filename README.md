@@ -31,6 +31,11 @@ segment over and over.
   is shown under the chart with a
   **"Don't count last record"** button to undo the most recent record (e.g. after
   a fluke or scrubbing).
+- **Fragments** — a column on the right side of the panel with the saved
+  segments of the current video, labelled by their start and end and always
+  ordered chronologically by start. **+ Add** stores the current start/end as a
+  fragment (and saves the video to the list if it is not there yet); clicking a
+  fragment loads its start and end; ✕ (on hover) removes it.
 - **Saved videos** — save the current video together with its settings (and
   title) to a list, opened as a drawer sliding in from the right edge. Clicking an
   entry loads its settings; if you are not on that video, it navigates there first.
@@ -63,6 +68,8 @@ The floating "🔁 Loop segment" panel appears in the top-right corner.
   loops (defaults: start `0.65`, target `1`, step `0.05`).
 - **⏮ Play from beginning** — jump to the start of the segment (resets the speed).
 - **✕ Clear** — remove the loop settings for the current video.
+- **+ Add** (Fragments column) — save the current start/end as a fragment of this
+  video; click a fragment to load it back, ✕ to remove it.
 - **★ Save** — add the current video and its settings to the saved list.
 - **☰ Saved** (or the "★ Saved" tab on the right edge) — open the saved-videos
   drawer; click an entry to load it (navigating to that video if needed), or ✕ to
