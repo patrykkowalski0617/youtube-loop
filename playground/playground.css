@@ -1,0 +1,73 @@
+body {
+  margin: 0;
+  font-family: "Roboto", "Arial", sans-serif;
+  background: #f9f9f9;
+  color: #0f0f0f;
+}
+
+html[dark] body {
+  background: #0f0f0f;
+  color: #f1f1f1;
+}
+
+.pg-bar {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.pg-hint {
+  opacity: 0.7;
+  font-size: 12px;
+}
+
+main {
+  padding: 24px;
+}
+
+.pg-player {
+  position: relative;
+  width: 640px;
+  max-width: 100%;
+  background: #000;
+}
+
+.pg-player video {
+  display: block;
+  width: 100%;
+}
+
+.ytp-chrome-bottom {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background: #222;
+}
+
+.ytp-progress-bar {
+  position: relative;
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.ytp-right-controls {
+  display: flex;
+}
+
+.ytp-button {
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+ytd-watch-metadata h1 {
+  font-size: 18px;
+}

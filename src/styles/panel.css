@@ -1,0 +1,316 @@
+#ytloop-panel {
+  position: fixed;
+  top: 80px;
+  right: 24px;
+  z-index: 2147483600;
+  width: 470px;
+  max-width: calc(100vw - 32px);
+  font-family: "Roboto", "Arial", sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
+  padding: 14px 16px 16px;
+  border-radius: 14px;
+  background: var(--c-white);
+  color: var(--c-text);
+  border: 1px solid var(--c-shade-a1);
+  box-shadow:
+    0 10px 32px var(--c-shade-a28),
+    0 2px 8px var(--c-shade-a12);
+  -webkit-font-smoothing: antialiased;
+}
+
+html[dark] #ytloop-panel,
+[dark] #ytloop-panel {
+  background: var(--c-surface-dark);
+  color: var(--c-text-on-dark);
+  border-color: var(--c-light-a1);
+}
+
+#ytloop-panel * {
+  box-sizing: border-box;
+}
+
+#ytloop-panel .ytloop-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: -2px -2px 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--c-gray-a18);
+  cursor: move;
+  user-select: none;
+}
+
+#ytloop-panel .ytloop-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+}
+
+#ytloop-panel .ytloop-title-icon {
+  display: inline-flex;
+  color: var(--c-brand);
+}
+#ytloop-panel .ytloop-title-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+#ytloop-panel .ytloop-header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#ytloop-panel .ytloop-close {
+  background: transparent !important;
+  color: inherit !important;
+  padding: 2px 6px !important;
+  font-size: 13px !important;
+  line-height: 1 !important;
+  border-radius: 6px !important;
+  opacity: 0.55;
+}
+#ytloop-panel .ytloop-close:hover {
+  opacity: 1;
+  background: var(--c-gray-a18) !important;
+}
+
+#ytloop-panel .ytloop-body {
+  display: flex;
+  align-items: stretch;
+  gap: 12px;
+}
+
+#ytloop-panel .ytloop-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-frags {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 120px;
+  padding-left: 12px;
+  border-left: 1px solid var(--c-gray-a18);
+}
+
+#ytloop-panel .ytloop-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+#ytloop-panel .ytloop-switch input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--c-gray-a45);
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+#ytloop-panel .ytloop-switch input::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--c-white);
+  box-shadow: 0 1px 3px var(--c-shade-a45);
+  transition: transform 0.18s ease;
+}
+#ytloop-panel .ytloop-switch input:checked {
+  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
+}
+#ytloop-panel .ytloop-switch input:checked::before {
+  transform: translateX(16px);
+}
+#ytloop-panel .ytloop-switch input:focus-visible {
+  outline: 2px solid var(--c-brand-focus-ring);
+  outline-offset: 2px;
+}
+
+#ytloop-panel .ytloop-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+#ytloop-panel .ytloop-row + .ytloop-row {
+  margin-top: 10px;
+}
+
+#ytloop-panel .ytloop-field {
+  flex: 1 1 130px;
+}
+
+#ytloop-panel .ytloop-field > label {
+  display: block;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.55;
+  margin-bottom: 5px;
+}
+
+#ytloop-panel .ytloop-input-group {
+  display: flex;
+  gap: 6px;
+}
+
+#ytloop-panel input[type="text"] {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 7px 9px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  border-radius: 9px;
+  border: 1px solid var(--c-shade-a18);
+  background: var(--c-field);
+  color: var(--c-text);
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
+}
+
+#ytloop-panel input[type="text"]:focus {
+  border-color: var(--c-brand-focus);
+  background: var(--c-white);
+  box-shadow: 0 0 0 3px var(--c-brand-focus-glow);
+}
+
+html[dark] #ytloop-panel input[type="text"],
+[dark] #ytloop-panel input[type="text"] {
+  background: var(--c-light-a06);
+  color: var(--c-white);
+  border-color: var(--c-light-a16);
+}
+html[dark] #ytloop-panel input[type="text"]:focus,
+[dark] #ytloop-panel input[type="text"]:focus {
+  background: var(--c-light-a1);
+  border-color: var(--c-brand-focus);
+}
+
+#ytloop-panel button {
+  cursor: pointer;
+  border: none;
+  border-radius: 9px;
+  padding: 7px 11px;
+  font-size: 13px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
+  color: var(--c-white);
+  transition:
+    filter 0.15s ease,
+    transform 0.05s ease,
+    background 0.15s ease;
+}
+#ytloop-panel button:hover {
+  filter: brightness(1.08);
+}
+#ytloop-panel button:active {
+  transform: translateY(1px);
+}
+
+#ytloop-panel .ytloop-input-group button {
+  padding: 7px 9px;
+  font-size: 12px;
+  background: linear-gradient(180deg, var(--c-neutral-800), var(--c-neutral-850));
+}
+
+#ytloop-panel button.ytloop-secondary {
+  flex: 1;
+  background: transparent;
+  color: inherit;
+  border: 1px solid var(--c-shade-a2);
+  font-weight: 500;
+}
+#ytloop-panel button.ytloop-secondary:hover {
+  filter: none;
+  background: var(--c-gray-a14);
+}
+html[dark] #ytloop-panel button.ytloop-secondary,
+[dark] #ytloop-panel button.ytloop-secondary {
+  border-color: var(--c-light-a22);
+}
+
+#ytloop-panel .ytloop-speed {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--c-gray-a18);
+}
+
+#ytloop-panel .ytloop-speed-toggle {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+#ytloop-panel #ytloop-speed-fields {
+  transition: opacity 0.2s ease;
+  flex-wrap: nowrap;
+}
+#ytloop-panel #ytloop-speed-fields .ytloop-field {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-hint {
+  margin-top: 8px;
+  font-size: 11px;
+  opacity: 0.5;
+}
+
+#ytloop-panel .ytloop-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+#ytloop-panel .ytloop-status {
+  margin-top: 12px;
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+#ytloop-panel .ytloop-status.active {
+  display: block;
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-radius: 10px;
+  background: linear-gradient(180deg, var(--c-neutral-850), var(--c-neutral-900));
+  color: var(--c-white);
+  opacity: 1;
+  font-weight: 700;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+  text-align: center;
+  text-shadow: 0 1px 2px var(--c-shade-a6);
+}
+
+#ytloop-drawer .ytloop-saved-stat {
+  margin-top: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--c-accent-on-dark);
+}

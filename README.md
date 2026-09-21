@@ -45,13 +45,15 @@ segment over and over.
   (`chrome.storage.local`).
 - Works with YouTube's SPA navigation (switching videos without a page reload).
 
-## Installation (developer mode)
+## Installation (from a release zip)
 
-1. Open `chrome://extensions` (or `edge://extensions`, `brave://extensions`,
+1. Run `npm run build` (or download `release/youtube-loop-<version>.zip` from CI)
+   and unpack it, or use the `dist/` folder directly.
+2. Open `chrome://extensions` (or `edge://extensions`, `brave://extensions`,
    `opera://extensions`).
-2. Enable **Developer mode** (top-right corner).
-3. Click **Load unpacked** and select this folder.
-4. Open any video: `https://www.youtube.com/watch?v=...`.
+3. Enable **Developer mode** (top-right corner).
+4. Click **Load unpacked** and select the `dist/` folder.
+5. Open any video: `https://www.youtube.com/watch?v=...`.
 
 The floating "🔁 Loop segment" panel appears in the top-right corner.
 
@@ -76,9 +78,42 @@ The floating "🔁 Loop segment" panel appears in the top-right corner.
   remove it.
 - **Space** — toggle stop / restart-from-start (see Features).
 
-## Files
+## Development
 
-- `manifest.json` — extension configuration (MV3).
-- `content.js` — loop logic + control panel, injected into the YouTube page.
-- `content.css` — panel and marker styles.
-- `icons/` — extension icons.
+Requires Node 22 (`.nvmrc`).
+
+```sh
+npm install
+npm run dev              # Vite + CRXJS: load dist/ unpacked once, then edits hot-reload on youtube.com
+npm run dev:playground   # standalone page with a mock player - tweak the layout without YouTube
+npm run check            # typecheck + lint + format check + tests
+npm run build            # dist/ + release/youtube-loop-<version>.zip
+```
+
+`npm run dev` writes a development build to `dist/`; load that folder as an
+unpacked extension and keep the dev server running — content-script and CSS
+changes are hot-reloaded on the YouTube tab.
+
+`npm run dev:playground` opens `http://localhost:5173/watch?v=playground`, a
+page with a fake YouTube player (`#movie_player`, progress bar, control bar) and
+a CC0 sample video. `chrome.storage` is mocked with `localStorage`, so saved
+videos, fragments and stats persist between reloads; the header has a dark-theme
+toggle and a reset button.
+
+### Layout
+
+```
+src/
+  content/   entry point (bootstrap, SPA navigation, Space key, marker tick)
+  core/      pure logic: time, speed, fragments, stats, settings - no DOM, no chrome.*
+  storage/   the only place that touches chrome.storage
+  youtube/   the only place that knows YouTube's DOM
+  player/    loop engine driving the <video> element, progress-bar markers, store
+  ui/        panel, drawer, chart, fragments list, player button, drag
+  i18n/      every user-visible string
+  styles/    tokens.css (all colours) + one CSS file per feature
+playground/  mock YouTube page for live layout work
+docs/        plan, open threads, things that look removable but are not
+```
+
+Working rules for contributors (and for Claude) live in `CLAUDE.md`.

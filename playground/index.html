@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>YouTube Loop playground</title>
+    <link rel="stylesheet" href="./playground.css" />
+  </head>
+  <body>
+    <header class="pg-bar">
+      <strong>YouTube Loop playground</strong>
+      <label><input type="checkbox" id="pg-dark" /> Dark theme</label>
+      <button id="pg-reset">Reset stored data</button>
+      <span class="pg-hint">Edit anything in <code>src/</code> — the page hot-reloads.</span>
+    </header>
+    <main>
+      <div id="movie_player" class="pg-player">
+        <video class="html5-main-video" controls playsinline></video>
+        <div class="ytp-chrome-bottom">
+          <div class="ytp-progress-bar"></div>
+          <div class="ytp-right-controls"></div>
+        </div>
+      </div>
+      <ytd-watch-metadata>
+        <div id="title"><h1>Playground video (CC0 sample)</h1></div>
+      </ytd-watch-metadata>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,156 @@
+#ytloop-panel .ytloop-chart {
+  margin-top: 12px;
+  padding: 10px 12px 8px;
+  border-radius: 10px;
+  background: var(--c-shade-a04);
+  border: 1px solid var(--c-shade-a08);
+}
+
+[dark] #ytloop-panel .ytloop-chart {
+  background: var(--c-light-a05);
+  border-color: var(--c-light-a08);
+}
+
+#ytloop-panel .ytloop-chart-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  opacity: 0.7;
+}
+
+#ytloop-panel .ytloop-chart-sum {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.9;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+#ytloop-panel .ytloop-chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 98px;
+}
+
+#ytloop-panel .ytloop-chart-time {
+  height: 13px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-chart-col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-chart-tempo {
+  height: 13px;
+  margin-bottom: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.2px;
+  white-space: nowrap;
+  opacity: 0.75;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-tempo {
+  opacity: 1;
+  color: var(--c-accent);
+}
+
+[dark] #ytloop-panel .ytloop-chart-col.today .ytloop-chart-tempo {
+  color: var(--c-accent-on-dark);
+}
+
+#ytloop-panel .ytloop-chart-track {
+  flex: 1 1 auto;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+#ytloop-panel .ytloop-chart-bar {
+  width: 70%;
+  min-height: 0;
+  border-radius: 4px 4px 2px 2px;
+  background: linear-gradient(180deg, var(--c-brand-soft), var(--c-brand));
+  transition: height 0.25s ease;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-bar {
+  background: linear-gradient(180deg, var(--c-accent-light), var(--c-accent));
+}
+
+#ytloop-panel .ytloop-chart-label {
+  margin-top: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
+  opacity: 1;
+  color: var(--c-accent);
+}
+
+[dark] #ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
+  color: var(--c-accent-on-dark);
+}
+
+#ytloop-panel .ytloop-chart-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 9px;
+  padding-top: 8px;
+  border-top: 1px solid var(--c-gray-a18);
+}
+
+#ytloop-panel .ytloop-chart-fastest {
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-panel .ytloop-undo-record {
+  flex: none;
+  padding: 4px 8px;
+  border-radius: 7px;
+  border: 1px solid var(--c-gray-a35);
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-undo-record:hover {
+  background: var(--c-brand-wash);
+  border-color: var(--c-brand);
+  color: var(--c-brand);
+}
+
+[dark] #ytloop-panel .ytloop-undo-record:hover {
+  background: var(--c-brand-soft-tint);
+  border-color: var(--c-brand-soft);
+  color: var(--c-brand-soft);
+}

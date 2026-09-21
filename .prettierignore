@@ -1,0 +1,6 @@
+dist/
+release/
+coverage/
+node_modules/
+example.html
+package-lock.json

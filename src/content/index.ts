@@ -1,0 +1,90 @@
+import {
+  attachVideo,
+  loadForVideo,
+  loadGlobal,
+  removeMarkers,
+  store,
+  subscribe,
+  toggleLoopPlayback,
+  updateMarkers,
+} from "../player";
+import {
+  applyStoredPanelPosition,
+  injectPlayerButton,
+  isEditableTarget,
+  mountDrawer,
+  mountPanel,
+  PANEL_ID,
+  setPanelVisible,
+  syncPanel,
+  unmountDrawer,
+  unmountPanel,
+} from "../ui";
+import { getVideoElement, getVideoId, isWatchPage, NAVIGATE_FINISH_EVENT } from "../youtube";
+
+import "../styles/content.css";
+
+const NAVIGATION_SETTLE_MS = 300;
+const MARKER_TICK_MS = 500;
+const SPACE_CODE = "Space";
+const SPACE_KEY = " ";
+
+function leaveWatchPage(): void {
+  unmountPanel();
+  removeMarkers();
+  unmountDrawer();
+}
+
+async function init(): Promise<void> {
+  if (!isWatchPage()) {
+    leaveWatchPage();
+    return;
+  }
+  attachVideo();
+  mountPanel();
+  injectPlayerButton();
+  mountDrawer();
+  const globalReady = loadGlobal().then(() => {
+    applyStoredPanelPosition();
+    setPanelVisible(store.global.panelOpen, false);
+  });
+  await Promise.all([globalReady, loadForVideo(getVideoId())]);
+  syncPanel("saved");
+}
+
+function onNavigate(): void {
+  setTimeout(() => void init(), NAVIGATION_SETTLE_MS);
+}
+
+function onKeydown(e: KeyboardEvent): void {
+  if (e.code !== SPACE_CODE && e.key !== SPACE_KEY) return;
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (!isWatchPage() || isEditableTarget(e.target)) return;
+  if (!store.video || !store.settings.enabled || store.settings.start == null) return;
+  e.preventDefault();
+  e.stopImmediatePropagation();
+  toggleLoopPlayback();
+}
+
+function markerTick(): void {
+  if (store.settings.enabled && document.getElementById(PANEL_ID)) updateMarkers();
+  requestAnimationFrame(() => setTimeout(markerTick, MARKER_TICK_MS));
+}
+
+function bootstrap(): void {
+  subscribe((kind) => {
+    if (kind === "settings") updateMarkers();
+  });
+  window.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
+  document.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
+  window.addEventListener("keydown", onKeydown, true);
+  const observer = new MutationObserver(() => {
+    if (!isWatchPage()) return;
+    if (!getVideoElement() || !document.getElementById(PANEL_ID)) void init();
+  });
+  observer.observe(document.documentElement, { childList: true, subtree: true });
+  markerTick();
+  void init();
+}
+
+bootstrap();
