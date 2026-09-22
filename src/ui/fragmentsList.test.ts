@@ -100,3 +100,51 @@ describe("fragment chips", () => {
     expect(reachedWindow).toBe(false);
   });
 });
+
+describe("sub-fragments", () => {
+  const PARENT = { id: "p", start: 0, end: 60, comment: "whole chorus" };
+  const FIRST = { id: "s1", start: 5, end: 10, comment: "" };
+  const SECOND = { id: "s2", start: 20, end: 25, comment: "the bend" };
+
+  beforeEach(() => {
+    store.settings = {
+      ...defaultVideoSettings(),
+      fragments: normalizeFragments([SECOND, PARENT, FIRST]),
+    };
+    renderFragments(list);
+  });
+
+  it("renders a range contained by another as its sub", () => {
+    const groups = list.querySelectorAll(":scope > .ytloop-frag-group");
+    expect(groups).toHaveLength(1);
+    expect(groups[0]?.querySelectorAll(".ytloop-frag-subs > .ytloop-frag-group")).toHaveLength(2);
+  });
+
+  it("puts the parent chip above its subs", () => {
+    const group = list.querySelector(":scope > .ytloop-frag-group");
+    expect(group?.firstElementChild?.className).toContain("ytloop-frag-item");
+    expect(group?.lastElementChild?.className).toBe("ytloop-frag-subs");
+    expect(group?.firstElementChild?.textContent).toContain("0:00 – 1:00");
+  });
+
+  it("orders subs by where they start", () => {
+    const times = [...list.querySelectorAll(".ytloop-frag-subs .ytloop-frag-time")].map(
+      (n) => n.textContent,
+    );
+    expect(times).toEqual(["0:05 – 0:10", "0:20 – 0:25"]);
+  });
+
+  it("gives a sub the same note and controls as a parent", () => {
+    const sub = list.querySelectorAll(".ytloop-frag-subs .ytloop-frag-item")[1];
+    expect(sub?.querySelector(".ytloop-frag-comment")?.textContent).toBe(SECOND.comment);
+    expect(sub?.querySelector(".ytloop-frag-note")).not.toBeNull();
+    expect(sub?.querySelector(".ytloop-frag-del")).not.toBeNull();
+  });
+
+  it("loads the sub range when a sub is clicked", () => {
+    const sub = list.querySelectorAll<HTMLElement>(".ytloop-frag-subs .ytloop-frag-btn")[0];
+    sub?.click();
+    expect(store.settings.start).toBe(FIRST.start);
+    expect(store.settings.end).toBe(FIRST.end);
+  });
+});

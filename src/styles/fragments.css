@@ -4,10 +4,31 @@
   gap: var(--space-1);
   align-items: center;
   min-height: var(--control-height);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
 
 #ytloop-panel .ytloop-chips {
   display: contents;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+#ytloop-panel .ytloop-frag-group {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-frag-subs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -20,7 +41,7 @@
 }
 
 #ytloop-panel .ytloop-frag-item {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -65,6 +86,10 @@
   font-variant-numeric: tabular-nums;
   line-height: var(--leading-tight);
   opacity: 0.75;
+}
+
+#ytloop-panel .ytloop-frag-note {
+  margin-left: auto;
 }
 
 #ytloop-panel .ytloop-frag-note,

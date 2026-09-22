@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.6.3 — 2026-09-22
+
+- Fragments nest. A fragment whose range sits inside another is shown as its
+  sub-fragment, and the parent chip widens to span them. Nesting follows from
+  the times alone, so marking a narrower range and pressing "+ Add" files it
+  under the right parent with no extra step. A sub carries the same note,
+  editing and removal as any other fragment.
+- The fragments section sits on its own surface, and the loop times take less
+  room now that they no longer have to shout.
+
 ## 2.5.0 — 2026-09-22
 
 - Every fragment can carry a note, shown on its own line above the time on the

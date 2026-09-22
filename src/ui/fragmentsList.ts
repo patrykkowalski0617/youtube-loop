@@ -1,4 +1,4 @@
-import { formatTime, type Fragment, isSameRange } from "../core";
+import { formatTime, type Fragment, type FragmentNode, isSameRange, nestFragments } from "../core";
 import { t } from "../i18n";
 import { loadFragment, removeFragment, setFragmentComment, store } from "../player";
 
@@ -14,9 +14,9 @@ const isCurrent = (f: Fragment): boolean => {
   return start != null && end != null && isSameRange(f, start, end);
 };
 
-function openEditor(item: HTMLElement, f: Fragment): void {
-  item.classList.add(EDITING_CLASS);
-  item.innerHTML = "";
+function openEditor(chip: HTMLElement, f: Fragment, list: HTMLElement): void {
+  chip.classList.add(EDITING_CLASS);
+  chip.innerHTML = "";
   const input = el("input", "ytloop-frag-input");
   input.type = "text";
   input.value = f.comment;
@@ -27,7 +27,7 @@ function openEditor(item: HTMLElement, f: Fragment): void {
     if (committed) return;
     committed = true;
     if (save) setFragmentComment(f.id, input.value);
-    else renderFragments(item.parentElement ?? item);
+    else renderFragments(list);
   };
 
   input.addEventListener("keydown", (e) => {
@@ -39,14 +39,14 @@ function openEditor(item: HTMLElement, f: Fragment): void {
     commit(true);
   });
 
-  item.appendChild(input);
+  chip.appendChild(input);
   input.focus();
   input.select();
 }
 
-function fragmentItem(f: Fragment): HTMLElement {
-  const item = el("li", "ytloop-frag-item");
-  if (isCurrent(f)) item.classList.add(CURRENT_CLASS);
+function fragmentChip(f: Fragment, list: HTMLElement): HTMLElement {
+  const chip = el("div", "ytloop-frag-item");
+  if (isCurrent(f)) chip.classList.add(CURRENT_CLASS);
   const label = t.fragments.range(formatTime(f.start), formatTime(f.end));
 
   const load = el("button", "ytloop-frag-btn");
@@ -61,7 +61,7 @@ function fragmentItem(f: Fragment): HTMLElement {
   note.title = f.comment ? t.fragments.editNote : t.fragments.addNote;
   note.addEventListener("click", (e) => {
     e.stopPropagation();
-    openEditor(item, f);
+    openEditor(chip, f, list);
   });
 
   const del = el("button", "ytloop-frag-del", t.common.close);
@@ -71,8 +71,19 @@ function fragmentItem(f: Fragment): HTMLElement {
     removeFragment(f.id);
   });
 
-  item.append(load, note, del);
-  return item;
+  chip.append(load, note, del);
+  return chip;
+}
+
+function fragmentGroup(node: FragmentNode, list: HTMLElement): HTMLElement {
+  const group = el("li", "ytloop-frag-group");
+  group.appendChild(fragmentChip(node.fragment, list));
+  if (node.children.length) {
+    const subs = el("ul", "ytloop-frag-subs");
+    for (const child of node.children) subs.appendChild(fragmentGroup(child, list));
+    group.appendChild(subs);
+  }
+  return group;
 }
 
 export function renderFragments(list: HTMLElement): void {
@@ -82,5 +93,5 @@ export function renderFragments(list: HTMLElement): void {
     list.appendChild(el("li", "ytloop-frag-empty", t.fragments.empty));
     return;
   }
-  for (const f of fragments) list.appendChild(fragmentItem(f));
+  for (const node of nestFragments(fragments)) list.appendChild(fragmentGroup(node, list));
 }

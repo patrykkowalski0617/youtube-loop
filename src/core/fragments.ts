@@ -57,6 +57,38 @@ export function withoutFragment(list: Fragment[], id: string): Fragment[] {
   return list.filter((f) => f.id !== id);
 }
 
+export interface FragmentNode {
+  fragment: Fragment;
+  children: FragmentNode[];
+}
+
+const duration = (f: Fragment): number => f.end - f.start;
+
+export function contains(outer: Fragment, inner: Fragment): boolean {
+  if (duration(inner) >= duration(outer)) return false;
+  return (
+    inner.start >= outer.start - SAME_TIME_EPSILON && inner.end <= outer.end + SAME_TIME_EPSILON
+  );
+}
+
+export function nestFragments(list: Fragment[]): FragmentNode[] {
+  const byEnclosure = [...list].sort((a, b) => a.start - b.start || duration(b) - duration(a));
+  const roots: FragmentNode[] = [];
+  const open: FragmentNode[] = [];
+  for (const fragment of byEnclosure) {
+    const node: FragmentNode = { fragment, children: [] };
+    let parent = open.at(-1);
+    while (parent && !contains(parent.fragment, fragment)) {
+      open.pop();
+      parent = open.at(-1);
+    }
+    if (parent) parent.children.push(node);
+    else roots.push(node);
+    open.push(node);
+  }
+  return roots;
+}
+
 export function withFragmentComment(list: Fragment[], id: string, comment: string): Fragment[] {
   const clean = normalizeComment(comment);
   return list.map((f) => (f.id === id ? { ...f, comment: clean } : f));
