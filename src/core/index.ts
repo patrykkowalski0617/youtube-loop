@@ -1,5 +1,6 @@
 export * from "./constants";
 export * from "./fragments";
+export * from "./lanes";
 export * from "./scrub";
 export * from "./settings";
 export * from "./speed";

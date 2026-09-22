@@ -92,13 +92,24 @@ describe("panel", () => {
     expect(calls.play).toBe(1);
   });
 
-  it("adds the current range as a fragment and lists it", () => {
-    store.settings.start = START;
-    store.settings.end = END;
+  it("saves the marked range as a fragment", () => {
+    video.currentTime = START;
+    byId(panel, ids.setStart).click();
+    video.currentTime = END;
+    byId(panel, ids.setEnd).click();
     byId(panel, ids.fragAdd).click();
-    expect(store.settings.fragments).toHaveLength(1);
-    const items = panel.querySelectorAll(".ytloop-frag-item");
-    expect(items).toHaveLength(1);
-    expect(items[0]?.textContent).toContain("0:10 – 0:20");
+    expect(store.settings.fragments).toEqual([
+      expect.objectContaining({ start: START, end: END, comment: "" }),
+    ]);
+  });
+
+  it("offers the add button only once both ends are marked", () => {
+    const add = byId(panel, ids.fragAdd) as HTMLButtonElement;
+    expect(add.disabled).toBe(true);
+    video.currentTime = START;
+    byId(panel, ids.setStart).click();
+    video.currentTime = END;
+    byId(panel, ids.setEnd).click();
+    expect(add.disabled).toBe(false);
   });
 });

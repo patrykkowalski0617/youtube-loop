@@ -31,7 +31,7 @@ import {
   toggleLoopPlayback,
 } from "../player";
 
-import { byId, flashText, inputById, onCommit } from "./dom";
+import { byId, flashState, flashText, inputById, onCommit } from "./dom";
 import { enableDrag } from "./drag";
 import { setDrawerOpen } from "./drawer";
 import { ids, MODE_RADIO_NAME } from "./panelTemplate";
@@ -39,6 +39,7 @@ import { setPanelVisible } from "./panelVisibility";
 import { makeScrubbable } from "./scrubbable";
 
 const FLASH_MS = 1200;
+const ADDED_CLASS = "is-added";
 
 function wireToggle(panel: HTMLElement, id: string, apply: (checked: boolean) => void): void {
   const box = inputById(panel, id);
@@ -141,8 +142,7 @@ export function wirePanel(panel: HTMLElement): void {
 
   const add = byId(panel, ids.fragAdd);
   add.addEventListener("click", () => {
-    const ok = addFragment();
-    flashText(add, ok ? t.fragments.added : t.fragments.needRange, FLASH_MS);
+    if (addFragment()) flashState(add, ADDED_CLASS, FLASH_MS);
   });
 
   wirePracticeFold(panel);

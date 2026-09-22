@@ -36,6 +36,19 @@ export function byId(root: ParentNode, id: string): HTMLElement {
   return query(root, `#${id}`);
 }
 
+export function buttonById(root: ParentNode, id: string): HTMLButtonElement {
+  const node = byId(root, id);
+  if (!(node instanceof HTMLButtonElement)) throw new Error(`Not a button: ${id}`);
+  return node;
+}
+
+export function flashState(el: HTMLElement, className: string, ms: number): void {
+  el.classList.add(className);
+  setTimeout(() => {
+    el.classList.remove(className);
+  }, ms);
+}
+
 export function flashText(button: HTMLElement, text: string, ms: number): void {
   const prev = button.textContent;
   button.textContent = text;
@@ -44,9 +57,13 @@ export function flashText(button: HTMLElement, text: string, ms: number): void {
   }, ms);
 }
 
+const EDITABLE_SELECTOR = "input, textarea, [contenteditable='true'], [contenteditable='']";
+
+const isEditable = (node: EventTarget | null): boolean =>
+  node instanceof HTMLElement && node.closest(EDITABLE_SELECTOR) !== null;
+
 export function isEditableTarget(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
-  return target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
+  return isEditable(target) || isEditable(document.activeElement);
 }
 
 const ENTER_KEY = "Enter";

@@ -52,3 +52,21 @@ Check this list before every cleanup.
   loop icon sits at the wrong size and offset among the native controls. The
   icon is 24x24 and inherits white, turning brand red only while the panel is
   open - it has to read as one of YouTube's buttons, not as ours.
+- `src/player/timeline.ts` appends its strip to the player element, not to
+  `.ytp-chrome-bottom`, and measures the progress bar to align itself. Moving
+  it inside the chrome would be tidier and would make it vanish every time
+  YouTube autohides the controls, which is the one thing it must not do. It
+  also skips repositioning when the measured bar has zero width, because a
+  collapsed rect would otherwise slam the strip into the corner.
+- Timeline bars are `div[role="button"]`, not `<button>`. A button may not
+  contain an input, so the note field could not take focus and keystrokes were
+  reported against the bar - which made the extension's own space shortcut
+  play the video while someone was typing.
+- `isEditableTarget` checks `document.activeElement` as well as the event
+  target. Some hosts report a key event against an ancestor, and the space
+  shortcut must never fire while a field has focus.
+- The note editor shields `keydown`, `keyup` and `keypress`, not just
+  `keydown`. YouTube toggles playback from `keyup`, so shielding one event
+  type let a typed space start the video. `isEditingNote()` additionally stands
+  the extension's own space shortcut down while a note is open, so the fix does
+  not rest on listener ordering alone.

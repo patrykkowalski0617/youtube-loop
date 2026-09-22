@@ -3,7 +3,7 @@ import { type ChangeKind, subscribe } from "../player";
 import { renderAccount, watchAccount } from "./account";
 import { PANEL_ID } from "./dom";
 import { renderSavedList } from "./drawer";
-import { syncFragments, syncInputs, syncPlayButton, syncSavedCount, syncStatus } from "./panelSync";
+import { syncInputs, syncPlayButton, syncSavedCount, syncStatus } from "./panelSync";
 import { buildPanel } from "./panelTemplate";
 import { getPanel } from "./panelVisibility";
 import { wirePanel } from "./panelWire";
@@ -16,16 +16,12 @@ export function syncPanel(kind: ChangeKind): void {
   switch (kind) {
     case "settings":
       syncInputs(panel);
-      syncFragments(panel);
       syncStatus(panel);
       syncPlayButton(panel);
       renderAccount(panel);
       break;
     case "status":
       syncStatus(panel);
-      break;
-    case "fragments":
-      syncFragments(panel);
       break;
     case "playState":
       syncPlayButton(panel);

@@ -132,7 +132,7 @@
 
 #ytloop-panel .ytloop-deck {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr auto;
   border-radius: var(--radius-sm);
   background: var(--surface);
 }
@@ -143,22 +143,42 @@
 
 #ytloop-panel .ytloop-mark {
   display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
+  align-items: center;
+  gap: var(--space-2);
   min-width: 0;
   padding: var(--space-2) var(--space-3);
 }
 
-#ytloop-panel .ytloop-mark-value {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  min-width: 0;
-}
-
 #ytloop-panel .ytloop-mark-label {
+  flex: none;
   color: var(--fg-faint);
   font-size: var(--text-micro);
+}
+
+#ytloop-panel .ytloop-deck-add {
+  align-self: stretch;
+  width: var(--control-height-lg);
+  border: 0;
+  border-left: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-out),
+    color var(--duration-fast) var(--ease-out);
+}
+
+#ytloop-panel .ytloop-deck-add:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+#ytloop-panel .ytloop-deck-add.is-added {
+  background: var(--accent-wash);
+  color: var(--accent);
 }
 
 #ytloop-panel .ytloop-readout {
@@ -194,7 +214,8 @@
 
 #ytloop-panel .ytloop-now {
   flex: none;
-  padding: 0 var(--space-2);
+  width: var(--control-height);
+  padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: transparent;

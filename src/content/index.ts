@@ -14,13 +14,16 @@ import {
   applyStoredPanelPosition,
   injectPlayerButton,
   isEditableTarget,
+  isEditingNote,
   mountDrawer,
   mountPanel,
   PANEL_ID,
+  removeTimeline,
   setPanelVisible,
   syncPanel,
   unmountDrawer,
   unmountPanel,
+  updateTimeline,
 } from "../ui";
 import { getVideoElement, getVideoId, isWatchPage, NAVIGATE_FINISH_EVENT } from "../youtube";
 
@@ -34,6 +37,7 @@ const SPACE_KEY = " ";
 function leaveWatchPage(): void {
   unmountPanel();
   removeMarkers();
+  removeTimeline();
   unmountDrawer();
 }
 
@@ -62,7 +66,7 @@ function onNavigate(): void {
 function onKeydown(e: KeyboardEvent): void {
   if (e.code !== SPACE_CODE && e.key !== SPACE_KEY) return;
   if (e.ctrlKey || e.metaKey || e.altKey) return;
-  if (!isWatchPage() || isEditableTarget(e.target)) return;
+  if (!isWatchPage() || isEditingNote() || isEditableTarget(e.target)) return;
   if (!store.video || !store.settings.enabled || store.settings.start == null) return;
   e.preventDefault();
   e.stopImmediatePropagation();
@@ -82,13 +86,18 @@ function watchPulledData(): void {
 }
 
 function markerTick(): void {
-  if (store.settings.enabled && document.getElementById(PANEL_ID)) updateMarkers();
+  if (isWatchPage()) {
+    if (store.settings.enabled && document.getElementById(PANEL_ID)) updateMarkers();
+    updateTimeline();
+  }
   requestAnimationFrame(() => setTimeout(markerTick, MARKER_TICK_MS));
 }
 
 function bootstrap(): void {
   subscribe((kind) => {
-    if (kind === "settings") updateMarkers();
+    if (kind !== "settings" && kind !== "fragments") return;
+    updateMarkers();
+    updateTimeline();
   });
   window.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
   document.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);

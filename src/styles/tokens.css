@@ -68,7 +68,16 @@
   --duration-base: 220ms;
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
 
+  --timeline-bar: 16px;
+  --timeline-lane-gap: 3px;
+  --timeline-offset: 14px;
+  --timeline-edit-width: 170px;
+  --timeline-fill: color-mix(in oklab, var(--c-ink-0) 62%, transparent);
+  --timeline-fill-hover: var(--c-ink-0);
+  --timeline-shade: color-mix(in oklab, var(--c-ink-950) 70%, transparent);
+
   --z-markers: 30;
+  --z-timeline: 31;
   --z-drawer-handle: 2147483500;
   --z-drawer: 2147483550;
   --z-panel: 2147483600;

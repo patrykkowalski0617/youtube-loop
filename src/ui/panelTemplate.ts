@@ -24,7 +24,6 @@ export const ids = {
   openSaved: "ytloop-open-saved",
   status: "ytloop-status",
   chart: "ytloop-chart",
-  fragList: "ytloop-frag-list",
   fragAdd: "ytloop-frag-add",
   account: "ytloop-account",
   practiceFold: "ytloop-fold-practice",
@@ -39,10 +38,8 @@ const p = t.panel;
 const readout = (label: string, inputId: string, buttonId: string): string => `
   <div class="ytloop-mark">
     <span class="ytloop-mark-label">${label}</span>
-    <div class="ytloop-mark-value">
-      <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${p.timePlaceholder}" autocomplete="off" spellcheck="false">
-      <button id="${buttonId}" class="ytloop-now" title="${p.setToCurrentTime}">${p.now}</button>
-    </div>
+    <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${p.timePlaceholder}" autocomplete="off" spellcheck="false">
+    <button id="${buttonId}" class="ytloop-now" title="${p.setToCurrentTime}">${p.now}</button>
   </div>`;
 
 const numberField = (label: string, inputId: string): string => `
@@ -70,6 +67,7 @@ const panelMarkup = (): string => `
   <div class="ytloop-deck">
     ${readout(p.start, ids.start, ids.setStart)}
     ${readout(p.end, ids.end, ids.setEnd)}
+    <button id="${ids.fragAdd}" class="ytloop-deck-add" title="${t.fragments.addTitle}">${t.fragments.add}</button>
   </div>
 
   <div class="ytloop-transport">
@@ -77,11 +75,6 @@ const panelMarkup = (): string => `
     <span class="ytloop-status" id="${ids.status}"></span>
     <button id="${ids.clear}" class="ytloop-icon-btn" title="${p.clear}">${t.common.close}</button>
   </div>
-
-  <section class="ytloop-frags">
-    <ul class="ytloop-chips" id="${ids.fragList}"></ul>
-    <button id="${ids.fragAdd}" class="ytloop-chip-add" title="${t.fragments.addTitle}">${t.fragments.add}</button>
-  </section>
 
   <section class="ytloop-tempo">
       <div class="ytloop-segments">

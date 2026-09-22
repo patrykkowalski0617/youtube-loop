@@ -3,8 +3,7 @@ import { t } from "../i18n";
 import { isAtSpeedTarget, isVideoPlaying, store } from "../player";
 
 import { renderChart } from "./chart";
-import { byId, inputById, setIfNotFocused } from "./dom";
-import { renderFragments } from "./fragmentsList";
+import { buttonById, byId, inputById, setIfNotFocused } from "./dom";
 import { ids, modeRadioId } from "./panelTemplate";
 
 const MAXED_CLASS = "is-maxed";
@@ -30,11 +29,8 @@ export function syncInputs(panel: HTMLElement): void {
   setIfNotFocused(inputById(panel, ids.speedStart), String(settings.speedStart));
   setIfNotFocused(inputById(panel, ids.speedTarget), String(settings.speedTarget));
   setIfNotFocused(inputById(panel, ids.speedStep), String(settings.speedStep));
+  buttonById(panel, ids.fragAdd).disabled = settings.start == null || settings.end == null;
   panel.classList.toggle(ACTIVE_CLASS, settings.enabled);
-}
-
-export function syncFragments(panel: HTMLElement): void {
-  renderFragments(byId(panel, ids.fragList));
 }
 
 export function syncPlayButton(panel: HTMLElement): void {

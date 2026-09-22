@@ -1,5 +1,48 @@
 # Changelog
 
+## 2.9.3 — 2026-09-23
+
+- Dropped the fragment tree helper and the strings the chip list used; the
+  timeline expresses nesting with lanes, so nothing consumed them any more.
+
+## 2.9.2 — 2026-09-23
+
+- A space typed into a note really stops at the note now: YouTube starts
+  playback from key-up, which the previous fix did not cover.
+
+## 2.9.1 — 2026-09-23
+
+- A space typed into a fragment note no longer plays the video: the note field
+  lived inside a button, could not take focus, and the extension's own space
+  shortcut fired against the bar.
+- Clicking away from a note closes the editor instead of leaving the bar
+  expanded.
+
+## 2.9.0 — 2026-09-23
+
+- Fragments live on the timeline only. The chip list is gone: the bars above
+  the progress bar load, annotate and remove fragments, and the panel's
+  start/end block gained the button that saves the marked range.
+- The start and end readouts sit on one row with their label, the timer button
+  and the new save key, instead of spreading over two.
+- Typing in a note no longer reaches YouTube's keyboard shortcuts, so a space
+  is a space rather than play/pause.
+
+## 2.8.0 — 2026-09-22
+
+- Timeline bars are tall enough to hit, carry their note as a label and take
+  a double click to write or change it. Longer fragments sit above shorter
+  ones, and the strip clears YouTube's progress bar when it grows on hover.
+- The note editor is one component now, shared by the chips and the bars.
+
+## 2.7.0 — 2026-09-22
+
+- Fragments are drawn as bars just above the progress bar, each spanning the
+  part of the video it covers. Overlapping fragments stack onto their own
+  lanes, the current one is highlighted, and clicking a bar loads it. The strip
+  belongs to the player rather than the control bar, so it stays put when
+  YouTube hides its own chrome.
+
 ## 2.6.3 — 2026-09-22
 
 - Fragments nest. A fragment whose range sits inside another is shown as its
