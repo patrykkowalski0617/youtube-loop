@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.4.2 — 2026-09-22
+
+- Restored the player-bar icon to its original 24px, white, YouTube-native
+  appearance; the redesign had dropped the rules that keep it in line with the
+  native controls.
+
 ## 2.4.1 — 2026-09-22
 
 - Panel redesigned: one compact column, the loop times as the only large

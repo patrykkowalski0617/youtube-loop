@@ -47,3 +47,8 @@ Check this list before every cleanup.
   knob, chevron, shadow offsets) stays literal in its rule. Only values that
   repeat as decisions - spacing, radius, type, duration, control heights -
   are tokens.
+- The two `!important` declarations in `src/styles/player-button.css` override
+  YouTube's own `.ytp-button` rules for display and padding; without them the
+  loop icon sits at the wrong size and offset among the native controls. The
+  icon is 24x24 and inherits white, turning brand red only while the panel is
+  open - it has to read as one of YouTube's buttons, not as ours.
