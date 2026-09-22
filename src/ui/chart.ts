@@ -42,7 +42,6 @@ function chartColumn(d: ChartDay, max: number): HTMLElement {
     .toLocaleDateString(undefined, { weekday: "short" })
     .slice(0, WEEKDAY_LENGTH);
   col.append(
-    el("div", "ytloop-chart-time", d.seconds > 0 ? formatTime(d.seconds) : ""),
     el("div", "ytloop-chart-tempo", d.tempo > 0 ? t.chart.tempo(tempoText(d.tempo)) : ""),
     track,
     el("div", "ytloop-chart-label", weekday),
@@ -67,7 +66,7 @@ function chartFoot(): HTMLElement {
 
 export function renderChart(chart: HTMLElement): void {
   if (!(store.stats.seconds > 0)) {
-    chart.style.display = "none";
+    chart.hidden = true;
     chart.innerHTML = "";
     return;
   }
@@ -76,7 +75,7 @@ export function renderChart(chart: HTMLElement): void {
   const total = days.reduce((s, d) => s + d.seconds, 0);
 
   chart.innerHTML = "";
-  chart.style.display = "block";
+  chart.hidden = false;
   const bars = el("div", "ytloop-chart-bars");
   for (const d of days) bars.appendChild(chartColumn(d, max));
   chart.append(chartHead(total), bars, chartFoot());

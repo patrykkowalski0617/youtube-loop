@@ -1,20 +1,9 @@
-.ytloop-ytp-button {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  vertical-align: top;
-  padding: 0 !important;
-  opacity: 0.9;
-  color: var(--c-white);
-}
 .ytloop-ytp-button svg {
-  width: 24px;
-  height: 24px;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
 }
-.ytloop-ytp-button:hover {
-  opacity: 1;
-}
-#ytloop-toggle-btn.ytloop-active {
+
+.ytloop-ytp-button.ytloop-active {
   color: var(--c-brand);
-  opacity: 1;
 }

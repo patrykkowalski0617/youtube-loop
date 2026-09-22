@@ -1,0 +1,23 @@
+{
+  "rules": {},
+  "overrides": [
+    {
+      "files": ["src/styles/**/*.css"],
+      "rules": {
+        "color-no-hex": true,
+        "color-named": "never",
+        "declaration-property-value-disallowed-list": {
+          "/.*/": ["/(^|[^-\\w])(rgba?|hsla?)\\(/"]
+        }
+      }
+    },
+    {
+      "files": ["src/styles/tokens.css"],
+      "rules": {
+        "color-no-hex": null,
+        "color-named": null,
+        "declaration-property-value-disallowed-list": null
+      }
+    }
+  ]
+}

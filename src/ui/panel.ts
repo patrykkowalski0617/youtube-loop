@@ -45,7 +45,7 @@ export function mountPanel(): HTMLElement | null {
   const existing = document.getElementById(PANEL_ID);
   if (existing) return existing;
   const panel = buildPanel();
-  panel.style.display = "none";
+  panel.hidden = true;
   document.body.appendChild(panel);
   wirePanel(panel);
   unsubscribe ??= subscribe(syncPanel);

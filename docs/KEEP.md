@@ -37,3 +37,13 @@ Check this list before every cleanup.
 - `src/testing/chromeMock.ts` looks like production code but is only imported by
   `*.test.ts`. It is excluded from coverage and never reaches a bundle; the
   playground has its own separate storage mock because it runs in a real page.
+- The panel and the practice chart are shown and hidden with the `hidden`
+  attribute, never `style.display`. An inline `display` overrides the
+  stylesheet's `display: flex`, which silently disables every `gap` in the
+  layout - the bug that made the redesign look unspaced no matter what the gap
+  tokens said. `#ytloop-panel[hidden]` and `.ytloop-chart[hidden]` exist for
+  this reason.
+- Hairline borders stay `1px` and a component's own geometry (switch track and
+  knob, chevron, shadow offsets) stays literal in its rule. Only values that
+  repeat as decisions - spacing, radius, type, duration, control heights -
+  are tokens.

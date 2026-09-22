@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.4.1 — 2026-09-22
+
+- Panel redesigned: one compact column, the loop times as the only large
+  element, tempo and the library always visible, practice stats collapsed.
+- The two mutually exclusive speed switches became one three-way choice
+  (Full speed / Fixed / Ramp), and only the fields for the chosen mode show.
+- Number fields respond to a vertical drag, arrow keys and the wheel, with
+  Shift for coarse and Alt for fine steps.
+- Every visual value now comes from `src/styles/tokens.css`: OKLCH primitives,
+  semantic roles derived with `color-mix`, and scales for spacing, radius,
+  type and duration.
+- Fixed the panel being shown with an inline `display`, which overrode the
+  stylesheet's flex layout and disabled every gap in it.
+
 ## 2.1.1 — 2026-09-22
 
 - Tests for the DOM layer: progress-bar markers, panel dragging, the practice

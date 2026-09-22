@@ -2,315 +2,414 @@
   position: fixed;
   top: 80px;
   right: 24px;
-  z-index: 2147483600;
-  width: 470px;
-  max-width: calc(100vw - 32px);
-  font-family: "Roboto", "Arial", sans-serif;
-  font-size: 13px;
-  line-height: 1.4;
-  padding: 14px 16px 16px;
-  border-radius: 14px;
-  background: var(--c-white);
-  color: var(--c-text);
-  border: 1px solid var(--c-shade-a1);
-  box-shadow:
-    0 10px 32px var(--c-shade-a28),
-    0 2px 8px var(--c-shade-a12);
+  z-index: var(--z-panel);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: var(--panel-width);
+  max-width: calc(100vw - var(--space-6));
+  padding: var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: 0 10px 30px var(--shadow-cast);
+  font-family: var(--font);
+  font-size: var(--text-body);
+  line-height: var(--leading);
   -webkit-font-smoothing: antialiased;
 }
 
-html[dark] #ytloop-panel,
-[dark] #ytloop-panel {
-  background: var(--c-surface-dark);
-  color: var(--c-text-on-dark);
-  border-color: var(--c-light-a1);
+#ytloop-panel[hidden] {
+  display: none;
 }
 
 #ytloop-panel * {
   box-sizing: border-box;
 }
 
-#ytloop-panel .ytloop-header {
+#ytloop-panel :focus-visible {
+  outline: 2px solid var(--accent-ring);
+  outline-offset: 1px;
+}
+
+#ytloop-panel .ytloop-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+#ytloop-panel .ytloop-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin: -2px -2px 12px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--c-gray-a18);
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
   cursor: move;
   user-select: none;
 }
 
-#ytloop-panel .ytloop-title {
+#ytloop-panel .ytloop-brand {
   display: flex;
+  flex: 1;
   align-items: center;
-  gap: 7px;
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 0.2px;
+  gap: var(--space-2);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
 }
 
-#ytloop-panel .ytloop-title-icon {
-  display: inline-flex;
-  color: var(--c-brand);
-}
-#ytloop-panel .ytloop-title-icon svg {
-  width: 18px;
-  height: 18px;
-}
-
-#ytloop-panel .ytloop-header-right {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-#ytloop-panel .ytloop-close {
-  background: transparent !important;
-  color: inherit !important;
-  padding: 2px 6px !important;
-  font-size: 13px !important;
-  line-height: 1 !important;
-  border-radius: 6px !important;
-  opacity: 0.55;
-}
-#ytloop-panel .ytloop-close:hover {
-  opacity: 1;
-  background: var(--c-gray-a18) !important;
-}
-
-#ytloop-panel .ytloop-body {
-  display: flex;
-  align-items: stretch;
-  gap: 12px;
-}
-
-#ytloop-panel .ytloop-main {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-#ytloop-panel .ytloop-frags {
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  width: 120px;
-  padding-left: 12px;
-  border-left: 1px solid var(--c-gray-a18);
+#ytloop-panel .ytloop-brand svg {
+  width: 15px;
+  height: 15px;
+  color: var(--accent);
 }
 
 #ytloop-panel .ytloop-switch {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  display: inline-flex;
   cursor: pointer;
 }
 
-#ytloop-panel .ytloop-switch input {
+#ytloop-panel .ytloop-switch input,
+#ytloop-panel .ytloop-toggle input {
   appearance: none;
-  -webkit-appearance: none;
   position: relative;
   flex: none;
-  width: 38px;
-  height: 22px;
+  width: 30px;
+  height: 17px;
   margin: 0;
-  border-radius: 999px;
-  background: var(--c-gray-a45);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
   cursor: pointer;
-  transition: background 0.18s ease;
+  transition: background var(--duration-fast) var(--ease-out);
 }
-#ytloop-panel .ytloop-switch input::before {
+
+#ytloop-panel .ytloop-switch input::after,
+#ytloop-panel .ytloop-toggle input::after {
   content: "";
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--c-white);
-  box-shadow: 0 1px 3px var(--c-shade-a45);
-  transition: transform 0.18s ease;
-}
-#ytloop-panel .ytloop-switch input:checked {
-  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
-}
-#ytloop-panel .ytloop-switch input:checked::before {
-  transform: translateX(16px);
-}
-#ytloop-panel .ytloop-switch input:focus-visible {
-  outline: 2px solid var(--c-brand-focus-ring);
-  outline-offset: 2px;
+  width: 11px;
+  height: 11px;
+  border-radius: var(--radius-pill);
+  background: var(--fg-muted);
+  transition: transform var(--duration-fast) var(--ease-out);
 }
 
-#ytloop-panel .ytloop-row {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-#ytloop-panel .ytloop-row + .ytloop-row {
-  margin-top: 10px;
+#ytloop-panel .ytloop-switch input:checked,
+#ytloop-panel .ytloop-toggle input:checked {
+  border-color: transparent;
+  background: var(--accent-strong);
 }
 
-#ytloop-panel .ytloop-field {
-  flex: 1 1 130px;
+#ytloop-panel .ytloop-switch input:checked::after,
+#ytloop-panel .ytloop-toggle input:checked::after {
+  transform: translateX(13px);
+  background: var(--c-ink-0);
 }
 
-#ytloop-panel .ytloop-field > label {
-  display: block;
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  opacity: 0.55;
-  margin-bottom: 5px;
-}
-
-#ytloop-panel .ytloop-input-group {
-  display: flex;
-  gap: 6px;
-}
-
-#ytloop-panel input[type="text"] {
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  padding: 7px 9px;
-  font-size: 14px;
-  font-variant-numeric: tabular-nums;
-  border-radius: 9px;
-  border: 1px solid var(--c-shade-a18);
-  background: var(--c-field);
-  color: var(--c-text);
-  outline: none;
-  transition:
-    border-color 0.15s ease,
-    box-shadow 0.15s ease,
-    background 0.15s ease;
-}
-
-#ytloop-panel input[type="text"]:focus {
-  border-color: var(--c-brand-focus);
-  background: var(--c-white);
-  box-shadow: 0 0 0 3px var(--c-brand-focus-glow);
-}
-
-html[dark] #ytloop-panel input[type="text"],
-[dark] #ytloop-panel input[type="text"] {
-  background: var(--c-light-a06);
-  color: var(--c-white);
-  border-color: var(--c-light-a16);
-}
-html[dark] #ytloop-panel input[type="text"]:focus,
-[dark] #ytloop-panel input[type="text"]:focus {
-  background: var(--c-light-a1);
-  border-color: var(--c-brand-focus);
-}
-
-#ytloop-panel button {
-  cursor: pointer;
-  border: none;
-  border-radius: 9px;
-  padding: 7px 11px;
-  font-size: 13px;
-  font-weight: 500;
-  white-space: nowrap;
-  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
-  color: var(--c-white);
-  transition:
-    filter 0.15s ease,
-    transform 0.05s ease,
-    background 0.15s ease;
-}
-#ytloop-panel button:hover {
-  filter: brightness(1.08);
-}
-#ytloop-panel button:active {
-  transform: translateY(1px);
-}
-
-#ytloop-panel .ytloop-input-group button {
-  padding: 7px 9px;
-  font-size: 12px;
-  background: linear-gradient(180deg, var(--c-neutral-800), var(--c-neutral-850));
-}
-
-#ytloop-panel button.ytloop-secondary {
-  flex: 1;
+#ytloop-panel .ytloop-icon-btn {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: inherit;
-  border: 1px solid var(--c-shade-a2);
-  font-weight: 500;
-}
-#ytloop-panel button.ytloop-secondary:hover {
-  filter: none;
-  background: var(--c-gray-a14);
-}
-html[dark] #ytloop-panel button.ytloop-secondary,
-[dark] #ytloop-panel button.ytloop-secondary {
-  border-color: var(--c-light-a22);
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-body);
+  cursor: pointer;
 }
 
-#ytloop-panel .ytloop-speed {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid var(--c-gray-a18);
+#ytloop-panel .ytloop-deck {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
 
-#ytloop-panel .ytloop-speed-toggle {
-  margin-bottom: 10px;
-  font-weight: 600;
+#ytloop-panel .ytloop-mark + .ytloop-mark {
+  border-left: 1px solid var(--border);
 }
 
-#ytloop-panel #ytloop-speed-fields {
-  transition: opacity 0.2s ease;
-  flex-wrap: nowrap;
+#ytloop-panel .ytloop-mark {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+  padding: var(--space-3);
 }
-#ytloop-panel #ytloop-speed-fields .ytloop-field {
-  flex: 1 1 0;
+
+#ytloop-panel .ytloop-mark-value {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
   min-width: 0;
 }
 
-#ytloop-panel .ytloop-hint {
-  margin-top: 8px;
-  font-size: 11px;
-  opacity: 0.5;
+#ytloop-panel .ytloop-mark-label {
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
 }
 
-#ytloop-panel .ytloop-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 14px;
+#ytloop-panel .ytloop-readout {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-readout);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  text-align: left;
+  cursor: ns-resize;
+}
+
+#ytloop-panel .ytloop-readout::placeholder {
+  color: var(--fg-faint);
+  font-weight: var(--weight-normal);
+}
+
+#ytloop-panel .ytloop-readout.is-scrubbing,
+#ytloop-panel .ytloop-field input.is-scrubbing {
+  color: var(--accent);
+  user-select: none;
+}
+
+#ytloop-panel .ytloop-readout:focus {
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
+#ytloop-panel .ytloop-now {
+  flex: none;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height-sm);
+  cursor: pointer;
+}
+
+#ytloop-panel .ytloop-transport {
+  display: grid;
+  grid-template-columns: 1fr auto var(--control-height);
+  align-items: center;
+  gap: var(--space-2);
+}
+
+#ytloop-panel .ytloop-play {
+  height: var(--control-height-lg);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-family: inherit;
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
+  cursor: pointer;
 }
 
 #ytloop-panel .ytloop-status {
-  margin-top: 12px;
-  font-size: 12px;
-  opacity: 0.7;
+  min-width: 52px;
+  color: var(--fg-faint);
+  font-size: var(--text-body);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
 }
 
-#ytloop-panel .ytloop-status.active {
+#ytloop-panel.is-active .ytloop-status {
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+
+#ytloop-panel .ytloop-fold {
+  border-top: 1px solid var(--border);
+}
+
+#ytloop-panel .ytloop-fold summary {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: var(--control-height-lg);
+  padding: 0;
+  color: var(--fg-muted);
+  list-style: none;
+  cursor: pointer;
+}
+
+#ytloop-panel .ytloop-fold summary::-webkit-details-marker {
+  display: none;
+}
+
+#ytloop-panel .ytloop-fold summary::after {
+  content: "";
+  flex: none;
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-right: 1.5px solid currentcolor;
+  border-bottom: 1.5px solid currentcolor;
+  transform: rotate(45deg) translate(-2px, -2px);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+#ytloop-panel .ytloop-fold[open] summary::after {
+  transform: rotate(225deg) translate(-2px, -2px);
+}
+
+#ytloop-panel .ytloop-summary-value {
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-panel .ytloop-fold-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-block: var(--space-2) var(--space-3);
+}
+
+#ytloop-panel .ytloop-tempo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#ytloop-panel .ytloop-segments {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  padding: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+#ytloop-panel .ytloop-segment input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+#ytloop-panel .ytloop-segment span {
   display: block;
-  margin-top: 12px;
-  padding: 9px 12px;
-  border-radius: 10px;
-  background: linear-gradient(180deg, var(--c-neutral-850), var(--c-neutral-900));
-  color: var(--c-white);
-  opacity: 1;
-  font-weight: 700;
-  font-size: 16px;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.2px;
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+  line-height: 22px;
   text-align: center;
-  text-shadow: 0 1px 2px var(--c-shade-a6);
+  cursor: pointer;
 }
 
-#ytloop-drawer .ytloop-saved-stat {
-  margin-top: 3px;
-  font-size: 11px;
-  font-weight: 600;
+#ytloop-panel .ytloop-segment input:checked + span {
+  background: var(--accent-wash);
+  color: var(--accent);
+  font-weight: var(--weight-bold);
+}
+
+#ytloop-panel .ytloop-segment input:focus-visible + span {
+  outline: 2px solid var(--accent-ring);
+}
+
+#ytloop-panel .ytloop-fields {
+  display: grid;
+  grid-template-columns: var(--field-columns);
+  gap: var(--space-2);
+}
+
+#ytloop-panel .ytloop-mode-group {
+  display: contents;
+}
+
+#ytloop-panel .ytloop-mode-group[hidden] {
+  display: none;
+}
+
+#ytloop-panel .ytloop-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-field span {
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+}
+
+#ytloop-panel .ytloop-field input {
+  width: 100%;
+  height: var(--control-height);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-body);
   font-variant-numeric: tabular-nums;
-  color: var(--c-accent-on-dark);
+  text-align: center;
+  cursor: ns-resize;
+}
+
+#ytloop-panel .ytloop-field input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#ytloop-panel .ytloop-library {
+  display: flex;
+  gap: var(--space-2);
+}
+
+#ytloop-panel .ytloop-text-btn {
+  flex: 1;
+  height: var(--control-height);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  #ytloop-panel .ytloop-icon-btn:hover,
+  #ytloop-panel .ytloop-now:hover,
+  #ytloop-panel .ytloop-text-btn:hover {
+    background: var(--state-hover);
+    color: var(--fg);
+  }
+
+  #ytloop-panel .ytloop-play:hover {
+    background: color-mix(in oklab, var(--accent) 22%, transparent);
+  }
+
+  #ytloop-panel .ytloop-fold summary:hover {
+    color: var(--fg);
+  }
+}
+
+#ytloop-panel .ytloop-play:active,
+#ytloop-panel .ytloop-now:active,
+#ytloop-panel .ytloop-text-btn:active,
+#ytloop-panel .ytloop-icon-btn:active {
+  transform: translateY(1px);
 }

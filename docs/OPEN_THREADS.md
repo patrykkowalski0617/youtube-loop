@@ -14,5 +14,6 @@ Stable ids; never renumber. Closed items move to the bottom with the date.
 
 - **T1** — Manual smoke test of v2.0.0 on YouTube. Closed 2026-09-22: the user confirmed the panel, loop and saved list work after loading `dist/`.
 - **T5** — Force-push of the rewritten history. Closed 2026-09-22: `origin/main` carries the rewritten commits with no attribution trailers, and `backup/pre-rewrite` is gone.
+- **T10** — Token migration. Closed 2026-09-22: `tokens.css` is OKLCH primitives plus semantic roles derived with `color-mix`, with scales for spacing, radius, type, duration and control heights; `npm run lint:css` keeps raw colour out of the feature stylesheets.
 - **T6** — Sign-in and sync end to end in Opera. Closed 2026-09-22: `chrome.identity.launchWebAuthFlow` works, documents appear under `users/{uid}/videos`, and a removed saved video no longer comes back after a pull.
 - **T2** — Tests for the DOM layer. Closed 2026-09-22: `player/markers`, `ui/drag`, `ui/chart`, `ui/drawer` and `ui/account` have jsdom tests, each verified against a mutation.

@@ -73,7 +73,7 @@ describe("panel", () => {
     enable.checked = true;
     enable.dispatchEvent(new Event("change"));
     expect(store.settings.enabled).toBe(true);
-    expect(panel.querySelector(`#${ids.status}`)?.textContent).toContain("Loop active");
+    expect(panel.querySelector(`#${ids.status}`)?.textContent).toContain("Looping");
   });
 
   it("pauses for the gap at the end of the segment, then restarts from the start", () => {

@@ -36,10 +36,10 @@ describe("normalizeGlobalSettings", () => {
   it("returns defaults for missing input and keeps valid fields", () => {
     expect(normalizeGlobalSettings(null)).toEqual(defaultGlobalSettings());
     expect(normalizeGlobalSettings({ tail: 2, panelOpen: true, panelLeft: 10 })).toEqual({
+      ...defaultGlobalSettings(),
       tail: 2,
       panelOpen: true,
       panelLeft: 10,
-      panelTop: null,
     });
   });
 });

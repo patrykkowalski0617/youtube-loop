@@ -93,7 +93,7 @@ export function mountDrawer(): void {
   const drawer = el("div");
   drawer.id = DRAWER_ID;
   const head = el("div", "ytloop-drawer-head");
-  const close = el("button", "ytloop-close", t.common.close);
+  const close = el("button", "ytloop-icon-btn", t.common.close);
   close.id = CLOSE_ID;
   close.title = t.drawer.close;
   close.addEventListener("click", () => {

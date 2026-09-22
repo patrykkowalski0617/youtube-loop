@@ -2,47 +2,45 @@
   position: fixed;
   top: 50%;
   right: 0;
-  transform: translateY(-50%);
-  z-index: 2147483600;
-  border: none;
-  cursor: pointer;
-  padding: 12px 8px;
-  border-radius: 10px 0 0 10px;
-  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
-  color: var(--c-white);
-  font-family: "Roboto", "Arial", sans-serif;
-  font-size: 12px;
-  font-weight: 600;
-  box-shadow: -2px 2px 10px var(--c-shade-a35);
-}
-#ytloop-drawer-handle span {
-  display: inline-block;
+  z-index: var(--z-drawer-handle);
+  padding: var(--space-3) var(--space-1);
+  border: 0;
+  border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+  background: var(--accent-strong);
+  color: var(--c-ink-0);
+  font-family: var(--font);
+  font-size: var(--text-micro);
   writing-mode: vertical-rl;
-  transform: rotate(180deg);
-  letter-spacing: 0.5px;
-}
-#ytloop-drawer-handle:hover {
-  filter: brightness(1.08);
+  cursor: pointer;
+  transform: translateY(-50%);
 }
 
 #ytloop-drawer {
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 2147483601;
-  width: 340px;
-  max-width: 90vw;
-  height: 100vh;
+  bottom: 0;
+  z-index: var(--z-drawer);
   display: flex;
   flex-direction: column;
-  background: var(--c-surface-dark);
-  color: var(--c-text-on-dark);
-  border-left: 1px solid var(--c-light-a12);
-  box-shadow: -8px 0 28px var(--c-shade-a4);
-  font-family: "Roboto", "Arial", sans-serif;
+  width: var(--drawer-width);
+  max-width: 90vw;
+  padding: var(--space-3);
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: -8px 0 28px var(--shadow-cast);
+  font-family: var(--font);
+  font-size: var(--text-body);
+  line-height: var(--leading);
   transform: translateX(100%);
-  transition: transform 0.25s ease;
+  transition: transform var(--duration-base) var(--ease-out);
 }
+
+#ytloop-drawer * {
+  box-sizing: border-box;
+}
+
 #ytloop-drawer.open {
   transform: translateX(0);
 }
@@ -51,87 +49,105 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 16px;
-  font-size: 15px;
-  font-weight: 700;
-  border-bottom: 1px solid var(--c-light-a12);
-}
-#ytloop-drawer .ytloop-close {
-  background: transparent;
-  border: none;
-  color: inherit;
-  cursor: pointer;
-  font-size: 14px;
-  opacity: 0.6;
-  border-radius: 6px;
-  padding: 2px 6px;
-}
-#ytloop-drawer .ytloop-close:hover {
-  opacity: 1;
-  background: var(--c-light-a12);
+  gap: var(--space-2);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
 }
 
-#ytloop-drawer #ytloop-drawer-list {
-  list-style: none;
-  margin: 0;
-  padding: 8px;
-  overflow-y: auto;
+#ytloop-drawer .ytloop-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-body);
+  cursor: pointer;
+}
+
+#ytloop-drawer ul {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  overflow-y: auto;
+  list-style: none;
 }
 
 #ytloop-drawer .ytloop-empty {
-  padding: 20px 12px;
-  opacity: 0.6;
-  font-size: 13px;
-  text-align: center;
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
 }
 
 #ytloop-drawer .ytloop-saved-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.12s ease;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
 }
-#ytloop-drawer .ytloop-saved-item:hover {
-  background: var(--c-light-a07);
-}
+
 #ytloop-drawer .ytloop-saved-item.current {
-  background: var(--c-brand-tint);
+  border-color: var(--accent);
 }
 
 #ytloop-drawer .ytloop-saved-main {
+  display: flex;
   flex: 1;
+  flex-direction: column;
+  gap: var(--space-1);
   min-width: 0;
+  cursor: pointer;
 }
+
 #ytloop-drawer .ytloop-saved-title {
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
   overflow: hidden;
+  white-space: nowrap;
   text-overflow: ellipsis;
 }
-#ytloop-drawer .ytloop-saved-sub {
-  margin-top: 3px;
-  font-size: 11px;
-  opacity: 0.6;
+
+#ytloop-drawer .ytloop-saved-sub,
+#ytloop-drawer .ytloop-saved-stat {
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
   font-variant-numeric: tabular-nums;
 }
 
 #ytloop-drawer .ytloop-saved-del {
   flex: none;
+  width: 22px;
+  height: 22px;
+  border: 0;
+  border-radius: var(--radius-sm);
   background: transparent;
-  border: none;
-  color: inherit;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-micro);
   cursor: pointer;
-  font-size: 13px;
-  opacity: 0.45;
-  border-radius: 6px;
-  padding: 4px 7px;
 }
-#ytloop-drawer .ytloop-saved-del:hover {
-  opacity: 1;
-  background: var(--c-danger-tint-dark);
+
+@media (hover: hover) {
+  #ytloop-drawer .ytloop-saved-item:hover {
+    border-color: var(--border-strong);
+  }
+
+  #ytloop-drawer .ytloop-saved-del:hover,
+  #ytloop-drawer .ytloop-icon-btn:hover {
+    background: var(--state-hover);
+    color: var(--fg);
+  }
+
+  #ytloop-drawer-handle:hover {
+    background: var(--accent);
+  }
 }

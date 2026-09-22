@@ -43,4 +43,5 @@ export interface GlobalSettings {
   panelOpen: boolean;
   panelLeft: number | null;
   panelTop: number | null;
+  practiceOpen: boolean;
 }

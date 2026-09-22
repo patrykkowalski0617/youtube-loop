@@ -1,50 +1,49 @@
 #ytloop-panel .ytloop-account {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  padding: 7px 9px;
-  border: 1px solid var(--c-gray-a18);
-  border-radius: 8px;
-  font-size: 11px;
-}
-
-#ytloop-panel .ytloop-account.signed-in {
-  border-color: var(--c-brand-soft-tint);
-  background: var(--c-brand-wash);
+  gap: var(--space-2);
+  min-height: var(--control-height);
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
 }
 
 #ytloop-panel .ytloop-account-label {
   flex: 1;
   overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  opacity: 0.85;
+  text-overflow: ellipsis;
+}
+
+#ytloop-panel .ytloop-account.signed-in .ytloop-account-label {
+  color: var(--fg-muted);
 }
 
 #ytloop-panel .ytloop-account-btn {
   flex: none;
-  padding: 4px 10px;
-  border: 1px solid var(--c-gray-a35);
-  border-radius: 6px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
   background: transparent;
-  color: inherit;
-  font-size: 11px;
-  font-weight: 600;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height-sm);
   cursor: pointer;
 }
 
-#ytloop-panel .ytloop-account-btn:hover:not(:disabled) {
-  background: var(--c-gray-a16);
-}
-
 #ytloop-panel .ytloop-account-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: default;
 }
 
 #ytloop-panel .ytloop-account-error {
   flex: none;
-  color: var(--c-brand);
-  font-weight: 600;
+  color: var(--accent);
+}
+
+@media (hover: hover) {
+  #ytloop-panel .ytloop-account-btn:hover:not(:disabled) {
+    background: var(--state-hover);
+    color: var(--fg);
+  }
 }

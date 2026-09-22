@@ -11,6 +11,8 @@ import {
   pickVideoSettings,
   roundToStep,
   type SavedEntry,
+  type SpeedMode,
+  speedModeFlags,
   undoLastSpeedRecord,
   type VideoSettings,
   withFragment,
@@ -93,17 +95,8 @@ export function setTail(value: number): void {
   notify("settings");
 }
 
-export function setConstEnabled(enabled: boolean): void {
-  store.settings.constEnabled = enabled;
-  if (enabled) store.settings.speedEnabled = false;
-  persistSettings();
-  applySpeedMode();
-  notify("settings");
-}
-
-export function setSpeedEnabled(enabled: boolean): void {
-  store.settings.speedEnabled = enabled;
-  if (enabled) store.settings.constEnabled = false;
+export function setSpeedMode(mode: SpeedMode): void {
+  Object.assign(store.settings, speedModeFlags(mode));
   persistSettings();
   applySpeedMode();
   notify("settings");
@@ -142,6 +135,11 @@ export function clearLoop(): void {
 export function setPanelOpen(open: boolean, persist = true): void {
   store.global.panelOpen = open;
   if (persist) persistGlobal();
+}
+
+export function setPracticeOpen(open: boolean): void {
+  store.global.practiceOpen = open;
+  persistGlobal();
 }
 
 export function setPanelPosition(left: number, top: number): void {

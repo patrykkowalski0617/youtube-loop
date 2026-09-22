@@ -38,7 +38,7 @@ describe("renderChart", () => {
   it("stays hidden until something has been played", () => {
     store.stats = emptyStats();
     renderChart(chart);
-    expect(chart.style.display).toBe("none");
+    expect(chart.hidden).toBe(true);
     expect(chart.innerHTML).toBe("");
   });
 

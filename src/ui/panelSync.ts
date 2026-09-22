@@ -1,17 +1,16 @@
-import { formatTime, TEMPO_DECIMALS } from "../core";
+import { formatTime, speedModeOf, TEMPO_DECIMALS } from "../core";
 import { t } from "../i18n";
 import { isAtSpeedTarget, isVideoPlaying, store } from "../player";
 
 import { renderChart } from "./chart";
 import { byId, inputById, setIfNotFocused } from "./dom";
 import { renderFragments } from "./fragmentsList";
-import { ids } from "./panelTemplate";
+import { ids, modeRadioId } from "./panelTemplate";
 
-const DIMMED_OPACITY = "0.45";
-const FULL_OPACITY = "1";
-const MAXED_CLASS = "ytloop-maxed";
-const ACTIVE_STATUS_CLASS = "ytloop-status active";
-const STATUS_CLASS = "ytloop-status";
+const MAXED_CLASS = "is-maxed";
+const ACTIVE_CLASS = "is-active";
+
+const speedText = (v: number): string => v.toFixed(TEMPO_DECIMALS);
 
 export function syncInputs(panel: HTMLElement): void {
   const { settings, global } = store;
@@ -23,18 +22,15 @@ export function syncInputs(panel: HTMLElement): void {
   setIfNotFocused(inputById(panel, ids.end), settings.end != null ? formatTime(settings.end) : "");
   setIfNotFocused(inputById(panel, ids.tail), String(global.tail));
 
-  inputById(panel, ids.constEnable).checked = settings.constEnabled;
-  inputById(panel, ids.speedEnable).checked = settings.speedEnabled;
+  const mode = speedModeOf(settings);
+  inputById(panel, modeRadioId(mode)).checked = true;
+  byId(panel, ids.constFields).hidden = mode !== "fixed";
+  byId(panel, ids.speedFields).hidden = mode !== "ramp";
   setIfNotFocused(inputById(panel, ids.constSpeed), String(settings.constSpeed));
   setIfNotFocused(inputById(panel, ids.speedStart), String(settings.speedStart));
   setIfNotFocused(inputById(panel, ids.speedTarget), String(settings.speedTarget));
   setIfNotFocused(inputById(panel, ids.speedStep), String(settings.speedStep));
-  byId(panel, ids.constFields).style.opacity = settings.constEnabled
-    ? FULL_OPACITY
-    : DIMMED_OPACITY;
-  byId(panel, ids.speedFields).style.opacity = settings.speedEnabled
-    ? FULL_OPACITY
-    : DIMMED_OPACITY;
+  panel.classList.toggle(ACTIVE_CLASS, settings.enabled);
 }
 
 export function syncFragments(panel: HTMLElement): void {
@@ -47,31 +43,24 @@ export function syncPlayButton(panel: HTMLElement): void {
     : t.panel.playFromBeginning;
 }
 
-function statusText(): { text: string; active: boolean } {
-  const { settings, stats, currentSpeed } = store;
-  let text: string;
-  let active = false;
-  if (settings.enabled && settings.end != null) {
-    text = t.status.loopActive;
-    if (settings.speedEnabled) {
-      text = t.status.loopAtSpeed(currentSpeed.toFixed(TEMPO_DECIMALS));
-      if (isAtSpeedTarget()) text += t.status.targetReachedMark;
-    }
-    active = true;
-  } else if (settings.start != null || settings.end != null) {
-    text = t.status.loopDisabled;
-  } else {
-    text = t.status.setSegment;
+function statusText(): string {
+  const { settings, currentSpeed } = store;
+  if (!settings.enabled || settings.end == null) {
+    return settings.start != null || settings.end != null
+      ? t.status.loopDisabled
+      : t.status.setSegment;
   }
-  if (stats.seconds > 0) text += t.status.totalPlayed(formatTime(stats.seconds));
-  return { text, active };
+  if (!settings.speedEnabled) return t.status.loopActive;
+  const text = t.status.loopAtSpeed(speedText(currentSpeed));
+  return isAtSpeedTarget() ? text + t.status.targetReachedMark : text;
 }
 
+const practiceSummary = (): string =>
+  store.stats.seconds > 0 ? formatTime(store.stats.seconds) : t.status.noPractice;
+
 export function syncStatus(panel: HTMLElement): void {
-  const status = byId(panel, ids.status);
-  const { text, active } = statusText();
-  status.textContent = text;
-  status.className = active ? ACTIVE_STATUS_CLASS : STATUS_CLASS;
+  byId(panel, ids.status).textContent = statusText();
+  byId(panel, ids.practiceSummary).textContent = practiceSummary();
   panel.classList.toggle(MAXED_CLASS, isAtSpeedTarget());
   renderChart(byId(panel, ids.chart));
 }

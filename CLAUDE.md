@@ -8,7 +8,7 @@ Tests: Vitest. Lint: ESLint + Prettier. Node version in `.nvmrc`.
 
 - `npm run dev` — Vite dev server with extension HMR; load `dist/` unpacked.
 - `npm run build` — production build into `dist/` plus `release/youtube-loop-<version>.zip`.
-- `npm run check` — typecheck + lint + format check + tests. Must pass before any commit.
+- `npm run check` — typecheck + lint (JS and CSS) + format check + tests. Must pass before any commit.
 - `npm test` — Vitest once; `npm run test:watch` for watch mode.
 
 ## Layout
@@ -44,7 +44,7 @@ through its folder (`../core`), never through a deep path.
 - UI modules are markup plus calls into `core`/`player`/`storage`. Logic over ~15 lines moves to a helper. A module over ~150 lines is split.
 - Pure logic outside UI, no hidden reads of global state where an argument would do, side effects at the edges.
 - Named exports only. Imports in fixed groups (node/vite → third-party → project folders → local), alphabetical within each group; `eslint --fix` enforces this.
-- Colours only through tokens in `src/styles/tokens.css`.
+- Colours only through tokens in `src/styles/tokens.css`; `npm run lint:css` fails on a raw colour anywhere else. Before touching `src/styles` or designing a new surface, read the `ui-tokens` skill.
 - UI text only through `src/i18n`. The UI language is English; fix spelling and grammar silently.
 - Do not resurrect mechanisms the project deliberately removed, even under a different name.
 - Bump `version` in `manifest.json` with every change (patch for fixes, minor for features).

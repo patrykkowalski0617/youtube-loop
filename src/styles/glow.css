@@ -4,41 +4,39 @@
   inherits: false;
 }
 
-#ytloop-panel.ytloop-maxed {
-  border: 2px solid var(--c-ember-border);
-  animation: ytloop-glow 4.5s ease-in-out infinite;
+#ytloop-panel.is-maxed {
+  border-color: var(--c-ember);
 }
 
-#ytloop-panel.ytloop-maxed::before {
+#ytloop-panel.is-maxed::before {
   content: "";
   position: absolute;
-  inset: -2px;
-  border-radius: 14px;
+  inset: -1px;
   padding: 1px;
+  border-radius: var(--radius-md);
   background: repeating-conic-gradient(
     from var(--ytloop-angle),
-    var(--c-ember-none) 0deg,
-    var(--c-ember-a45) 30deg,
-    var(--c-ember-highlight) 45deg,
-    var(--c-ember-a45) 60deg,
-    var(--c-ember-none) 90deg
+    transparent 0deg,
+    color-mix(in oklab, var(--c-ember) 45%, transparent) 30deg,
+    var(--c-ember-glow) 45deg,
+    color-mix(in oklab, var(--c-ember) 45%, transparent) 60deg,
+    transparent 90deg
   );
-  -webkit-mask:
-    linear-gradient(var(--c-black) 0 0) content-box,
-    linear-gradient(var(--c-black) 0 0);
-  -webkit-mask-composite: xor;
   mask:
-    linear-gradient(var(--c-black) 0 0) content-box,
-    linear-gradient(var(--c-black) 0 0);
+    linear-gradient(var(--c-ink-950) 0 0) content-box,
+    linear-gradient(var(--c-ink-950) 0 0);
   mask-composite: exclude;
   animation: ytloop-orbit 26s linear infinite;
   pointer-events: none;
 }
 
-#ytloop-panel.ytloop-maxed .ytloop-status.active {
-  background: linear-gradient(180deg, var(--c-ember-dark), var(--c-ember-deep));
-  color: var(--c-ember-text);
-  text-shadow: 0 0 10px var(--c-ember-glow-text);
+#ytloop-panel.is-maxed .ytloop-play {
+  background: linear-gradient(180deg, var(--c-ember-dim), var(--c-ember-deep));
+  color: var(--c-ember-ink);
+}
+
+#ytloop-panel.is-maxed .ytloop-status {
+  color: var(--c-ember);
 }
 
 @keyframes ytloop-orbit {
@@ -47,38 +45,28 @@
   }
 }
 
-@keyframes ytloop-glow {
-  0%,
-  100% {
-    box-shadow:
-      inset 0 0 6px var(--c-ember-inset),
-      0 0 14px 1px var(--c-ember-ring),
-      0 0 30px 6px var(--c-ember-halo),
-      0 10px 30px var(--c-shade-a35);
-  }
-  50% {
-    box-shadow:
-      inset 0 0 9px var(--c-ember-inset-strong),
-      0 0 20px 3px var(--c-ember-ring-strong),
-      0 0 44px 12px var(--c-ember-halo-strong),
-      0 10px 30px var(--c-shade-a35);
-  }
-}
-
 #ytloop-panel.ytloop-flash {
-  animation: ytloop-flash 0.9s ease;
+  animation: ytloop-flash var(--duration-base) var(--ease-out);
 }
 
 @keyframes ytloop-flash {
-  0%,
-  100% {
+  from {
     box-shadow:
-      0 10px 32px var(--c-shade-a28),
-      0 0 0 0 var(--c-brand-pulse-none);
+      0 10px 30px var(--shadow-cast),
+      0 0 0 4px var(--accent-ring);
   }
-  30% {
-    box-shadow:
-      0 10px 32px var(--c-shade-a28),
-      0 0 0 4px var(--c-brand-pulse);
+
+  to {
+    box-shadow: 0 10px 30px var(--shadow-cast);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #ytloop-panel.is-maxed::before {
+    animation: none;
+  }
+
+  #ytloop-panel.ytloop-flash {
+    animation: none;
   }
 }

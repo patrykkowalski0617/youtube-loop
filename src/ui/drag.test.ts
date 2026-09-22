@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { defaultGlobalSettings } from "../core";
 import { store } from "../player";
 import { installChromeMock, uninstallChromeMock } from "../testing/chromeMock";
 
@@ -42,7 +43,7 @@ describe("enableDrag", () => {
     installChromeMock();
     window.innerWidth = VIEWPORT_WIDTH;
     window.innerHeight = VIEWPORT_HEIGHT;
-    store.global = { tail: 1, panelOpen: true, panelLeft: null, panelTop: null };
+    store.global = { ...defaultGlobalSettings(), panelOpen: true };
   });
 
   afterEach(uninstallChromeMock);

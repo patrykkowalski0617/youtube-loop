@@ -1,7 +1,8 @@
 import { setPanelOpen, store } from "../player";
 
-import { PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
+import { byId, PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
 import { placePanel } from "./drag";
+import { ids } from "./panelTemplate";
 
 const ACTIVE_BUTTON_CLASS = "ytloop-active";
 
@@ -9,15 +10,21 @@ export const getPanel = (): HTMLElement | null => document.getElementById(PANEL_
 
 export const isPanelVisible = (): boolean => {
   const panel = getPanel();
-  return panel != null && panel.style.display !== "none";
+  return panel != null && !panel.hidden;
 };
 
 export function setPanelVisible(visible: boolean, persist = true): void {
   const panel = getPanel();
   if (!panel) return;
-  panel.style.display = visible ? "block" : "none";
+  panel.hidden = !visible;
   setPanelOpen(visible, persist);
   document.getElementById(PLAYER_BUTTON_ID)?.classList.toggle(ACTIVE_BUTTON_CLASS, visible);
+}
+
+export function applyStoredFolds(): void {
+  const panel = getPanel();
+  if (!panel) return;
+  (byId(panel, ids.practiceFold) as HTMLDetailsElement).open = store.global.practiceOpen;
 }
 
 export function applyStoredPanelPosition(): void {

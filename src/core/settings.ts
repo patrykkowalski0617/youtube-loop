@@ -26,6 +26,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   panelOpen: false,
   panelLeft: null,
   panelTop: null,
+  practiceOpen: false,
 });
 
 const numberOr = (v: unknown, fallback: number): number =>
@@ -61,6 +62,7 @@ export function normalizeGlobalSettings(raw: unknown): GlobalSettings {
     panelOpen: booleanOr(r.panelOpen, d.panelOpen),
     panelLeft: numberOrNull(r.panelLeft),
     panelTop: numberOrNull(r.panelTop),
+    practiceOpen: booleanOr(r.practiceOpen, d.practiceOpen),
   };
 }
 

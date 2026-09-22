@@ -1,98 +1,95 @@
-#ytloop-panel .ytloop-frags-head {
-  font-size: 11px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  opacity: 0.55;
+#ytloop-panel .ytloop-frags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  align-items: center;
+  min-height: var(--control-height);
 }
 
-#ytloop-panel .ytloop-frag-list {
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  list-style: none;
+#ytloop-panel .ytloop-chips {
+  display: contents;
   margin: 0;
   padding: 0;
-  min-height: 0;
-  max-height: 320px;
-  overflow-y: auto;
+  list-style: none;
 }
 
 #ytloop-panel .ytloop-frag-empty {
-  font-size: 11px;
-  opacity: 0.45;
-  line-height: 1.3;
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+  line-height: 20px;
 }
 
 #ytloop-panel .ytloop-frag-item {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  color: var(--fg-muted);
+}
+
+#ytloop-panel .ytloop-frag-item.current {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  color: var(--accent);
 }
 
 #ytloop-panel .ytloop-frag-btn {
-  flex: 1 1 auto;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 5px 7px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  text-align: left;
-  background: var(--c-gray-a16);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
   color: inherit;
-}
-#ytloop-panel .ytloop-frag-btn:hover {
-  filter: none;
-  background: var(--c-gray-a3);
-}
-
-#ytloop-panel .ytloop-frag-item.current .ytloop-frag-btn {
-  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
-  color: var(--c-white);
-}
-
-html[dark] #ytloop-panel .ytloop-frag-btn,
-[dark] #ytloop-panel .ytloop-frag-btn {
-  background: var(--c-light-a09);
-}
-html[dark] #ytloop-panel .ytloop-frag-btn:hover,
-[dark] #ytloop-panel .ytloop-frag-btn:hover {
-  background: var(--c-light-a18);
-}
-html[dark] #ytloop-panel .ytloop-frag-item.current .ytloop-frag-btn,
-[dark] #ytloop-panel .ytloop-frag-item.current .ytloop-frag-btn {
-  background: linear-gradient(180deg, var(--c-brand-light), var(--c-brand-dark));
+  font-family: inherit;
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--control-height-sm);
+  cursor: pointer;
 }
 
 #ytloop-panel .ytloop-frag-del {
-  flex: none;
-  padding: 4px 4px;
-  border-radius: 6px;
+  width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
   background: transparent;
   color: inherit;
-  font-size: 11px;
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height-sm);
+  cursor: pointer;
   opacity: 0;
   transition:
-    opacity 0.12s ease,
-    background 0.12s ease;
-}
-#ytloop-panel .ytloop-frag-item:hover .ytloop-frag-del {
-  opacity: 0.5;
-}
-#ytloop-panel .ytloop-frag-del:hover {
-  filter: none;
-  opacity: 1;
-  background: var(--c-danger-tint);
+    width var(--duration-fast) var(--ease-out),
+    opacity var(--duration-fast) var(--ease-out);
 }
 
-#ytloop-panel .ytloop-frag-add {
+#ytloop-panel .ytloop-frag-item:hover .ytloop-frag-del,
+#ytloop-panel .ytloop-frag-del:focus-visible {
+  width: 16px;
+  padding-right: var(--space-1);
+  opacity: 1;
+}
+
+#ytloop-panel .ytloop-chip-add {
   flex: none;
-  width: 100%;
-  padding: 6px 8px;
-  font-size: 12px;
+  padding: 0 var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height-sm);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  #ytloop-panel .ytloop-frag-item:hover {
+    border-color: var(--border-strong);
+    color: var(--fg);
+  }
+
+  #ytloop-panel .ytloop-chip-add:hover {
+    border-style: solid;
+    color: var(--fg);
+  }
 }

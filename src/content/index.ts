@@ -10,6 +10,7 @@ import {
 } from "../player";
 import { isSyncConfigured, messaging, SYNC_MESSAGE, type SyncMessage } from "../sync";
 import {
+  applyStoredFolds,
   applyStoredPanelPosition,
   injectPlayerButton,
   isEditableTarget,
@@ -47,6 +48,7 @@ async function init(): Promise<void> {
   mountDrawer();
   const globalReady = loadGlobal().then(() => {
     applyStoredPanelPosition();
+    applyStoredFolds();
     setPanelVisible(store.global.panelOpen, false);
   });
   await Promise.all([globalReady, loadForVideo(getVideoId())]);
