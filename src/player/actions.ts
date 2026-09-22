@@ -16,6 +16,7 @@ import {
   undoLastSpeedRecord,
   type VideoSettings,
   withFragment,
+  withFragmentComment,
   withoutFragment,
 } from "../core";
 import { t } from "../i18n";
@@ -201,6 +202,12 @@ export function addFragment(): boolean {
 
 export function removeFragment(id: string): void {
   store.settings.fragments = withoutFragment(store.settings.fragments, id);
+  void persistFragments(false);
+  notify("fragments");
+}
+
+export function setFragmentComment(id: string, comment: string): void {
+  store.settings.fragments = withFragmentComment(store.settings.fragments, id, comment);
   void persistFragments(false);
   notify("fragments");
 }

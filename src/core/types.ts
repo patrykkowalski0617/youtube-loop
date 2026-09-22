@@ -2,6 +2,7 @@ export interface Fragment {
   id: string;
   start: number;
   end: number;
+  comment: string;
 }
 
 export interface VideoSettings {

@@ -54,11 +54,13 @@
   --weight-normal: 400;
   --weight-bold: 600;
   --leading: 1.4;
+  --leading-tight: 1.3;
 
   --control-height-sm: 18px;
   --control-height: 28px;
   --control-height-lg: 32px;
   --field-columns: repeat(4, 1fr);
+  --chip-max-width: 180px;
   --panel-width: 324px;
   --drawer-width: 320px;
 

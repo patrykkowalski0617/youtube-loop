@@ -1,4 +1,4 @@
-import { SAME_TIME_EPSILON } from "./constants";
+import { FRAGMENT_COMMENT_MAX, SAME_TIME_EPSILON } from "./constants";
 import { type Fragment } from "./types";
 
 const ID_PREFIX = "f";
@@ -25,6 +25,10 @@ export function isSameRange(
   return sameTime(f.start, start) && sameTime(f.end, end);
 }
 
+export function normalizeComment(value: unknown): string {
+  return typeof value === "string" ? value.trim().slice(0, FRAGMENT_COMMENT_MAX) : "";
+}
+
 const isFragmentLike = (f: unknown): f is Partial<Fragment> & Pick<Fragment, "start" | "end"> =>
   typeof f === "object" &&
   f !== null &&
@@ -35,15 +39,25 @@ export function normalizeFragments(list: unknown): Fragment[] {
   if (!Array.isArray(list)) return [];
   return list
     .filter(isFragmentLike)
-    .map((f) => ({ id: f.id ?? newFragmentId(), start: f.start, end: f.end }))
+    .map((f) => ({
+      id: f.id ?? newFragmentId(),
+      start: f.start,
+      end: f.end,
+      comment: normalizeComment(f.comment),
+    }))
     .sort((a, b) => a.start - b.start || a.end - b.end);
 }
 
 export function withFragment(list: Fragment[], start: number, end: number): Fragment[] {
   if (list.some((f) => isSameRange(f, start, end))) return list;
-  return normalizeFragments([...list, { id: newFragmentId(), start, end }]);
+  return normalizeFragments([...list, { id: newFragmentId(), start, end, comment: "" }]);
 }
 
 export function withoutFragment(list: Fragment[], id: string): Fragment[] {
   return list.filter((f) => f.id !== id);
+}
+
+export function withFragmentComment(list: Fragment[], id: string, comment: string): Fragment[] {
+  const clean = normalizeComment(comment);
+  return list.map((f) => (f.id === id ? { ...f, comment: clean } : f));
 }

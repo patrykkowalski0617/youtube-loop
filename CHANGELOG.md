@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.5.0 — 2026-09-22
+
+- Every fragment can carry a note, shown on its own line above the time on the
+  chip. Hover a chip and click the pencil to write one; Enter saves, Escape
+  discards. Notes ride along to Firestore with the rest of the video.
+
 ## 2.4.2 — 2026-09-22
 
 - Restored the player-bar icon to its original 24px, white, YouTube-native

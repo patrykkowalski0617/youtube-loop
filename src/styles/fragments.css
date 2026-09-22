@@ -16,14 +16,14 @@
 #ytloop-panel .ytloop-frag-empty {
   color: var(--fg-faint);
   font-size: var(--text-micro);
-  line-height: 20px;
+  line-height: var(--control-height-sm);
 }
 
 #ytloop-panel .ytloop-frag-item {
   display: inline-flex;
   align-items: center;
   border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   color: var(--fg-muted);
 }
 
@@ -34,17 +34,40 @@
 }
 
 #ytloop-panel .ytloop-frag-btn {
-  padding: 0 var(--space-2);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: var(--chip-max-width);
+  padding: var(--space-1) var(--space-2);
   border: 0;
   background: transparent;
   color: inherit;
   font-family: inherit;
-  font-size: var(--text-micro);
-  font-variant-numeric: tabular-nums;
-  line-height: var(--control-height-sm);
   cursor: pointer;
 }
 
+#ytloop-panel .ytloop-frag-comment {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--fg);
+  font-size: var(--text-micro);
+  line-height: var(--leading-tight);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#ytloop-panel .ytloop-frag-item.current .ytloop-frag-comment {
+  color: inherit;
+}
+
+#ytloop-panel .ytloop-frag-time {
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--leading-tight);
+  opacity: 0.75;
+}
+
+#ytloop-panel .ytloop-frag-note,
 #ytloop-panel .ytloop-frag-del {
   width: 0;
   padding: 0;
@@ -54,7 +77,6 @@
   color: inherit;
   font-family: inherit;
   font-size: var(--text-micro);
-  line-height: var(--control-height-sm);
   cursor: pointer;
   opacity: 0;
   transition:
@@ -62,18 +84,44 @@
     opacity var(--duration-fast) var(--ease-out);
 }
 
+#ytloop-panel .ytloop-frag-item:hover .ytloop-frag-note,
 #ytloop-panel .ytloop-frag-item:hover .ytloop-frag-del,
+#ytloop-panel .ytloop-frag-note:focus-visible,
 #ytloop-panel .ytloop-frag-del:focus-visible {
   width: 16px;
-  padding-right: var(--space-1);
   opacity: 1;
+}
+
+#ytloop-panel .ytloop-frag-item:hover .ytloop-frag-del,
+#ytloop-panel .ytloop-frag-del:focus-visible {
+  padding-right: var(--space-1);
+}
+
+#ytloop-panel .ytloop-frag-item.is-editing {
+  flex: 1;
+  border-color: var(--accent);
+}
+
+#ytloop-panel .ytloop-frag-input {
+  width: 100%;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-micro);
+}
+
+#ytloop-panel .ytloop-frag-input:focus {
+  outline: none;
 }
 
 #ytloop-panel .ytloop-chip-add {
   flex: none;
   padding: 0 var(--space-2);
   border: 1px dashed var(--border-strong);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sm);
   background: transparent;
   color: var(--fg-faint);
   font-family: inherit;
