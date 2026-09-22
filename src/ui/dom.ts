@@ -49,14 +49,6 @@ export function flashState(el: HTMLElement, className: string, ms: number): void
   }, ms);
 }
 
-export function flashText(button: HTMLElement, text: string, ms: number): void {
-  const prev = button.textContent;
-  button.textContent = text;
-  setTimeout(() => {
-    button.textContent = prev;
-  }, ms);
-}
-
 const EDITABLE_SELECTOR = "input, textarea, [contenteditable='true'], [contenteditable='']";
 
 const isEditable = (node: EventTarget | null): boolean =>

@@ -53,15 +53,6 @@ export async function saveSavedList(list: SavedEntry[]): Promise<void> {
   await writeKeys({ [SAVED_LIST_KEY]: list });
 }
 
-export async function upsertSavedEntry(entry: SavedEntry): Promise<SavedEntry[]> {
-  const list = await loadSavedList();
-  const i = list.findIndex((e) => e.videoId === entry.videoId);
-  if (i >= 0) list[i] = entry;
-  else list.unshift(entry);
-  await saveSavedList(list);
-  return list;
-}
-
 export async function removeSavedEntry(videoId: string): Promise<SavedEntry[]> {
   const list = (await loadSavedList()).filter((e) => e.videoId !== videoId);
   await saveSavedList(list);

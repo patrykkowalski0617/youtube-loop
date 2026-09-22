@@ -1,4 +1,5 @@
 export * from "./account";
+export * from "./burst";
 export * from "./chart";
 export * from "./dom";
 export * from "./drag";

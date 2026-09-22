@@ -1,5 +1,32 @@
 # Changelog
 
+## 2.12.0 — 2026-09-23
+
+- Reaching the target tempo glows again and fires a single ring from the panel
+  outline that sweeps the viewport. Its reach comes from the window and its
+  duration from the distance it travels, so the wave moves at one speed on any
+  screen instead of racing across a large one.
+- Saving a video by hand is gone - adding a fragment already files it - so the
+  Save video and Library buttons went with it, and Play from start moved into
+  the space they left.
+- The saved-videos tab on the right edge is larger.
+- The stylesheet lint now fails on a custom property used without a definition.
+
+## 2.11.0 — 2026-09-23
+
+- Reaching the target tempo glows properly again - a slow ember pulse around
+  the whole panel - and fires a one-shot burst: two rings in the panel's own
+  outline, expanding outward and fading. It fires once per arrival, never on
+  a refresh, and stands down under reduced motion.
+
+## 2.10.0 — 2026-09-23
+
+- Saving a video by hand is gone: adding a fragment already files the video in
+  the saved list, so the button and the panel's Library duplicate went with it.
+- Play from start moved to the bottom of the panel, into the space the removed
+  section left.
+- The saved-videos tab on the right edge of the page is larger.
+
 ## 2.9.3 — 2026-09-23
 
 - Dropped the fragment tree helper and the strings the chip list used; the

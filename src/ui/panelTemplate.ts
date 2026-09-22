@@ -20,8 +20,6 @@ export const ids = {
   speedStep: "ytloop-speed-step",
   gotoStart: "ytloop-goto-start",
   clear: "ytloop-clear",
-  save: "ytloop-save",
-  openSaved: "ytloop-open-saved",
   status: "ytloop-status",
   chart: "ytloop-chart",
   fragAdd: "ytloop-frag-add",
@@ -70,12 +68,6 @@ const panelMarkup = (): string => `
     <button id="${ids.fragAdd}" class="ytloop-deck-add" title="${t.fragments.addTitle}">${t.fragments.add}</button>
   </div>
 
-  <div class="ytloop-transport">
-    <button id="${ids.gotoStart}" class="ytloop-play"></button>
-    <span class="ytloop-status" id="${ids.status}"></span>
-    <button id="${ids.clear}" class="ytloop-icon-btn" title="${p.clear}">${t.common.close}</button>
-  </div>
-
   <section class="ytloop-tempo">
       <div class="ytloop-segments">
         ${SPEED_MODES.map((mode) => modeOption(mode, p.speedMode[mode])).join("")}
@@ -104,9 +96,10 @@ const panelMarkup = (): string => `
     </div>
   </details>
 
-  <div class="ytloop-library">
-    <button id="${ids.save}" class="ytloop-text-btn">${p.save}</button>
-    <button id="${ids.openSaved}" class="ytloop-text-btn">${p.openSavedPlain}</button>
+  <div class="ytloop-transport">
+    <button id="${ids.gotoStart}" class="ytloop-play"></button>
+    <span class="ytloop-status" id="${ids.status}"></span>
+    <button id="${ids.clear}" class="ytloop-icon-btn" title="${p.clear}">${t.common.close}</button>
   </div>`;
 
 export function buildPanel(): HTMLDivElement {

@@ -22,10 +22,6 @@ export const en = {
     playFromBeginning: "Play from start",
     stop: "Stop",
     clear: "Clear the segment",
-    save: "Save video",
-    saved: "Saved",
-    openSaved: (count: number) => `Library (${count})`,
-    openSavedPlain: "Library",
   },
   status: {
     loopActive: "Looping",

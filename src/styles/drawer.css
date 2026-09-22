@@ -3,13 +3,14 @@
   top: 50%;
   right: 0;
   z-index: var(--z-drawer-handle);
-  padding: var(--space-3) var(--space-1);
+  padding: var(--space-4) var(--space-2);
   border: 0;
   border-radius: var(--radius-sm) 0 0 var(--radius-sm);
   background: var(--accent-strong);
   color: var(--c-ink-0);
   font-family: var(--font);
-  font-size: var(--text-micro);
+  font-size: var(--text-body);
+  font-weight: var(--weight-bold);
   writing-mode: vertical-rl;
   cursor: pointer;
   transform: translateY(-50%);

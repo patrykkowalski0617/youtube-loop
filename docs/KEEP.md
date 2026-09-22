@@ -70,3 +70,15 @@ Check this list before every cleanup.
   type let a typed space start the video. `isEditingNote()` additionally stands
   the extension's own space shortcut down while a note is open, so the fix does
   not rest on listener ordering alone.
+- The target burst fires on a false-to-true transition held in `src/ui/burst.ts`,
+  and the first call only records the state. Firing on the value itself would
+  repeat the burst on every status refresh, and firing on the first call would
+  set one off just for opening the panel on a video already at its target.
+- Each burst's teardown timer closes over its own element, so a stale timer can
+  only remove a node that is already detached. That is why there is no timer
+  handle to cancel.
+- `npm run lint:css` checks that every `var(--x)` resolves against
+  `src/styles/tokens.css`. An undefined custom property makes the whole
+  declaration invalid at computed-value time, so a rule silently renders
+  nothing - a burst effect once shipped with no border, no blur and no scale
+  because three tokens were missing, and both the build and the tests passed.

@@ -30,7 +30,6 @@ import {
   saveVideoSettings,
   saveVideoStats,
   stageSettingsForNavigation,
-  upsertSavedEntry,
 } from "../storage";
 import { getVideoTitle, watchUrl } from "../youtube";
 
@@ -166,13 +165,6 @@ function currentSnapshot(): SavedEntry | null {
     title: getVideoTitle(store.videoId || t.common.noTitle),
     savedAt: Date.now(),
   };
-}
-
-export async function saveCurrentToList(): Promise<void> {
-  const entry = currentSnapshot();
-  if (!entry) return;
-  await upsertSavedEntry(entry);
-  notify("saved");
 }
 
 export async function removeSaved(videoId: string): Promise<void> {

@@ -53,21 +53,19 @@ describe("drawer", () => {
     expect(document.getElementById("ytloop-drawer-handle")).not.toBeNull();
   });
 
-  it("lists every saved video and reports the count", async () => {
-    let count = -1;
-    await renderSavedList((n) => (count = n));
-    expect(count).toBe(2);
+  it("lists every saved video", async () => {
+    await renderSavedList();
     expect(items()).toHaveLength(2);
   });
 
   it("marks the video being watched", async () => {
-    await renderSavedList(() => undefined);
+    await renderSavedList();
     expect(items()[0]?.classList.contains("current")).toBe(true);
     expect(items()[1]?.classList.contains("current")).toBe(false);
   });
 
   it("summarises range, speed mode and played time", async () => {
-    await renderSavedList(() => undefined);
+    await renderSavedList();
     expect(items()[0]?.querySelector(".ytloop-saved-sub")?.textContent).toBe("0:10 – 0:20 · 0.80x");
     expect(items()[0]?.querySelector(".ytloop-saved-stat")?.textContent).toBe("▶ 1:30 played");
     expect(items()[1]?.querySelector(".ytloop-saved-sub")?.textContent).toContain("0.50→1.00x");
@@ -76,12 +74,12 @@ describe("drawer", () => {
 
   it("says so when nothing is saved", async () => {
     mock.store[SAVED_LIST_KEY] = [];
-    await renderSavedList(() => undefined);
+    await renderSavedList();
     expect(document.querySelector(".ytloop-empty")?.textContent).toBe("No saved videos yet.");
   });
 
   it("removes an entry through its delete button", async () => {
-    await renderSavedList(() => undefined);
+    await renderSavedList();
     items()[1]?.querySelector<HTMLElement>(".ytloop-saved-del")?.click();
     await flushAsync();
     expect((mock.store[SAVED_LIST_KEY] as SavedEntry[]).map((e) => e.videoId)).toEqual([
@@ -98,7 +96,7 @@ describe("drawer", () => {
   });
 
   it("applies a saved entry to the video already open", async () => {
-    await renderSavedList(() => undefined);
+    await renderSavedList();
     items()[0]?.querySelector<HTMLElement>(".ytloop-saved-main")?.click();
     await flushAsync();
     expect(store.settings.start).toBe(10);

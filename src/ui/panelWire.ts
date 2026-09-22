@@ -10,11 +10,9 @@ import {
   TAIL_SCRUB_STEP,
   TIME_ROUNDING_STEP,
 } from "../core";
-import { t } from "../i18n";
 import {
   addFragment,
   clearLoop,
-  saveCurrentToList,
   setConstSpeed,
   setEnabled,
   setEnd,
@@ -31,9 +29,8 @@ import {
   toggleLoopPlayback,
 } from "../player";
 
-import { byId, flashState, flashText, inputById, onCommit } from "./dom";
+import { byId, flashState, inputById, onCommit } from "./dom";
 import { enableDrag } from "./drag";
-import { setDrawerOpen } from "./drawer";
 import { ids, MODE_RADIO_NAME } from "./panelTemplate";
 import { setPanelVisible } from "./panelVisibility";
 import { makeScrubbable } from "./scrubbable";
@@ -130,16 +127,6 @@ export function wirePanel(panel: HTMLElement): void {
   byId(panel, ids.close).addEventListener("click", () => {
     setPanelVisible(false);
   });
-  byId(panel, ids.openSaved).addEventListener("click", () => {
-    setDrawerOpen(true);
-  });
-
-  const save = byId(panel, ids.save);
-  save.addEventListener("click", () => {
-    void saveCurrentToList();
-    flashText(save, t.panel.saved, FLASH_MS);
-  });
-
   const add = byId(panel, ids.fragAdd);
   add.addEventListener("click", () => {
     if (addFragment()) flashState(add, ADDED_CLASS, FLASH_MS);

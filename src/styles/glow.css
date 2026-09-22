@@ -6,6 +6,7 @@
 
 #ytloop-panel.is-maxed {
   border-color: var(--c-ember);
+  animation: ytloop-ember 3.2s ease-in-out infinite;
 }
 
 #ytloop-panel.is-maxed::before {
@@ -17,9 +18,9 @@
   background: repeating-conic-gradient(
     from var(--ytloop-angle),
     transparent 0deg,
-    color-mix(in oklab, var(--c-ember) 45%, transparent) 30deg,
+    var(--ember-veil) 30deg,
     var(--c-ember-glow) 45deg,
-    color-mix(in oklab, var(--c-ember) 45%, transparent) 60deg,
+    var(--ember-veil) 60deg,
     transparent 90deg
   );
   mask:
@@ -37,11 +38,61 @@
 
 #ytloop-panel.is-maxed .ytloop-status {
   color: var(--c-ember);
+  text-shadow: 0 0 8px var(--ember-halo);
+}
+
+@keyframes ytloop-ember {
+  0%,
+  100% {
+    box-shadow:
+      0 10px 30px var(--shadow-cast),
+      0 0 16px 1px var(--ember-halo),
+      inset 0 0 8px var(--ember-inset);
+  }
+
+  50% {
+    box-shadow:
+      0 10px 30px var(--shadow-cast),
+      0 0 34px 8px var(--ember-blaze),
+      inset 0 0 14px var(--ember-veil);
+  }
 }
 
 @keyframes ytloop-orbit {
   to {
     --ytloop-angle: 360deg;
+  }
+}
+
+#ytloop-panel .ytloop-burst {
+  position: absolute;
+  inset: 0;
+  border: var(--burst-edge) solid var(--burst-color);
+  border-radius: var(--radius-md);
+  filter: blur(var(--burst-blur));
+  animation-name: ytloop-burst-grow, ytloop-burst-fade;
+  animation-timing-function: var(--ease-burst), var(--ease-burst-fade);
+  animation-fill-mode: both;
+  pointer-events: none;
+}
+
+@keyframes ytloop-burst-grow {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(var(--burst-reach));
+  }
+}
+
+@keyframes ytloop-burst-fade {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
   }
 }
 
@@ -62,11 +113,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #ytloop-panel.is-maxed::before {
+  #ytloop-panel.is-maxed,
+  #ytloop-panel.is-maxed::before,
+  #ytloop-panel.ytloop-flash {
     animation: none;
   }
 
-  #ytloop-panel.ytloop-flash {
-    animation: none;
+  #ytloop-panel .ytloop-burst {
+    display: none;
   }
 }

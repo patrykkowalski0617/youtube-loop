@@ -53,9 +53,8 @@ function entryItem(e: SavedEntry, played: number): HTMLElement {
   return li;
 }
 
-export async function renderSavedList(onCount: (n: number) => void): Promise<void> {
+export async function renderSavedList(): Promise<void> {
   const list = await loadSavedList();
-  onCount(list.length);
   const ul = document.getElementById(DRAWER_LIST_ID);
   if (!ul) return;
   ul.innerHTML = "";

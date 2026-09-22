@@ -2,6 +2,7 @@ import { formatTime, speedModeOf, TEMPO_DECIMALS } from "../core";
 import { t } from "../i18n";
 import { isAtSpeedTarget, isVideoPlaying, store } from "../player";
 
+import { updateBurst } from "./burst";
 import { renderChart } from "./chart";
 import { buttonById, byId, inputById, setIfNotFocused } from "./dom";
 import { ids, modeRadioId } from "./panelTemplate";
@@ -57,10 +58,8 @@ const practiceSummary = (): string =>
 export function syncStatus(panel: HTMLElement): void {
   byId(panel, ids.status).textContent = statusText();
   byId(panel, ids.practiceSummary).textContent = practiceSummary();
-  panel.classList.toggle(MAXED_CLASS, isAtSpeedTarget());
+  const atTarget = isAtSpeedTarget();
+  panel.classList.toggle(MAXED_CLASS, atTarget);
+  updateBurst(panel, atTarget);
   renderChart(byId(panel, ids.chart));
-}
-
-export function syncSavedCount(panel: HTMLElement, count: number): void {
-  byId(panel, ids.openSaved).textContent = t.panel.openSaved(count);
 }

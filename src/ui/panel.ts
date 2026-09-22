@@ -1,9 +1,10 @@
 import { type ChangeKind, subscribe } from "../player";
 
 import { renderAccount, watchAccount } from "./account";
+import { resetBurst } from "./burst";
 import { PANEL_ID } from "./dom";
 import { renderSavedList } from "./drawer";
-import { syncInputs, syncPlayButton, syncSavedCount, syncStatus } from "./panelSync";
+import { syncInputs, syncPlayButton, syncStatus } from "./panelSync";
 import { buildPanel } from "./panelTemplate";
 import { getPanel } from "./panelVisibility";
 import { wirePanel } from "./panelWire";
@@ -30,9 +31,7 @@ export function syncPanel(kind: ChangeKind): void {
       renderAccount(panel);
       break;
     case "saved":
-      void renderSavedList((n) => {
-        syncSavedCount(panel, n);
-      });
+      void renderSavedList();
       break;
   }
 }
@@ -53,6 +52,7 @@ export function mountPanel(): HTMLElement | null {
 }
 
 export function unmountPanel(): void {
+  resetBurst(getPanel());
   getPanel()?.remove();
   unsubscribe?.();
   unsubscribe = null;
