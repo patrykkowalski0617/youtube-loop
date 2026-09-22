@@ -23,6 +23,7 @@ export const ids = {
   clear: "ytloop-clear",
   save: "ytloop-save",
   openSaved: "ytloop-open-saved",
+  account: "ytloop-account",
   status: "ytloop-status",
   chart: "ytloop-chart",
   fragList: "ytloop-frag-list",
@@ -97,6 +98,7 @@ const panelMarkup = (): string => `
         <button id="${ids.save}" class="ytloop-secondary">${p.save}</button>
         <button id="${ids.openSaved}" class="ytloop-secondary">${p.openSavedPlain}</button>
       </div>
+      <div class="ytloop-account" id="${ids.account}" hidden></div>
       <div class="ytloop-status" id="${ids.status}"></div>
       <div class="ytloop-chart" id="${ids.chart}" style="display:none"></div>
     </div>

@@ -1,5 +1,14 @@
 # Changelog
 
+## 2.1.0 — 2026-09-22
+
+- Optional Google sign-in and cloud sync: saved videos, fragments and practice
+  stats mirror to Firestore per account, so they survive a reinstall.
+- New MV3 service worker holding Firebase; the content script keeps working
+  signed-out and never loads the SDK.
+- Fixed extension id (`key` in the manifest) so `chrome.storage.local` no longer
+  depends on which folder is loaded unpacked.
+
 ## 2.0.0 — 2026-09-21
 
 - Project restructured into modules under `src/` (core, storage, youtube,

@@ -31,3 +31,13 @@ export async function writeKeys(items: Record<string, unknown>): Promise<void> {
     });
   });
 }
+
+export async function readAll(): Promise<Record<string, unknown>> {
+  const a = area();
+  if (!a) return {};
+  return new Promise((resolve) => {
+    a.get(null, (res) => {
+      resolve(res);
+    });
+  });
+}

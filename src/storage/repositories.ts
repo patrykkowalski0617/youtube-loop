@@ -1,8 +1,8 @@
 import {
-  emptyStats,
   type GlobalSettings,
   normalizeFragments,
   normalizeGlobalSettings,
+  normalizeStats,
   normalizeVideoSettings,
   pickVideoSettings,
   type SavedEntry,
@@ -29,18 +29,6 @@ export async function saveGlobalSettings(g: GlobalSettings): Promise<void> {
   await writeKeys({ [GLOBAL_SETTINGS_KEY]: g });
 }
 
-const normalizeStats = (raw: unknown): VideoStats => {
-  const d = emptyStats();
-  if (typeof raw !== "object" || raw === null) return d;
-  const r = raw as Partial<VideoStats>;
-  return {
-    seconds: typeof r.seconds === "number" ? r.seconds : d.seconds,
-    days: r.days ?? d.days,
-    daysBestSpeed: r.daysBestSpeed ?? d.daysBestSpeed,
-    speedRecords: Array.isArray(r.speedRecords) ? r.speedRecords : d.speedRecords,
-  };
-};
-
 export async function loadVideoStats(videoId: string): Promise<VideoStats> {
   return normalizeStats(await readKey(videoStatsKey(videoId)));
 }
@@ -61,7 +49,7 @@ export async function loadSavedList(): Promise<SavedEntry[]> {
   return Array.isArray(raw) ? (raw as SavedEntry[]) : [];
 }
 
-async function saveSavedList(list: SavedEntry[]): Promise<void> {
+export async function saveSavedList(list: SavedEntry[]): Promise<void> {
   await writeKeys({ [SAVED_LIST_KEY]: list });
 }
 

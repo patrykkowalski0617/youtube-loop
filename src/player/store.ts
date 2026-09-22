@@ -9,7 +9,7 @@ import {
 
 export type PlayState = "play" | "pause";
 
-export type ChangeKind = "settings" | "status" | "fragments" | "saved" | "playState";
+export type ChangeKind = "settings" | "status" | "fragments" | "saved" | "playState" | "account";
 
 export type ChangeListener = (kind: ChangeKind) => void;
 

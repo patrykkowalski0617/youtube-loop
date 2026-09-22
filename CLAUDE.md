@@ -19,6 +19,8 @@ Tests: Vitest. Lint: ESLint + Prettier. Node version in `.nvmrc`.
 - `src/youtube/` — the only place that knows YouTube's DOM (selectors, video id, title, navigation).
 - `src/player/` — loop engine driving the `<video>` element and the progress-bar markers.
 - `src/ui/` — panel, drawer, chart, fragments list, player button, drag. Markup + calls into core/player.
+- `src/sync/` — Google sign-in and the Firestore mirror. `index.ts` exports only the SDK-free modules (`config`, `messages`, `runtime`); everything that pulls the Firebase SDK is reached through `internal.ts` and must never be imported by `content/` or `ui/`.
+- `src/background/service-worker.ts` — the MV3 service worker: the only place that runs the sync engine. Every manifest entry point needs a distinct file name; two entries both called `index.ts` make the build wire one chunk into both loaders.
 - `src/i18n/` — every user-visible string.
 - `src/styles/` — CSS. `tokens.css` holds every colour and shared measure; other files use `var(--…)` only.
 - `docs/` — plan, open threads, and things that look removable but are not.
@@ -56,6 +58,7 @@ through its folder (`../core`), never through a deep path.
 ## Verification
 
 - `npm run check` covers all of `src`; confirm `tsconfig.json` includes still match after moving files.
+- After touching `src/sync`, `src/ui` or any barrel, rebuild and confirm the Firebase SDK is still absent from the content-script chunk: `npm run build`, then grep the chunk named in `dist/manifest.json` under `content_scripts` for `firestore`. A barrel that re-exports `sync/firebase` drags ~160 KB of SDK onto every YouTube page.
 - Report faithfully: failed tests are shown, skipped steps are named, done means verified.
 
 ## Git

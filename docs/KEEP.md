@@ -20,3 +20,17 @@ Check this list before every cleanup.
   `chrome.storage.local` (saved videos, fragments, stats) is tied to the id — so
   loading `dist/` after the root folder looked like all data was gone. Do not
   remove or regenerate it.
+- `src/sync/index.ts` deliberately omits `firebase.ts`, `engine.ts`, `googleAuth.ts` and
+  `firestoreVideos.ts`. The omission is the mechanism that keeps the Firebase SDK out
+  of the content-script bundle; `src/sync/internal.ts` is the barrel the service
+  worker uses. Do not "fix" the public barrel by exporting everything.
+- `src/sync/config.ts` holds only object literals and imports no SDK, so the content
+  script may import it eagerly. Keep it that way.
+- `.env.local` holds the Firebase config; it is gitignored on purpose even though the
+  values are public identifiers, so that a fork does not silently write to this
+  project's database. `.env.example` documents the shape.
+- `src/background/service-worker.ts` is deliberately not named `index.ts`. CRXJS
+  names built chunks after the entry file, so a second `index.ts` entry collides
+  with the content script's and the service-worker loader silently ends up
+  importing the content-script chunk. Renaming it back breaks sync with no error
+  in the build output.

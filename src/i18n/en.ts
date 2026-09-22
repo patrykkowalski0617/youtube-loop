@@ -70,6 +70,14 @@ export const en = {
   playerButton: {
     title: "Loop segment (YouTube Loop)",
   },
+  account: {
+    signIn: "Sign in with Google",
+    signOut: "Sign out",
+    on: "Synced",
+    off: "Not signed in - data stays on this device",
+    checking: "Checking account...",
+    error: "Sync error",
+  },
   common: {
     close: "✕",
     noTitle: "(no title)",

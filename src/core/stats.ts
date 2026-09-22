@@ -17,6 +17,18 @@ export const emptyStats = (): VideoStats => ({
   speedRecords: [],
 });
 
+export function normalizeStats(raw: unknown): VideoStats {
+  const d = emptyStats();
+  if (typeof raw !== "object" || raw === null) return d;
+  const r = raw as Partial<VideoStats>;
+  return {
+    seconds: typeof r.seconds === "number" ? r.seconds : d.seconds,
+    days: r.days ?? d.days,
+    daysBestSpeed: r.daysBestSpeed ?? d.daysBestSpeed,
+    speedRecords: Array.isArray(r.speedRecords) ? r.speedRecords : d.speedRecords,
+  };
+}
+
 function retentionCutoff(now: Date = new Date()): string {
   return dayKey(new Date(now.getTime() - STATS_RETENTION_DAYS * MS_PER_DAY));
 }

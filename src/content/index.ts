@@ -8,6 +8,7 @@ import {
   toggleLoopPlayback,
   updateMarkers,
 } from "../player";
+import { isSyncConfigured, messaging, SYNC_MESSAGE, type SyncMessage } from "../sync";
 import {
   applyStoredPanelPosition,
   injectPlayerButton,
@@ -66,6 +67,18 @@ function onKeydown(e: KeyboardEvent): void {
   toggleLoopPlayback();
 }
 
+function watchPulledData(): void {
+  const runtime = messaging();
+  if (!isSyncConfigured || !runtime) return;
+  runtime.onMessage.addListener((message: unknown) => {
+    if ((message as SyncMessage | undefined)?.type !== SYNC_MESSAGE.pulled) return;
+    if (!isWatchPage()) return;
+    void loadForVideo(getVideoId()).then(() => {
+      syncPanel("saved");
+    });
+  });
+}
+
 function markerTick(): void {
   if (store.settings.enabled && document.getElementById(PANEL_ID)) updateMarkers();
   requestAnimationFrame(() => setTimeout(markerTick, MARKER_TICK_MS));
@@ -78,6 +91,7 @@ function bootstrap(): void {
   window.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
   document.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
   window.addEventListener("keydown", onKeydown, true);
+  watchPulledData();
   const observer = new MutationObserver(() => {
     if (!isWatchPage()) return;
     if (!getVideoElement() || !document.getElementById(PANEL_ID)) void init();

@@ -78,6 +78,29 @@ The floating "🔁 Loop segment" panel appears in the top-right corner.
   remove it.
 - **Space** — toggle stop / restart-from-start (see Features).
 
+## Account and cloud sync (optional)
+
+Signing in with Google mirrors the saved videos, fragments and practice stats to
+Firestore under `users/{uid}/videos/{videoId}`, so they survive reinstalling the
+extension and follow you to another machine. Everything works signed out —
+`chrome.storage.local` stays the source of truth and the cloud is a mirror.
+
+The panel shows a sign-in row only when the build has Firebase credentials
+(`.env.local`, see `.env.example`); without them the row is hidden and no
+Firebase code is loaded.
+
+How it fits together:
+
+- The **service worker** (`src/background/`) owns Firebase. Sign-in uses
+  `chrome.identity.launchWebAuthFlow` to get a Google `id_token`, then
+  `signInWithCredential`; no offscreen document and no hosted page are needed.
+- The **content script never loads the SDK** — it talks to the worker with
+  `chrome.runtime.sendMessage`. Keeping the ~160 KB SDK off every YouTube page is
+  why `src/sync/index.ts` exports only the SDK-free modules.
+- A pull runs on sign-in and on worker start; pushes are debounced 1.5 s after a
+  change. Conflicts resolve per video by `updatedAt`, newest wins.
+- `firestore.rules` restricts every document to its owner: `request.auth.uid == uid`.
+
 ## Development
 
 Requires Node 22 (`.nvmrc`).
@@ -110,6 +133,8 @@ src/
   youtube/   the only place that knows YouTube's DOM
   player/    loop engine driving the <video> element, progress-bar markers, store
   ui/        panel, drawer, chart, fragments list, player button, drag
+  sync/      sign-in and the Firestore mirror (index.ts is SDK-free on purpose)
+  background/ MV3 service worker: the only place the sync engine runs
   i18n/      every user-visible string
   styles/    tokens.css (all colours) + one CSS file per feature
 playground/  mock YouTube page for live layout work

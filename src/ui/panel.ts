@@ -1,5 +1,6 @@
 import { type ChangeKind, subscribe } from "../player";
 
+import { renderAccount, watchAccount } from "./account";
 import { PANEL_ID } from "./dom";
 import { renderSavedList } from "./drawer";
 import { syncFragments, syncInputs, syncPlayButton, syncSavedCount, syncStatus } from "./panelSync";
@@ -18,6 +19,7 @@ export function syncPanel(kind: ChangeKind): void {
       syncFragments(panel);
       syncStatus(panel);
       syncPlayButton(panel);
+      renderAccount(panel);
       break;
     case "status":
       syncStatus(panel);
@@ -27,6 +29,9 @@ export function syncPanel(kind: ChangeKind): void {
       break;
     case "playState":
       syncPlayButton(panel);
+      break;
+    case "account":
+      renderAccount(panel);
       break;
     case "saved":
       void renderSavedList((n) => {
@@ -44,6 +49,9 @@ export function mountPanel(): HTMLElement | null {
   document.body.appendChild(panel);
   wirePanel(panel);
   unsubscribe ??= subscribe(syncPanel);
+  watchAccount(() => {
+    syncPanel("account");
+  });
   syncPanel("settings");
   return panel;
 }

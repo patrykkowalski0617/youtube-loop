@@ -1,6 +1,6 @@
 {
   "name": "youtube-loop",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "private": true,
   "description": "Mark the start and end of a loop on a YouTube video and replay the chosen segment over and over.",
   "type": "module",
@@ -38,5 +38,8 @@
     "vite": "^8.3.0",
     "vite-plugin-zip-pack": "^1.2.4",
     "vitest": "^5.0.1"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0"
   }
 }
