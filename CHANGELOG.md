@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.1.1 — 2026-09-22
+
+- Tests for the DOM layer: progress-bar markers, panel dragging, the practice
+  chart, the saved-videos drawer and the account row. No behaviour change.
+
 ## 2.1.0 — 2026-09-22
 
 - Optional Google sign-in and cloud sync: saved videos, fragments and practice

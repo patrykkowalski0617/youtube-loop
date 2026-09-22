@@ -34,3 +34,6 @@ Check this list before every cleanup.
   with the content script's and the service-worker loader silently ends up
   importing the content-script chunk. Renaming it back breaks sync with no error
   in the build output.
+- `src/testing/chromeMock.ts` looks like production code but is only imported by
+  `*.test.ts`. It is excluded from coverage and never reaches a bundle; the
+  playground has its own separate storage mock because it runs in a real page.

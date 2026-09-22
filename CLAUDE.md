@@ -23,6 +23,7 @@ Tests: Vitest. Lint: ESLint + Prettier. Node version in `.nvmrc`.
 - `src/background/service-worker.ts` — the MV3 service worker: the only place that runs the sync engine. Every manifest entry point needs a distinct file name; two entries both called `index.ts` make the build wire one chunk into both loaders.
 - `src/i18n/` — every user-visible string.
 - `src/styles/` — CSS. `tokens.css` holds every colour and shared measure; other files use `var(--…)` only.
+- `src/testing/` — helpers used only by tests (a `chrome.*` mock). Never imported by production modules.
 - `docs/` — plan, open threads, and things that look removable but are not.
 
 Every folder has an `index.ts` that only re-exports (`export *`). Import a unit
@@ -51,6 +52,7 @@ through its folder (`../core`), never through a deep path.
 ## Tests
 
 - Every module in `src/core` and every helper has a test file next to it (`*.test.ts`).
+- DOM modules are tested in jsdom with `// @vitest-environment jsdom` on the first line and `installChromeMock()` from `src/testing`. The default environment is node.
 - Order: change → user confirms → tests. Do not freeze unconfirmed behaviour in tests. Say plainly: "when you confirm this works as expected, I'll write the tests."
 - A test must be able to fail: break the code, watch it go red, restore.
 - Answer questions about domain logic by running the code (throwaway test), not from memory. A probe either becomes a named test or is deleted.
