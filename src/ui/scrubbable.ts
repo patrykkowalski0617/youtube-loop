@@ -1,8 +1,17 @@
-import { nudgeValue, SCRUB_DEAD_ZONE_PX, type ScrubRange, scrubValue } from "../core";
+import {
+  nudgeValue,
+  SCRUB_DEAD_ZONE_PX,
+  type ScrubModifiers,
+  type ScrubRange,
+  scrubValue,
+} from "../core";
 
 const DRAGGING_CLASS = "is-scrubbing";
+const PRIMARY_BUTTON = 0;
 const ARROW_UP = "ArrowUp";
 const ARROW_DOWN = "ArrowDown";
+const TOWARDS_MORE = 1;
+const TOWARDS_LESS = -1;
 
 export interface ScrubbableOptions {
   step: number;
@@ -24,7 +33,8 @@ export function makeScrubbable(input: HTMLInputElement, options: ScrubbableOptio
   let moved = false;
 
   input.addEventListener("pointerdown", (e) => {
-    if (e.button !== 0 || document.activeElement === input) return;
+    if (e.button !== PRIMARY_BUTTON) return;
+    e.preventDefault();
     pointerId = e.pointerId;
     originY = e.clientY;
     base = options.read();
@@ -42,13 +52,25 @@ export function makeScrubbable(input: HTMLInputElement, options: ScrubbableOptio
     apply(input, scrubValue(base, deltaUp, options.step, e, options.range), options);
   });
 
+  const nudge = (direction: number, modifiers: ScrubModifiers): void => {
+    apply(
+      input,
+      nudgeValue(options.read(), direction, options.step, modifiers, options.range),
+      options,
+    );
+  };
+
   const endDrag = (e: PointerEvent): void => {
     if (pointerId !== e.pointerId) return;
     if (input.hasPointerCapture(e.pointerId)) input.releasePointerCapture(e.pointerId);
     pointerId = null;
     input.classList.remove(DRAGGING_CLASS);
-    if (moved) e.preventDefault();
-    else input.focus();
+    if (moved) {
+      e.preventDefault();
+      return;
+    }
+    input.focus();
+    input.select();
   };
 
   input.addEventListener("pointerup", endDrag);
@@ -57,8 +79,7 @@ export function makeScrubbable(input: HTMLInputElement, options: ScrubbableOptio
   input.addEventListener("keydown", (e) => {
     if (e.key !== ARROW_UP && e.key !== ARROW_DOWN) return;
     e.preventDefault();
-    const direction = e.key === ARROW_UP ? 1 : -1;
-    apply(input, nudgeValue(options.read(), direction, options.step, e, options.range), options);
+    nudge(e.key === ARROW_UP ? TOWARDS_MORE : TOWARDS_LESS, e);
   });
 
   input.addEventListener(
@@ -66,8 +87,7 @@ export function makeScrubbable(input: HTMLInputElement, options: ScrubbableOptio
     (e) => {
       if (document.activeElement !== input) return;
       e.preventDefault();
-      const direction = e.deltaY < 0 ? 1 : -1;
-      apply(input, nudgeValue(options.read(), direction, options.step, e, options.range), options);
+      nudge(e.deltaY < 0 ? TOWARDS_MORE : TOWARDS_LESS, e);
     },
     { passive: false },
   );

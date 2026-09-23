@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.12.1 — 2026-09-23
+
+- Dragging a number field works again. It had been disabled for any field that
+  already held focus, which every click left behind, and the browser was free
+  to start a text selection under the drag. A click without a drag now selects
+  the value so it can be typed over.
+
 ## 2.12.0 — 2026-09-23
 
 - Reaching the target tempo glows again and fires a single ring from the panel
