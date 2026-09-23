@@ -72,6 +72,28 @@ describe("drawer", () => {
     expect(items()[1]?.querySelector(".ytloop-saved-stat")).toBeNull();
   });
 
+  it("lists the notes written on that video's fragments", async () => {
+    mock.store[SAVED_LIST_KEY] = [
+      entry({
+        fragments: [
+          { id: "a", start: 1, end: 2, comment: "the bend" },
+          { id: "b", start: 3, end: 4, comment: "" },
+          { id: "c", start: 5, end: 6, comment: "slide up" },
+        ],
+      }),
+    ];
+    await renderSavedList();
+    const card = items()[0];
+    if (!card) throw new Error("No card rendered");
+    const notes = [...card.querySelectorAll(".ytloop-saved-note")].map((n) => n.textContent);
+    expect(notes).toEqual(["the bend", "slide up"]);
+  });
+
+  it("leaves the note row out when no fragment carries one", async () => {
+    await renderSavedList();
+    expect(items()[0]?.querySelector(".ytloop-saved-notes")).toBeNull();
+  });
+
   it("says so when nothing is saved", async () => {
     mock.store[SAVED_LIST_KEY] = [];
     await renderSavedList();

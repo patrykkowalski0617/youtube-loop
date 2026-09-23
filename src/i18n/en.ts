@@ -63,6 +63,7 @@ export const en = {
     rampSpeed: (from: string, to: string) => ` · ${from}→${to}x`,
     fragmentCount: (n: number) => ` · ${n} frag.`,
     played: (time: string) => `▶ ${time} played`,
+    moreNotes: (count: number) => `+${count}`,
     remove: "Remove",
   },
   playerButton: {

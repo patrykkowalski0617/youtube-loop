@@ -1,4 +1,10 @@
-import { formatTime, type SavedEntry, TEMPO_DECIMALS } from "../core";
+import {
+  formatTime,
+  fragmentNotes,
+  SAVED_NOTES_LIMIT,
+  type SavedEntry,
+  TEMPO_DECIMALS,
+} from "../core";
 import { t } from "../i18n";
 import { loadEntry, notify, removeSaved, store } from "../player";
 import { loadPlayedSeconds, loadSavedList } from "../storage";
@@ -25,6 +31,15 @@ function entrySubtitle(e: SavedEntry): string {
   return range + speed + (count ? t.drawer.fragmentCount(count) : "");
 }
 
+function notesRow(e: SavedEntry): HTMLElement | null {
+  const { notes, hidden } = fragmentNotes(e.fragments, SAVED_NOTES_LIMIT);
+  if (!notes.length) return null;
+  const row = el("div", "ytloop-saved-notes");
+  for (const note of notes) row.appendChild(el("span", "ytloop-saved-note", note));
+  if (hidden) row.appendChild(el("span", "ytloop-saved-note-more", t.drawer.moreNotes(hidden)));
+  return row;
+}
+
 function entryItem(e: SavedEntry, played: number): HTMLElement {
   const li = el("li", "ytloop-saved-item");
   if (e.videoId === store.videoId) li.classList.add(CURRENT_CLASS);
@@ -34,6 +49,8 @@ function entryItem(e: SavedEntry, played: number): HTMLElement {
     el("div", "ytloop-saved-title", e.title || e.videoId),
     el("div", "ytloop-saved-sub", entrySubtitle(e)),
   );
+  const notes = notesRow(e);
+  if (notes) main.appendChild(notes);
   if (played > 0)
     main.appendChild(el("div", "ytloop-saved-stat", t.drawer.played(formatTime(played))));
   main.addEventListener("click", () => {

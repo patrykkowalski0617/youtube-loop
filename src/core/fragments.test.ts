@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 
 import { FRAGMENT_COMMENT_MAX } from "./constants";
+import { SAVED_NOTES_LIMIT } from "./constants";
 import {
+  fragmentNotes,
   isSameRange,
   normalizeComment,
   normalizeFragments,
@@ -103,5 +105,34 @@ describe("withFragmentComment", () => {
 
   it("leaves the list alone for an unknown id", () => {
     expect(withFragmentComment(list, "missing", "x")).toEqual(list);
+  });
+});
+
+describe("fragmentNotes", () => {
+  const withNotes = (...comments: string[]): unknown =>
+    comments.map((comment, i) => ({ id: `f${i}`, start: i, end: i + 0.5, comment }));
+
+  it("lists the notes people wrote and skips the fragments without one", () => {
+    expect(fragmentNotes(withNotes("bend", "", "slide"), SAVED_NOTES_LIMIT)).toEqual({
+      notes: ["bend", "slide"],
+      hidden: 0,
+    });
+  });
+
+  it("caps the list and counts what it left out", () => {
+    const many = withNotes("a", "b", "c", "d", "e", "f");
+    expect(fragmentNotes(many, SAVED_NOTES_LIMIT)).toEqual({
+      notes: ["a", "b", "c", "d"],
+      hidden: 2,
+    });
+  });
+
+  it("returns nothing for a video with no notes at all", () => {
+    expect(fragmentNotes(withNotes("", ""), SAVED_NOTES_LIMIT)).toEqual({ notes: [], hidden: 0 });
+    expect(fragmentNotes(undefined, SAVED_NOTES_LIMIT)).toEqual({ notes: [], hidden: 0 });
+  });
+
+  it("reads notes off fragments stored before the field existed", () => {
+    expect(fragmentNotes([{ id: "old", start: 1, end: 2 }], SAVED_NOTES_LIMIT).notes).toEqual([]);
   });
 });

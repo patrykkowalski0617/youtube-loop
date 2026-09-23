@@ -14,6 +14,7 @@ export const SPEED_SCRUB_STEP = 0.05;
 export const TAIL_SCRUB_STEP = 0.1;
 export const TAIL_MIN = 0;
 export const FRAGMENT_COMMENT_MAX = 120;
+export const SAVED_NOTES_LIMIT = 4;
 export const TEMPO_DECIMALS = 2;
 export const STATS_RETENTION_DAYS = 30;
 export const SPEED_RECORDS_MAX = 100;

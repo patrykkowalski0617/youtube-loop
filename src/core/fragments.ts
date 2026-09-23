@@ -57,6 +57,18 @@ export function withoutFragment(list: Fragment[], id: string): Fragment[] {
   return list.filter((f) => f.id !== id);
 }
 
+export interface NoteSummary {
+  notes: string[];
+  hidden: number;
+}
+
+export function fragmentNotes(fragments: unknown, limit: number): NoteSummary {
+  const written = normalizeFragments(fragments)
+    .map((f) => f.comment)
+    .filter((comment) => comment !== "");
+  return { notes: written.slice(0, limit), hidden: Math.max(0, written.length - limit) };
+}
+
 export function withFragmentComment(list: Fragment[], id: string, comment: string): Fragment[] {
   const clean = normalizeComment(comment);
   return list.map((f) => (f.id === id ? { ...f, comment: clean } : f));
