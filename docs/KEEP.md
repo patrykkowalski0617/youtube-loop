@@ -82,3 +82,7 @@ Check this list before every cleanup.
   declaration invalid at computed-value time, so a rule silently renders
   nothing - a burst effect once shipped with no border, no blur and no scale
   because three tokens were missing, and both the build and the tests passed.
+- Text fields that live on a YouTube page shield their own keystrokes through
+  `src/ui/keyShield.ts` and detach the shield when they go away. Skipping the
+  detach leaks a window listener on every drawer remount, and skipping the
+  shield lets a typed space reach YouTube's player controls.

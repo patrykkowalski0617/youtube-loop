@@ -1,87 +1,31 @@
-import {
-  formatTime,
-  fragmentNotes,
-  SAVED_NOTES_LIMIT,
-  type SavedEntry,
-  TEMPO_DECIMALS,
-} from "../core";
+import { filterSavedEntries } from "../core";
 import { t } from "../i18n";
-import { loadEntry, notify, removeSaved, store } from "../player";
+import { notify } from "../player";
 import { loadPlayedSeconds, loadSavedList } from "../storage";
 
-import { DRAWER_HANDLE_ID, DRAWER_ID, DRAWER_LIST_ID, el } from "./dom";
+import { DRAWER_HANDLE_ID, DRAWER_ID, DRAWER_LIST_ID, DRAWER_SEARCH_ID, el } from "./dom";
+import { shieldKeys } from "./keyShield";
+import { savedCard } from "./savedCard";
 
 const OPEN_CLASS = "open";
-const CURRENT_CLASS = "current";
+
+let query = "";
+let unshieldSearch: (() => void) | null = null;
 const CLOSE_ID = "ytloop-drawer-close";
-
-const speedText = (v: number): string => v.toFixed(TEMPO_DECIMALS);
-
-function entrySubtitle(e: SavedEntry): string {
-  const range =
-    e.start != null || e.end != null
-      ? t.fragments.range(formatTime(e.start ?? 0), formatTime(e.end))
-      : t.drawer.noRange;
-  const speed = e.constEnabled
-    ? t.drawer.constSpeed(speedText(e.constSpeed))
-    : e.speedEnabled
-      ? t.drawer.rampSpeed(speedText(e.speedStart), speedText(e.speedTarget))
-      : "";
-  const count = Array.isArray(e.fragments) ? e.fragments.length : 0;
-  return range + speed + (count ? t.drawer.fragmentCount(count) : "");
-}
-
-function notesRow(e: SavedEntry): HTMLElement | null {
-  const { notes, hidden } = fragmentNotes(e.fragments, SAVED_NOTES_LIMIT);
-  if (!notes.length) return null;
-  const row = el("div", "ytloop-saved-notes");
-  for (const note of notes) row.appendChild(el("span", "ytloop-saved-note", note));
-  if (hidden) row.appendChild(el("span", "ytloop-saved-note-more", t.drawer.moreNotes(hidden)));
-  return row;
-}
-
-function entryItem(e: SavedEntry, played: number): HTMLElement {
-  const li = el("li", "ytloop-saved-item");
-  if (e.videoId === store.videoId) li.classList.add(CURRENT_CLASS);
-
-  const main = el("div", "ytloop-saved-main");
-  main.append(
-    el("div", "ytloop-saved-title", e.title || e.videoId),
-    el("div", "ytloop-saved-sub", entrySubtitle(e)),
-  );
-  const notes = notesRow(e);
-  if (notes) main.appendChild(notes);
-  if (played > 0)
-    main.appendChild(el("div", "ytloop-saved-stat", t.drawer.played(formatTime(played))));
-  main.addEventListener("click", () => {
-    void loadEntry(e).then((applied) => {
-      if (applied) setDrawerOpen(false);
-    });
-  });
-
-  const del = el("button", "ytloop-saved-del", t.common.close);
-  del.title = t.drawer.remove;
-  del.addEventListener("click", (ev) => {
-    ev.stopPropagation();
-    void removeSaved(e.videoId);
-  });
-
-  li.append(main, del);
-  return li;
-}
 
 export async function renderSavedList(): Promise<void> {
   const list = await loadSavedList();
   const ul = document.getElementById(DRAWER_LIST_ID);
   if (!ul) return;
+  const shown = filterSavedEntries(list, query);
   ul.innerHTML = "";
-  if (!list.length) {
-    ul.appendChild(el("li", "ytloop-empty", t.drawer.empty));
+  if (!shown.length) {
+    ul.appendChild(el("li", "ytloop-empty", list.length ? t.drawer.noMatches : t.drawer.empty));
     return;
   }
-  const played = await loadPlayedSeconds(list.map((e) => e.videoId));
+  const played = await loadPlayedSeconds(shown.map((e) => e.videoId));
   ul.innerHTML = "";
-  for (const e of list) ul.appendChild(entryItem(e, played[e.videoId] ?? 0));
+  for (const e of shown) ul.appendChild(savedCard(e, played[e.videoId] ?? 0));
 }
 
 export function setDrawerOpen(open: boolean): void {
@@ -116,13 +60,28 @@ export function mountDrawer(): void {
     setDrawerOpen(false);
   });
   head.append(el("span", undefined, t.drawer.heading), close);
+
+  const search = el("input", "ytloop-drawer-search");
+  search.id = DRAWER_SEARCH_ID;
+  search.type = "search";
+  search.placeholder = t.drawer.searchPlaceholder;
+  search.value = query;
+  unshieldSearch = shieldKeys(search);
+  search.addEventListener("input", () => {
+    query = search.value;
+    void renderSavedList();
+  });
+
   const list = el("ul");
   list.id = DRAWER_LIST_ID;
-  drawer.append(head, list);
+  drawer.append(head, search, list);
   document.body.appendChild(drawer);
 }
 
 export function unmountDrawer(): void {
+  query = "";
+  unshieldSearch?.();
+  unshieldSearch = null;
   document.getElementById(DRAWER_ID)?.remove();
   document.getElementById(DRAWER_HANDLE_ID)?.remove();
 }

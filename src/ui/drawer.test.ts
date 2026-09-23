@@ -109,6 +109,37 @@ describe("drawer", () => {
     ]);
   });
 
+  it("filters the list by a word from a title", async () => {
+    byId(document, "ytloop-drawer-search").setAttribute("value", "");
+    const search = byId(document, "ytloop-drawer-search") as HTMLInputElement;
+    search.value = "another";
+    search.dispatchEvent(new Event("input"));
+    await flushAsync();
+    expect(items()).toHaveLength(1);
+    expect(items()[0]?.textContent).toContain("Another");
+  });
+
+  it("filters the list by a note written on a fragment", async () => {
+    mock.store[SAVED_LIST_KEY] = [
+      entry({ title: "First", fragments: [{ id: "a", start: 1, end: 2, comment: "the bend" }] }),
+      entry({ videoId: OTHER_ID, title: "Second", fragments: [] }),
+    ];
+    const search = byId(document, "ytloop-drawer-search") as HTMLInputElement;
+    search.value = "bend";
+    search.dispatchEvent(new Event("input"));
+    await flushAsync();
+    expect(items()).toHaveLength(1);
+    expect(items()[0]?.textContent).toContain("First");
+  });
+
+  it("says so when the search matches nothing", async () => {
+    const search = byId(document, "ytloop-drawer-search") as HTMLInputElement;
+    search.value = "harmonica";
+    search.dispatchEvent(new Event("input"));
+    await flushAsync();
+    expect(document.querySelector(".ytloop-empty")?.textContent).toBe("Nothing matches that.");
+  });
+
   it("opens and closes", () => {
     const drawer = byId(document, "ytloop-drawer");
     setDrawerOpen(true);

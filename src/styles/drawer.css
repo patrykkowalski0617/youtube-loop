@@ -72,6 +72,28 @@
   cursor: pointer;
 }
 
+#ytloop-drawer .ytloop-drawer-search {
+  width: 100%;
+  height: var(--control-height-lg);
+  margin-top: var(--space-2);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-body);
+}
+
+#ytloop-drawer .ytloop-drawer-search::placeholder {
+  color: var(--fg-faint);
+}
+
+#ytloop-drawer .ytloop-drawer-search:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
 #ytloop-drawer ul {
   display: flex;
   flex: 1;

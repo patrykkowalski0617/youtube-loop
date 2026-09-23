@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.14.0 — 2026-09-23
+
+- The saved-videos drawer has a search box. It filters on video titles and on
+  the notes written on their fragments at once, every typed word has to match
+  somewhere, and an empty result says so rather than looking like an empty
+  library.
+
 ## 2.13.0 — 2026-09-23
 
 - A saved video's card lists the notes written on its fragments, so the list

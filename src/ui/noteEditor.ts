@@ -3,11 +3,11 @@ import { t } from "../i18n";
 import { setFragmentComment } from "../player";
 
 import { el } from "./dom";
+import { shieldKeys } from "./keyShield";
 
 const EDITING_CLASS = "is-editing";
 const ENTER_KEY = "Enter";
 const ESCAPE_KEY = "Escape";
-const SHIELDED_EVENTS = ["keydown", "keyup", "keypress"] as const;
 
 let openEditors = 0;
 
@@ -28,26 +28,21 @@ export function openNoteEditor({ host, fragment, close, onRemove }: NoteEditorOp
   input.value = fragment.comment;
   input.placeholder = t.fragments.notePlaceholder;
 
-  const shield = (e: Event): void => {
-    if (e.target !== input) return;
-    e.stopImmediatePropagation();
-    if (e.type !== "keydown" || !(e instanceof KeyboardEvent)) return;
-    if (e.key === ENTER_KEY) commit(true);
-    if (e.key === ESCAPE_KEY) commit(false);
-  };
-
   let committed = false;
   const commit = (save: boolean): void => {
     if (committed) return;
     committed = true;
     openEditors -= 1;
-    for (const type of SHIELDED_EVENTS) window.removeEventListener(type, shield, true);
+    unshield();
     if (save) setFragmentComment(fragment.id, input.value);
     close();
   };
 
   openEditors += 1;
-  for (const type of SHIELDED_EVENTS) window.addEventListener(type, shield, true);
+  const unshield = shieldKeys(input, (e) => {
+    if (e.key === ENTER_KEY) commit(true);
+    if (e.key === ESCAPE_KEY) commit(false);
+  });
   input.addEventListener("blur", () => {
     commit(true);
   });

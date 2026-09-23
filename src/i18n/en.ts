@@ -58,6 +58,8 @@ export const en = {
     heading: "★ Saved videos",
     close: "Close",
     empty: "No saved videos yet.",
+    searchPlaceholder: "Search titles and notes",
+    noMatches: "Nothing matches that.",
     noRange: "no range",
     constSpeed: (speed: string) => ` · ${speed}x`,
     rampSpeed: (from: string, to: string) => ` · ${from}→${to}x`,
