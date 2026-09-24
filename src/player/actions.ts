@@ -9,6 +9,7 @@ import {
   type Fragment,
   normalizeTagName,
   normalizeVideoSettings,
+  type PanelSpot,
   pickVideoSettings,
   renamedTagNames,
   renamedTags,
@@ -153,9 +154,9 @@ export function setPracticeOpen(open: boolean): void {
   persistGlobal();
 }
 
-export function setPanelPosition(left: number, top: number): void {
-  store.global.panelLeft = left;
-  store.global.panelTop = top;
+export function setPanelSpot(spot: PanelSpot): void {
+  store.global.panelX = spot.x;
+  store.global.panelY = spot.y;
 }
 
 export function persistPanelPosition(): void {

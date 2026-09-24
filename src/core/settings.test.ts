@@ -35,11 +35,18 @@ describe("normalizeVideoSettings", () => {
 describe("normalizeGlobalSettings", () => {
   it("returns defaults for missing input and keeps valid fields", () => {
     expect(normalizeGlobalSettings(null)).toEqual(defaultGlobalSettings());
-    expect(normalizeGlobalSettings({ tail: 2, panelOpen: true, panelLeft: 10 })).toEqual({
+    expect(normalizeGlobalSettings({ tail: 2, panelOpen: true, panelX: 0.4 })).toEqual({
       ...defaultGlobalSettings(),
       tail: 2,
       panelOpen: true,
-      panelLeft: 10,
+      panelX: 0.4,
+    });
+  });
+
+  it("drops a position saved before the panel spot was a share of the viewport", () => {
+    expect(normalizeGlobalSettings({ panelX: 640, panelY: -12 })).toMatchObject({
+      panelX: 1,
+      panelY: 0,
     });
   });
 });

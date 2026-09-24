@@ -10,14 +10,22 @@ import { enableDrag, placePanel } from "./drag";
 
 const VIEWPORT_WIDTH = 1000;
 const VIEWPORT_HEIGHT = 800;
+const PANEL_WIDTH = 300;
+const PANEL_HEIGHT = 400;
 const GRAB_X = 120;
 const GRAB_Y = 40;
+
+const sizePanel = (panel: HTMLElement): void => {
+  Object.defineProperty(panel, "offsetWidth", { value: PANEL_WIDTH, configurable: true });
+  Object.defineProperty(panel, "offsetHeight", { value: PANEL_HEIGHT, configurable: true });
+};
 
 function setup(): { handle: HTMLElement; panel: HTMLElement } {
   document.body.innerHTML =
     '<div id="panel"><div id="handle"><button id="close"></button></div></div>';
   const panel = byId(document, "panel");
   const handle = byId(document, "handle");
+  sizePanel(panel);
   enableDrag(handle, panel);
   return { handle, panel };
 }
@@ -54,16 +62,16 @@ describe("enableDrag", () => {
     mouse(window, "mousemove", GRAB_X + 100, GRAB_Y + 60);
     expect(panel.style.left).toBe("100px");
     expect(panel.style.top).toBe("60px");
-    expect(store.global.panelLeft).toBe(100);
-    expect(store.global.panelTop).toBe(60);
+    expect(store.global.panelX).toBeCloseTo(100 / (VIEWPORT_WIDTH - PANEL_WIDTH));
+    expect(store.global.panelY).toBeCloseTo(60 / (VIEWPORT_HEIGHT - PANEL_HEIGHT));
   });
 
-  it("keeps a sliver of the panel on screen", () => {
+  it("never lets the panel leave the viewport", () => {
     const { handle, panel } = setup();
     mouse(handle, "mousedown", 0, 0);
     mouse(window, "mousemove", VIEWPORT_WIDTH * 2, VIEWPORT_HEIGHT * 2);
-    expect(panel.style.left).toBe("940px");
-    expect(panel.style.top).toBe("770px");
+    expect(panel.style.left).toBe(`${VIEWPORT_WIDTH - PANEL_WIDTH}px`);
+    expect(panel.style.top).toBe(`${VIEWPORT_HEIGHT - PANEL_HEIGHT}px`);
     mouse(window, "mousemove", -500, -500);
     expect(panel.style.left).toBe("0px");
     expect(panel.style.top).toBe("0px");

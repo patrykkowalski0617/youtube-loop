@@ -102,6 +102,7 @@ function bootstrap(): void {
   window.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
   document.addEventListener(NAVIGATE_FINISH_EVENT, onNavigate);
   window.addEventListener("keydown", onKeydown, true);
+  window.addEventListener("resize", applyStoredPanelPosition);
   watchPulledData();
   const observer = new MutationObserver(() => {
     if (!isWatchPage()) return;

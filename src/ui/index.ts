@@ -20,3 +20,4 @@ export * from "./tagRename";
 export * from "./tagSuggest";
 export * from "./timeline";
 export * from "./version";
+export * from "./viewport";

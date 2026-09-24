@@ -1,8 +1,10 @@
+import { fromPanelSpot } from "../core";
 import { setPanelOpen, store } from "../player";
 
 import { byId, PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
 import { placePanel } from "./drag";
 import { ids } from "./panelTemplate";
+import { boxOf, viewportBox } from "./viewport";
 
 const ACTIVE_BUTTON_CLASS = "ytloop-active";
 
@@ -17,6 +19,7 @@ export function setPanelVisible(visible: boolean, persist = true): void {
   const panel = getPanel();
   if (!panel) return;
   panel.hidden = !visible;
+  if (visible) applyStoredPanelPosition();
   setPanelOpen(visible, persist);
   document.getElementById(PLAYER_BUTTON_ID)?.classList.toggle(ACTIVE_BUTTON_CLASS, visible);
 }
@@ -29,7 +32,8 @@ export function applyStoredFolds(): void {
 
 export function applyStoredPanelPosition(): void {
   const panel = getPanel();
-  const { panelLeft, panelTop } = store.global;
-  if (!panel || panelLeft == null || panelTop == null) return;
-  placePanel(panel, panelLeft, panelTop);
+  const { panelX, panelY } = store.global;
+  if (!panel || panel.hidden || panelX == null || panelY == null) return;
+  const point = fromPanelSpot({ x: panelX, y: panelY }, boxOf(panel), viewportBox());
+  placePanel(panel, point.left, point.top);
 }

@@ -48,7 +48,7 @@ export interface VideoStats {
 export interface GlobalSettings {
   tail: number;
   panelOpen: boolean;
-  panelLeft: number | null;
-  panelTop: number | null;
+  panelX: number | null;
+  panelY: number | null;
   practiceOpen: boolean;
 }

@@ -112,3 +112,12 @@ var(--ytloop-tag-hue))`. A custom property containing `var()` is substituted
 - Suggestion rows commit on `mousedown` with `preventDefault`, not on `click`.
   A click would first blur the field, and the blur handler closes the editor and
   commits whatever was typed, so the pick would never arrive.
+- The panel's stored position is a share of the free space (0-1 per axis), not a
+  pixel offset. A pixel offset saved in a wide window drops the panel outside a
+  narrow one, and a panel parked at the right edge has to stay at the right edge
+  when the window changes. `panelLeft`/`panelTop` from before the change
+  normalise into that range, so an old value lands at an edge instead of off
+  screen.
+- `applyStoredPanelPosition` skips a hidden panel: `offsetWidth` reads 0 while
+  the `hidden` attribute is set, so the placement would be computed against a
+  panel of no size. Showing the panel applies the position again.

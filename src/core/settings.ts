@@ -6,6 +6,7 @@ import {
   DEFAULT_TAIL_SECONDS,
 } from "./constants";
 import { normalizeFragments } from "./fragments";
+import { normalizeSpotValue } from "./panelPosition";
 import { normalizeTagNames } from "./tags";
 import { type GlobalSettings, type VideoSettings } from "./types";
 
@@ -26,14 +27,16 @@ export const defaultVideoSettings = (): VideoSettings => ({
 export const defaultGlobalSettings = (): GlobalSettings => ({
   tail: DEFAULT_TAIL_SECONDS,
   panelOpen: false,
-  panelLeft: null,
-  panelTop: null,
+  panelX: null,
+  panelY: null,
   practiceOpen: false,
 });
 
 const numberOr = (v: unknown, fallback: number): number =>
   typeof v === "number" && Number.isFinite(v) ? v : fallback;
 const numberOrNull = (v: unknown): number | null => (typeof v === "number" ? v : null);
+const spotOrNull = (v: unknown): number | null =>
+  typeof v === "number" ? normalizeSpotValue(v) : null;
 const booleanOr = (v: unknown, fallback: boolean): boolean =>
   typeof v === "boolean" ? v : fallback;
 
@@ -63,8 +66,8 @@ export function normalizeGlobalSettings(raw: unknown): GlobalSettings {
   return {
     tail: numberOr(r.tail, d.tail),
     panelOpen: booleanOr(r.panelOpen, d.panelOpen),
-    panelLeft: numberOrNull(r.panelLeft),
-    panelTop: numberOrNull(r.panelTop),
+    panelX: spotOrNull(r.panelX),
+    panelY: spotOrNull(r.panelY),
     practiceOpen: booleanOr(r.practiceOpen, d.practiceOpen),
   };
 }

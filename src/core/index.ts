@@ -2,6 +2,7 @@ export * from "./burst";
 export * from "./constants";
 export * from "./fragments";
 export * from "./lanes";
+export * from "./panelPosition";
 export * from "./savedSearch";
 export * from "./scrub";
 export * from "./settings";
