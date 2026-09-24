@@ -5,7 +5,6 @@ import { resetBurst } from "./burst";
 import { PANEL_ID } from "./dom";
 import { renderSavedList } from "./drawer";
 import { syncInputs, syncPlayButton, syncStatus } from "./panelSync";
-import { unwireTags } from "./panelTags";
 import { buildPanel } from "./panelTemplate";
 import { getPanel } from "./panelVisibility";
 import { wirePanel } from "./panelWire";
@@ -53,7 +52,6 @@ export function mountPanel(): HTMLElement | null {
 }
 
 export function unmountPanel(): void {
-  unwireTags();
   resetBurst(getPanel());
   getPanel()?.remove();
   unsubscribe?.();

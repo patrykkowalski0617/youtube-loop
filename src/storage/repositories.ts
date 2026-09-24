@@ -67,6 +67,12 @@ export async function renameTagEverywhere(from: string, to: string): Promise<voi
   if (Object.keys(updates).length) await writeKeys(updates);
 }
 
+export async function saveEntryTags(videoId: string, tags: string[]): Promise<void> {
+  const settings = await loadVideoSettings(videoId);
+  await saveVideoSettings(videoId, { ...settings, tags });
+  await mirrorToSaved(videoId, { tags }, null);
+}
+
 export async function loadVideoStats(videoId: string): Promise<VideoStats> {
   return normalizeStats(await readKey(videoStatsKey(videoId)));
 }

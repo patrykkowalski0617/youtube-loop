@@ -139,7 +139,14 @@
 
 #ytloop-panel .ytloop-deck {
   display: grid;
-  grid-template-columns: 1fr 1fr auto;
+  grid-template-columns: 1fr var(--panel-aside);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+#ytloop-panel .ytloop-marks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   border-radius: var(--radius-sm);
   background: var(--surface);
 }
@@ -163,11 +170,11 @@
 }
 
 #ytloop-panel .ytloop-deck-add {
-  align-self: stretch;
-  width: var(--control-height-lg);
-  border: 0;
-  border-left: 1px solid var(--border);
-  background: transparent;
+  width: var(--panel-aside);
+  height: var(--panel-aside);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
   color: var(--fg-muted);
   font-family: inherit;
   font-size: var(--text-title);
@@ -235,9 +242,6 @@
 
 #ytloop-panel .ytloop-transport {
   display: grid;
-  grid-template-columns: 1fr auto var(--control-height);
-  align-items: center;
-  gap: var(--space-2);
 }
 
 #ytloop-panel .ytloop-play {
@@ -250,19 +254,6 @@
   font-size: var(--text-body);
   font-weight: var(--weight-bold);
   cursor: pointer;
-}
-
-#ytloop-panel .ytloop-status {
-  min-width: 52px;
-  color: var(--fg-faint);
-  font-size: var(--text-body);
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-#ytloop-panel.is-active .ytloop-status {
-  color: var(--accent);
-  font-weight: var(--weight-bold);
 }
 
 #ytloop-panel .ytloop-fold {
@@ -317,6 +308,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+#ytloop-panel .ytloop-mode-row {
+  display: grid;
+  grid-template-columns: 1fr var(--panel-aside);
+  align-items: center;
+  gap: var(--space-3);
+}
+
+#ytloop-panel .ytloop-mode-row .ytloop-switch {
+  justify-self: center;
 }
 
 #ytloop-panel .ytloop-segments {

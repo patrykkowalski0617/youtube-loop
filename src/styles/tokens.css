@@ -33,6 +33,7 @@
   --accent-wash: color-mix(in oklab, var(--accent) 12%, transparent);
   --accent-ring: color-mix(in oklab, var(--accent) 45%, transparent);
   --shadow-cast: color-mix(in oklab, var(--c-ink-950) 30%, transparent);
+  --undo-fill: color-mix(in oklab, var(--fg) 13%, var(--bg));
 
   --space-1: 4px;
   --space-2: 8px;
@@ -54,10 +55,12 @@
   --leading: 1.4;
 
   --control-height-sm: 18px;
+  --control-height-icon: 22px;
   --control-height: 28px;
   --control-height-lg: 32px;
   --field-columns: repeat(4, 1fr);
   --panel-width: 324px;
+  --panel-aside: var(--control-height-lg);
   --drawer-width: 320px;
 
   --duration-fast: 120ms;
@@ -81,6 +84,9 @@
   --tag-options-height: 156px;
   --tag-swatch-size: 8px;
   --ytloop-tag-hue: 0;
+
+  --undo-duration: 0s;
+  --undo-elapsed: 0s;
 
   --timeline-bar: 16px;
   --timeline-lane-gap: 3px;

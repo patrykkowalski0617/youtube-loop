@@ -64,11 +64,9 @@ describe("drawer", () => {
     expect(items()[1]?.classList.contains("current")).toBe(false);
   });
 
-  it("summarises range, speed mode and played time", async () => {
+  it("shows played time only for a video that was played", async () => {
     await renderSavedList();
-    expect(items()[0]?.querySelector(".ytloop-saved-sub")?.textContent).toBe("0:10 – 0:20 · 0.80x");
     expect(items()[0]?.querySelector(".ytloop-saved-stat")?.textContent).toBe("▶ 1:30 played");
-    expect(items()[1]?.querySelector(".ytloop-saved-sub")?.textContent).toContain("0.50→1.00x");
     expect(items()[1]?.querySelector(".ytloop-saved-stat")).toBeNull();
   });
 
@@ -100,12 +98,14 @@ describe("drawer", () => {
     expect(document.querySelector(".ytloop-empty")?.textContent).toBe("No saved videos yet.");
   });
 
-  it("removes an entry through its delete button", async () => {
+  it("offers an undo countdown instead of removing at once", async () => {
     await renderSavedList();
     items()[1]?.querySelector<HTMLElement>(".ytloop-saved-del")?.click();
     await flushAsync();
+    expect(items()[1]?.querySelector(".ytloop-saved-undo-btn")).not.toBeNull();
     expect((mock.store[SAVED_LIST_KEY] as SavedEntry[]).map((e) => e.videoId)).toEqual([
       CURRENT_ID,
+      OTHER_ID,
     ]);
   });
 

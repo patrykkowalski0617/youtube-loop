@@ -102,7 +102,7 @@ var(--ytloop-tag-hue))`. A custom property containing `var()` is substituted
   `tokens.css` - there the per-chip hue would always resolve to the `:root`
   default. Lightness and chroma stay tokens, and every other tag rule mixes
   `var(--tag-color)`.
-- `src/ui/panelTags.ts` reads Enter and Escape through `shieldKeys`, not through
+- `src/ui/savedTags.ts` reads Enter and Escape through `shieldKeys`, not through
   its own `keydown` listener. The shield stops immediate propagation at the
   window in capture, so a listener on the field itself never runs.
 - The tag field builds its own suggestion list instead of a native `datalist`.

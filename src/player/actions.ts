@@ -35,6 +35,7 @@ import {
   mirrorToSaved,
   removeSavedEntry,
   renameTagEverywhere,
+  saveEntryTags,
   saveGlobalSettings,
   saveTags,
   saveVideoSettings,
@@ -136,14 +137,6 @@ export function setSpeedStep(value: number): void {
   commit();
 }
 
-export function clearLoop(): void {
-  store.settings.start = null;
-  store.settings.end = null;
-  store.settings.enabled = false;
-  cancelTail();
-  commit();
-}
-
 export function setPanelOpen(open: boolean, persist = true): void {
   store.global.panelOpen = open;
   if (persist) persistGlobal();
@@ -194,14 +187,21 @@ async function persistToSaved(patch: Partial<SavedEntry>, createSaved: boolean):
 const persistFragments = (createSaved: boolean): Promise<void> =>
   persistToSaved({ fragments: store.settings.fragments }, createSaved);
 
-export async function addTag(name: string): Promise<void> {
+async function applyEntryTags(videoId: string, tags: string[]): Promise<void> {
+  if (videoId === store.videoId) {
+    store.settings.tags = tags;
+    notify("settings");
+  }
+  await saveEntryTags(videoId, tags);
+  notify("saved");
+}
+
+export async function addTagTo(videoId: string, tags: string[], name: string): Promise<void> {
   const clean = normalizeTagName(name);
   if (!clean) return;
   store.tags = withTag(store.tags, clean);
-  store.settings.tags = withTagName(store.settings.tags, clean);
   await saveTags(store.tags);
-  await persistToSaved({ tags: store.settings.tags }, true);
-  notify("settings");
+  await applyEntryTags(videoId, withTagName(tags, clean));
 }
 
 export async function renameTag(name: string, next: string): Promise<void> {
@@ -217,10 +217,8 @@ export async function renameTag(name: string, next: string): Promise<void> {
   notify("saved");
 }
 
-export async function removeTag(name: string): Promise<void> {
-  store.settings.tags = withoutTagName(store.settings.tags, name);
-  await persistToSaved({ tags: store.settings.tags }, false);
-  notify("settings");
+export async function removeTagFrom(videoId: string, tags: string[], name: string): Promise<void> {
+  await applyEntryTags(videoId, withoutTagName(tags, name));
 }
 
 export function addFragment(): boolean {

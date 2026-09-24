@@ -14,6 +14,7 @@ import {
 import { clearTagFilter, renderTagFilter, selectedTags } from "./drawerTags";
 import { shieldKeys } from "./keyShield";
 import { savedCard } from "./savedCard";
+import { clearPendingRemovals } from "./savedUndo";
 
 const OPEN_CLASS = "open";
 
@@ -93,6 +94,7 @@ export function mountDrawer(): void {
 
 export function unmountDrawer(): void {
   query = "";
+  clearPendingRemovals();
   clearTagFilter();
   unshieldSearch?.();
   unshieldSearch = null;

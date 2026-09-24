@@ -49,7 +49,6 @@
   color: var(--fg);
 }
 
-.ytloop-tag-list,
 .ytloop-tag-filter,
 .ytloop-saved-tags {
   display: flex;
@@ -57,18 +56,7 @@
   gap: var(--space-1);
 }
 
-#ytloop-panel .ytloop-tags {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-}
-
-#ytloop-panel .ytloop-tag-list {
-  flex: 1;
-  min-width: 0;
-}
-
-#ytloop-panel .ytloop-tag-add {
+.ytloop-tag-add {
   height: var(--control-height-sm);
   padding: 0 var(--space-2);
   border: 1px dashed var(--border-strong);
@@ -82,47 +70,37 @@
 }
 
 @media (hover: hover) {
-  #ytloop-panel .ytloop-tag-add:hover {
+  .ytloop-tag-add:hover {
     border-color: var(--accent);
     color: var(--accent);
   }
 }
 
-#ytloop-panel .ytloop-tag-editor {
-  position: relative;
-  display: none;
+.ytloop-tag-editor {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  width: 100%;
 }
 
-#ytloop-panel .ytloop-tag-editor.is-open {
-  display: block;
-}
-
-#ytloop-panel .ytloop-tag-options {
-  position: absolute;
-  top: calc(100% + var(--space-1));
-  right: 0;
-  z-index: var(--z-panel);
+.ytloop-tag-options {
   display: flex;
-  flex-direction: column;
-  min-width: var(--tag-input-width);
-  max-width: calc(var(--tag-input-width) * 2);
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  width: 100%;
   max-height: var(--tag-options-height);
-  padding: var(--space-1);
   overflow-y: auto;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--bg);
-  box-shadow: 0 4px 16px var(--shadow-cast);
 }
 
-#ytloop-panel .ytloop-tag-option {
+.ytloop-tag-option {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-1) var(--space-2);
-  border: 0;
-  border-radius: var(--radius-sm);
-  background: none;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
   color: var(--fg);
   font-family: inherit;
   font-size: var(--text-micro);
@@ -132,7 +110,7 @@
 }
 
 @media (hover: hover) {
-  #ytloop-panel .ytloop-tag-option:hover {
+  .ytloop-tag-option:hover {
     background: var(--state-hover);
   }
 }
@@ -145,7 +123,7 @@
   background: oklch(var(--tag-lightness) var(--tag-chroma) var(--ytloop-tag-hue));
 }
 
-#ytloop-panel .ytloop-tag-rename {
+.ytloop-tag-rename {
   width: var(--tag-input-width);
   max-width: 100%;
   padding: 0;
@@ -157,7 +135,7 @@
   outline: none;
 }
 
-#ytloop-panel .ytloop-tag-input {
+.ytloop-tag-input {
   width: var(--tag-input-width);
   height: var(--control-height-sm);
   padding: 0 var(--space-2);
@@ -169,7 +147,7 @@
   font-size: var(--text-micro);
 }
 
-#ytloop-panel .ytloop-tag-input:focus {
+.ytloop-tag-input:focus {
   border-color: var(--accent);
   outline: none;
 }

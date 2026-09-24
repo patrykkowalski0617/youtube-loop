@@ -20,15 +20,8 @@ export const ids = {
   speedTarget: "ytloop-speed-target",
   speedStep: "ytloop-speed-step",
   gotoStart: "ytloop-goto-start",
-  clear: "ytloop-clear",
-  status: "ytloop-status",
   chart: "ytloop-chart",
   fragAdd: "ytloop-frag-add",
-  tagList: "ytloop-tag-list",
-  tagAdd: "ytloop-tag-add",
-  tagEditor: "ytloop-tag-editor",
-  tagInput: "ytloop-tag-input",
-  tagOptions: "ytloop-tag-options",
   account: "ytloop-account",
   practiceFold: "ytloop-fold-practice",
   practiceSummary: "ytloop-summary-practice",
@@ -61,31 +54,26 @@ const modeOption = (mode: string, label: string): string => `
 const panelMarkup = (): string => `
   <header class="ytloop-head" id="${ids.drag}">
     <span class="ytloop-brand">${LOOP_SVG}${p.title}<small class="ytloop-version">${p.version(extensionVersion())}</small></span>
-    <label class="ytloop-switch" title="${p.enable}">
-      <input type="checkbox" id="${ids.enable}">
-      <span class="ytloop-sr">${p.enable}</span>
-    </label>
     <button id="${ids.close}" class="ytloop-icon-btn" title="${p.hidePanel}">${t.common.close}</button>
   </header>
 
   <div class="ytloop-deck">
-    ${readout(p.start, ids.start, ids.setStart)}
-    ${readout(p.end, ids.end, ids.setEnd)}
+    <div class="ytloop-marks">
+      ${readout(p.start, ids.start, ids.setStart)}
+      ${readout(p.end, ids.end, ids.setEnd)}
+    </div>
     <button id="${ids.fragAdd}" class="ytloop-deck-add" title="${t.fragments.addTitle}">${t.fragments.add}</button>
   </div>
 
-  <div class="ytloop-tags">
-    <div class="ytloop-tag-list" id="${ids.tagList}"></div>
-    <button id="${ids.tagAdd}" class="ytloop-tag-add" title="${t.tags.addTitle}">${t.tags.add}</button>
-    <div class="ytloop-tag-editor" id="${ids.tagEditor}">
-      <input type="text" id="${ids.tagInput}" class="ytloop-tag-input" autocomplete="off" spellcheck="false">
-      <div class="ytloop-tag-options" id="${ids.tagOptions}" hidden></div>
-    </div>
-  </div>
-
   <section class="ytloop-tempo">
-      <div class="ytloop-segments">
-        ${SPEED_MODES.map((mode) => modeOption(mode, p.speedMode[mode])).join("")}
+      <div class="ytloop-mode-row">
+        <div class="ytloop-segments">
+          ${SPEED_MODES.map((mode) => modeOption(mode, p.speedMode[mode])).join("")}
+        </div>
+        <label class="ytloop-switch" title="${p.enable}">
+          <input type="checkbox" id="${ids.enable}">
+          <span class="ytloop-sr">${p.enable}</span>
+        </label>
       </div>
       <div class="ytloop-fields">
         <div class="ytloop-mode-group" id="${ids.constFields}">
@@ -113,8 +101,6 @@ const panelMarkup = (): string => `
 
   <div class="ytloop-transport">
     <button id="${ids.gotoStart}" class="ytloop-play"></button>
-    <span class="ytloop-status" id="${ids.status}"></span>
-    <button id="${ids.clear}" class="ytloop-icon-btn" title="${p.clear}">${t.common.close}</button>
   </div>`;
 
 export function buildPanel(): HTMLDivElement {

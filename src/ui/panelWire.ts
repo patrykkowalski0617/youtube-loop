@@ -12,7 +12,6 @@ import {
 } from "../core";
 import {
   addFragment,
-  clearLoop,
   setConstSpeed,
   setEnabled,
   setEnd,
@@ -31,7 +30,6 @@ import {
 
 import { byId, flashState, inputById, onCommit } from "./dom";
 import { enableDrag } from "./drag";
-import { wireTags } from "./panelTags";
 import { ids, MODE_RADIO_NAME } from "./panelTemplate";
 import { setPanelVisible } from "./panelVisibility";
 import { makeScrubbable } from "./scrubbable";
@@ -108,7 +106,6 @@ function wirePracticeFold(panel: HTMLElement): void {
 export function wirePanel(panel: HTMLElement): void {
   wireToggle(panel, ids.enable, setEnabled);
   wireSpeedMode(panel);
-  wireTags(panel);
 
   wireTimeInput(panel, ids.start, setStart);
   wireTimeInput(panel, ids.end, setEnd);
@@ -125,7 +122,6 @@ export function wirePanel(panel: HTMLElement): void {
   byId(panel, ids.setStart).addEventListener("click", setStartFromVideo);
   byId(panel, ids.setEnd).addEventListener("click", setEndFromVideo);
   byId(panel, ids.gotoStart).addEventListener("click", toggleLoopPlayback);
-  byId(panel, ids.clear).addEventListener("click", clearLoop);
   byId(panel, ids.close).addEventListener("click", () => {
     setPanelVisible(false);
   });

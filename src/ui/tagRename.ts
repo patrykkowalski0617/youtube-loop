@@ -8,21 +8,17 @@ const ENTER_KEY = "Enter";
 const ESCAPE_KEY = "Escape";
 const INPUT_CLASS = "ytloop-tag-rename";
 
-let editing: string | null = null;
-
-export const isRenamingTag = (): boolean => editing != null;
-
 export function renameField(name: string, done: () => void): HTMLInputElement {
   const input = el("input", INPUT_CLASS);
   input.type = "text";
   input.value = name;
   input.maxLength = TAG_NAME_MAX;
-  editing = name;
 
+  let open = true;
   let unshield: (() => void) | null = null;
   const close = (save: boolean): void => {
-    if (editing == null) return;
-    editing = null;
+    if (!open) return;
+    open = false;
     unshield?.();
     if (save) void renameTag(name, input.value);
     done();
