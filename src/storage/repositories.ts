@@ -3,15 +3,26 @@ import {
   normalizeFragments,
   normalizeGlobalSettings,
   normalizeStats,
+  normalizeTagNames,
+  normalizeTags,
   normalizeVideoSettings,
   pickVideoSettings,
+  renamedTagNames,
   type SavedEntry,
+  type Tag,
   type VideoSettings,
   type VideoStats,
 } from "../core";
 
-import { readKey, readKeys, writeKeys } from "./chromeStorage";
-import { GLOBAL_SETTINGS_KEY, SAVED_LIST_KEY, videoSettingsKey, videoStatsKey } from "./keys";
+import { readAll, readKey, readKeys, writeKeys } from "./chromeStorage";
+import {
+  GLOBAL_SETTINGS_KEY,
+  SAVED_LIST_KEY,
+  TAGS_KEY,
+  videoIdFromSettingsKey,
+  videoSettingsKey,
+  videoStatsKey,
+} from "./keys";
 
 export async function loadVideoSettings(videoId: string): Promise<VideoSettings> {
   return normalizeVideoSettings(await readKey(videoSettingsKey(videoId)));
@@ -27,6 +38,33 @@ export async function loadGlobalSettings(): Promise<GlobalSettings> {
 
 export async function saveGlobalSettings(g: GlobalSettings): Promise<void> {
   await writeKeys({ [GLOBAL_SETTINGS_KEY]: g });
+}
+
+export async function loadTags(): Promise<Tag[]> {
+  return normalizeTags(await readKey(TAGS_KEY));
+}
+
+export async function saveTags(tags: Tag[]): Promise<void> {
+  await writeKeys({ [TAGS_KEY]: tags });
+}
+
+export async function renameTagEverywhere(from: string, to: string): Promise<void> {
+  const all = await readAll();
+  const updates: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(all)) {
+    if (!videoIdFromSettingsKey(key)) continue;
+    const settings = normalizeVideoSettings(value);
+    const tags = renamedTagNames(settings.tags, from, to);
+    if (tags !== settings.tags) updates[key] = { ...settings, tags };
+  }
+  const list = await loadSavedList();
+  const renamed = list.map((entry) => {
+    const current = normalizeTagNames(entry.tags);
+    const tags = renamedTagNames(current, from, to);
+    return tags === current ? entry : { ...entry, tags };
+  });
+  if (renamed.some((entry, i) => entry !== list[i])) updates[SAVED_LIST_KEY] = renamed;
+  if (Object.keys(updates).length) await writeKeys(updates);
 }
 
 export async function loadVideoStats(videoId: string): Promise<VideoStats> {
@@ -59,16 +97,16 @@ export async function removeSavedEntry(videoId: string): Promise<SavedEntry[]> {
   return list;
 }
 
-export async function mirrorFragmentsToSaved(
+export async function mirrorToSaved(
   videoId: string,
-  fragments: VideoSettings["fragments"],
+  patch: Partial<SavedEntry>,
   createWith: (() => SavedEntry | null) | null,
 ): Promise<boolean> {
   const list = await loadSavedList();
   const i = list.findIndex((e) => e.videoId === videoId);
   const existing = list[i];
   const created = existing ? null : createWith?.();
-  if (existing) list[i] = { ...existing, fragments };
+  if (existing) list[i] = { ...existing, ...patch };
   else if (created) list.unshift(created);
   else return false;
   await saveSavedList(list);

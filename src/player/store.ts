@@ -3,6 +3,7 @@ import {
   defaultVideoSettings,
   emptyStats,
   type GlobalSettings,
+  type Tag,
   type VideoSettings,
   type VideoStats,
 } from "../core";
@@ -19,6 +20,7 @@ export interface Store {
   videoId: string | null;
   settings: VideoSettings;
   global: GlobalSettings;
+  tags: Tag[];
   stats: VideoStats;
   video: HTMLVideoElement | null;
   currentSpeed: number;
@@ -34,6 +36,7 @@ export const store: Store = {
   videoId: null,
   settings: defaultVideoSettings(),
   global: defaultGlobalSettings(),
+  tags: [],
   stats: emptyStats(),
   video: null,
   currentSpeed: NEUTRAL_SPEED,

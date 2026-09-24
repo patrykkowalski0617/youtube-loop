@@ -1,6 +1,7 @@
 import {
   formatTime,
   fragmentNotes,
+  normalizeTagNames,
   SAVED_NOTES_LIMIT,
   type SavedEntry,
   TEMPO_DECIMALS,
@@ -10,6 +11,7 @@ import { loadEntry, removeSaved, store } from "../player";
 
 import { el } from "./dom";
 import { setDrawerOpen } from "./drawer";
+import { hueOf, tagChip } from "./tagChip";
 
 const CURRENT_CLASS = "current";
 
@@ -38,6 +40,14 @@ function notesRow(e: SavedEntry): HTMLElement | null {
   return row;
 }
 
+function tagsRow(e: SavedEntry): HTMLElement | null {
+  const names = normalizeTagNames(e.tags);
+  if (!names.length) return null;
+  const row = el("div", "ytloop-saved-tags");
+  for (const name of names) row.appendChild(tagChip(name, hueOf(name)));
+  return row;
+}
+
 export function savedCard(e: SavedEntry, played: number): HTMLElement {
   const li = el("li", "ytloop-saved-item");
   if (e.videoId === store.videoId) li.classList.add(CURRENT_CLASS);
@@ -47,6 +57,8 @@ export function savedCard(e: SavedEntry, played: number): HTMLElement {
     el("div", "ytloop-saved-title", e.title || e.videoId),
     el("div", "ytloop-saved-sub", entrySubtitle(e)),
   );
+  const tags = tagsRow(e);
+  if (tags) main.appendChild(tags);
   const notes = notesRow(e);
   if (notes) main.appendChild(notes);
   if (played > 0)

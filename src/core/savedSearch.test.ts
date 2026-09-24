@@ -69,3 +69,23 @@ describe("filterSavedEntries", () => {
     expect(filterSavedEntries([old], "bend")).toEqual([]);
   });
 });
+
+describe("tag filtering", () => {
+  const TAGGED = { ...SOLO, tags: ["jazz", "solo"] };
+  const UNTAGGED = { ...BALLAD, tags: ["blues"] };
+  const ALL = [TAGGED, UNTAGGED];
+
+  it("keeps only entries carrying every selected tag", () => {
+    expect(titles(filterSavedEntries(ALL, "", ["JAZZ"]))).toEqual([TAGGED.title]);
+    expect(filterSavedEntries(ALL, "", ["jazz", "blues"])).toEqual([]);
+  });
+
+  it("combines the tag filter with the text query", () => {
+    expect(filterSavedEntries(ALL, "floyd", ["jazz"])).toEqual([]);
+    expect(titles(filterSavedEntries(ALL, "republika", ["solo"]))).toEqual([TAGGED.title]);
+  });
+
+  it("finds a video by typing its tag", () => {
+    expect(titles(filterSavedEntries(ALL, "blues"))).toEqual([UNTAGGED.title]);
+  });
+});

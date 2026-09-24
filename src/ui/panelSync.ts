@@ -5,6 +5,7 @@ import { isAtSpeedTarget, isVideoPlaying, store } from "../player";
 import { updateBurst } from "./burst";
 import { renderChart } from "./chart";
 import { buttonById, byId, inputById, setIfNotFocused } from "./dom";
+import { renderTagRow } from "./panelTags";
 import { ids, modeRadioId } from "./panelTemplate";
 
 const MAXED_CLASS = "is-maxed";
@@ -31,6 +32,7 @@ export function syncInputs(panel: HTMLElement): void {
   setIfNotFocused(inputById(panel, ids.speedTarget), String(settings.speedTarget));
   setIfNotFocused(inputById(panel, ids.speedStep), String(settings.speedStep));
   buttonById(panel, ids.fragAdd).disabled = settings.start == null || settings.end == null;
+  renderTagRow(panel);
   panel.classList.toggle(ACTIVE_CLASS, settings.enabled);
 }
 

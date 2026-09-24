@@ -6,6 +6,7 @@ import {
   DEFAULT_TAIL_SECONDS,
 } from "./constants";
 import { normalizeFragments } from "./fragments";
+import { normalizeTagNames } from "./tags";
 import { type GlobalSettings, type VideoSettings } from "./types";
 
 export const defaultVideoSettings = (): VideoSettings => ({
@@ -19,6 +20,7 @@ export const defaultVideoSettings = (): VideoSettings => ({
   speedTarget: DEFAULT_SPEED_TARGET,
   speedStep: DEFAULT_SPEED_STEP,
   fragments: [],
+  tags: [],
 });
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
@@ -50,6 +52,7 @@ export function normalizeVideoSettings(raw: unknown): VideoSettings {
     speedTarget: numberOr(r.speedTarget, d.speedTarget),
     speedStep: numberOr(r.speedStep, d.speedStep),
     fragments: normalizeFragments(r.fragments),
+    tags: normalizeTagNames(r.tags),
   };
 }
 
@@ -78,5 +81,6 @@ export function pickVideoSettings(s: VideoSettings): VideoSettings {
     speedTarget: s.speedTarget,
     speedStep: s.speedStep,
     fragments: s.fragments,
+    tags: s.tags,
   };
 }

@@ -1,0 +1,184 @@
+.ytloop-tag {
+  --tag-color: oklch(var(--tag-lightness) var(--tag-chroma) var(--ytloop-tag-hue));
+
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  max-width: 100%;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  border: 1px solid color-mix(in oklab, var(--tag-color) 45%, transparent);
+  border-radius: var(--radius-pill);
+  background: color-mix(in oklab, var(--tag-color) 16%, transparent);
+  color: color-mix(in oklab, var(--tag-color) 72%, var(--fg));
+  font-size: var(--text-micro);
+  font-weight: var(--weight-bold);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.ytloop-tag-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ytloop-tag-remove {
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: var(--text-micro);
+  line-height: 1;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .ytloop-tag-remove:hover {
+    opacity: 1;
+  }
+}
+
+.ytloop-tag[role="button"] {
+  cursor: pointer;
+}
+
+.ytloop-tag.is-selected {
+  border-color: var(--tag-color);
+  background: color-mix(in oklab, var(--tag-color) 40%, transparent);
+  color: var(--fg);
+}
+
+.ytloop-tag-list,
+.ytloop-tag-filter,
+.ytloop-saved-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+#ytloop-panel .ytloop-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+#ytloop-panel .ytloop-tag-list {
+  flex: 1;
+  min-width: 0;
+}
+
+#ytloop-panel .ytloop-tag-add {
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: none;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  #ytloop-panel .ytloop-tag-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+#ytloop-panel .ytloop-tag-editor {
+  position: relative;
+  display: none;
+}
+
+#ytloop-panel .ytloop-tag-editor.is-open {
+  display: block;
+}
+
+#ytloop-panel .ytloop-tag-options {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  right: 0;
+  z-index: var(--z-panel);
+  display: flex;
+  flex-direction: column;
+  min-width: var(--tag-input-width);
+  max-width: calc(var(--tag-input-width) * 2);
+  max-height: var(--tag-options-height);
+  padding: var(--space-1);
+  overflow-y: auto;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: 0 4px 16px var(--shadow-cast);
+}
+
+#ytloop-panel .ytloop-tag-option {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  text-align: left;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  #ytloop-panel .ytloop-tag-option:hover {
+    background: var(--state-hover);
+  }
+}
+
+.ytloop-tag-swatch {
+  flex: none;
+  width: var(--tag-swatch-size);
+  height: var(--tag-swatch-size);
+  border-radius: var(--radius-pill);
+  background: oklch(var(--tag-lightness) var(--tag-chroma) var(--ytloop-tag-hue));
+}
+
+#ytloop-panel .ytloop-tag-rename {
+  width: var(--tag-input-width);
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentcolor;
+  background: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+#ytloop-panel .ytloop-tag-input {
+  width: var(--tag-input-width);
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-micro);
+}
+
+#ytloop-panel .ytloop-tag-input:focus {
+  border-color: var(--accent);
+  outline: none;
+}
+
+#ytloop-drawer .ytloop-tag-filter {
+  margin-top: var(--space-2);
+}
+
+#ytloop-drawer .ytloop-tag-empty {
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+}

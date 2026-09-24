@@ -75,6 +75,13 @@
   --ember-blaze: color-mix(in oklab, var(--c-ember) 75%, transparent);
   --ember-inset: color-mix(in oklab, var(--c-ember) 35%, transparent);
 
+  --tag-lightness: 0.62;
+  --tag-chroma: 0.14;
+  --tag-input-width: 110px;
+  --tag-options-height: 156px;
+  --tag-swatch-size: 8px;
+  --ytloop-tag-hue: 0;
+
   --timeline-bar: 16px;
   --timeline-lane-gap: 3px;
   --timeline-offset: 14px;
@@ -98,4 +105,6 @@
   --accent-strong: var(--c-brand);
   --tempo: var(--c-tempo-light);
   --shadow-cast: color-mix(in oklab, var(--c-ink-950) 55%, transparent);
+  --tag-lightness: 0.78;
+  --tag-chroma: 0.13;
 }

@@ -95,3 +95,20 @@ Check this list before every cleanup.
   is attached. YouTube reuses the same `<video>` across navigations and resets
   its own speed to Normal, so without it the remembered "YouTube speed" survives
   from the previous video and is handed back on the next release.
+- `src/styles/tags.css` is the one place outside `tokens.css` that composes a
+  colour: `--tag-color: oklch(var(--tag-lightness) var(--tag-chroma)
+var(--ytloop-tag-hue))`. A custom property containing `var()` is substituted
+  on the element it is declared on, so the composition cannot live in
+  `tokens.css` - there the per-chip hue would always resolve to the `:root`
+  default. Lightness and chroma stay tokens, and every other tag rule mixes
+  `var(--tag-color)`.
+- `src/ui/panelTags.ts` reads Enter and Escape through `shieldKeys`, not through
+  its own `keydown` listener. The shield stops immediate propagation at the
+  window in capture, so a listener on the field itself never runs.
+- The tag field builds its own suggestion list instead of a native `datalist`.
+  The browser renders a datalist popup in its own chrome - unstyled, wrongly
+  placed against a fixed panel on a YouTube page, and with no colour swatch, so
+  nothing tied it to the field that opened it.
+- Suggestion rows commit on `mousedown` with `preventDefault`, not on `click`.
+  A click would first blur the field, and the blur handler closes the editor and
+  commits whatever was typed, so the pick would never arrive.

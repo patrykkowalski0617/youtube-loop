@@ -4,6 +4,7 @@ export const DRAWER_ID = "ytloop-drawer";
 export const DRAWER_HANDLE_ID = "ytloop-drawer-handle";
 export const DRAWER_LIST_ID = "ytloop-drawer-list";
 export const DRAWER_SEARCH_ID = "ytloop-drawer-search";
+export const DRAWER_TAGS_ID = "ytloop-drawer-tags";
 
 export const LOOP_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +

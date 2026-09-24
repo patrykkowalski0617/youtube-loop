@@ -7,8 +7,11 @@ import {
   DEFAULT_TAIL_SECONDS,
   emptyStats,
   type Fragment,
+  normalizeTagName,
   normalizeVideoSettings,
   pickVideoSettings,
+  renamedTagNames,
+  renamedTags,
   roundToStep,
   type SavedEntry,
   type SpeedMode,
@@ -18,15 +21,21 @@ import {
   withFragment,
   withFragmentComment,
   withoutFragment,
+  withoutTagName,
+  withTag,
+  withTagName,
 } from "../core";
 import { t } from "../i18n";
 import {
   loadGlobalSettings,
+  loadTags,
   loadVideoSettings,
   loadVideoStats,
-  mirrorFragmentsToSaved,
+  mirrorToSaved,
   removeSavedEntry,
+  renameTagEverywhere,
   saveGlobalSettings,
+  saveTags,
   saveVideoSettings,
   saveVideoStats,
   stageSettingsForNavigation,
@@ -174,15 +183,43 @@ export async function removeSaved(videoId: string): Promise<void> {
   notify("saved");
 }
 
-async function persistFragments(createSaved: boolean): Promise<void> {
+async function persistToSaved(patch: Partial<SavedEntry>, createSaved: boolean): Promise<void> {
   persistSettings();
   if (!store.videoId) return;
-  const changed = await mirrorFragmentsToSaved(
-    store.videoId,
-    store.settings.fragments,
-    createSaved ? currentSnapshot : null,
-  );
+  const changed = await mirrorToSaved(store.videoId, patch, createSaved ? currentSnapshot : null);
   if (changed) notify("saved");
+}
+
+const persistFragments = (createSaved: boolean): Promise<void> =>
+  persistToSaved({ fragments: store.settings.fragments }, createSaved);
+
+export async function addTag(name: string): Promise<void> {
+  const clean = normalizeTagName(name);
+  if (!clean) return;
+  store.tags = withTag(store.tags, clean);
+  store.settings.tags = withTagName(store.settings.tags, clean);
+  await saveTags(store.tags);
+  await persistToSaved({ tags: store.settings.tags }, true);
+  notify("settings");
+}
+
+export async function renameTag(name: string, next: string): Promise<void> {
+  const clean = normalizeTagName(next);
+  const tags = renamedTags(store.tags, name, clean);
+  if (tags === store.tags) return;
+  store.tags = tags;
+  store.settings.tags = renamedTagNames(store.settings.tags, name, clean);
+  persistSettings();
+  await saveTags(store.tags);
+  await renameTagEverywhere(name, clean);
+  notify("settings");
+  notify("saved");
+}
+
+export async function removeTag(name: string): Promise<void> {
+  store.settings.tags = withoutTagName(store.settings.tags, name);
+  await persistToSaved({ tags: store.settings.tags }, false);
+  notify("settings");
 }
 
 export function addFragment(): boolean {
@@ -264,6 +301,8 @@ export async function loadForVideo(videoId: string | null): Promise<void> {
 }
 
 export async function loadGlobal(): Promise<void> {
-  store.global = await loadGlobalSettings();
+  const [global, tags] = await Promise.all([loadGlobalSettings(), loadTags()]);
+  store.global = global;
+  store.tags = tags;
   notify("settings");
 }

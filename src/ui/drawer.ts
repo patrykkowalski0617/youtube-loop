@@ -3,7 +3,15 @@ import { t } from "../i18n";
 import { notify } from "../player";
 import { loadPlayedSeconds, loadSavedList } from "../storage";
 
-import { DRAWER_HANDLE_ID, DRAWER_ID, DRAWER_LIST_ID, DRAWER_SEARCH_ID, el } from "./dom";
+import {
+  DRAWER_HANDLE_ID,
+  DRAWER_ID,
+  DRAWER_LIST_ID,
+  DRAWER_SEARCH_ID,
+  DRAWER_TAGS_ID,
+  el,
+} from "./dom";
+import { clearTagFilter, renderTagFilter, selectedTags } from "./drawerTags";
 import { shieldKeys } from "./keyShield";
 import { savedCard } from "./savedCard";
 
@@ -17,7 +25,9 @@ export async function renderSavedList(): Promise<void> {
   const list = await loadSavedList();
   const ul = document.getElementById(DRAWER_LIST_ID);
   if (!ul) return;
-  const shown = filterSavedEntries(list, query);
+  const filter = document.getElementById(DRAWER_TAGS_ID);
+  if (filter) renderTagFilter(filter, () => void renderSavedList());
+  const shown = filterSavedEntries(list, query, selectedTags());
   ul.innerHTML = "";
   if (!shown.length) {
     ul.appendChild(el("li", "ytloop-empty", list.length ? t.drawer.noMatches : t.drawer.empty));
@@ -72,14 +82,18 @@ export function mountDrawer(): void {
     void renderSavedList();
   });
 
+  const tagFilter = el("div", "ytloop-tag-filter");
+  tagFilter.id = DRAWER_TAGS_ID;
+
   const list = el("ul");
   list.id = DRAWER_LIST_ID;
-  drawer.append(head, search, list);
+  drawer.append(head, search, tagFilter, list);
   document.body.appendChild(drawer);
 }
 
 export function unmountDrawer(): void {
   query = "";
+  clearTagFilter();
   unshieldSearch?.();
   unshieldSearch = null;
   document.getElementById(DRAWER_ID)?.remove();

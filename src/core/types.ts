@@ -5,6 +5,11 @@ export interface Fragment {
   comment: string;
 }
 
+export interface Tag {
+  name: string;
+  hue: number;
+}
+
 export interface VideoSettings {
   start: number | null;
   end: number | null;
@@ -16,6 +21,7 @@ export interface VideoSettings {
   speedTarget: number;
   speedStep: number;
   fragments: Fragment[];
+  tags: string[];
 }
 
 export interface SavedEntry extends VideoSettings {

@@ -24,6 +24,11 @@ export const ids = {
   status: "ytloop-status",
   chart: "ytloop-chart",
   fragAdd: "ytloop-frag-add",
+  tagList: "ytloop-tag-list",
+  tagAdd: "ytloop-tag-add",
+  tagEditor: "ytloop-tag-editor",
+  tagInput: "ytloop-tag-input",
+  tagOptions: "ytloop-tag-options",
   account: "ytloop-account",
   practiceFold: "ytloop-fold-practice",
   practiceSummary: "ytloop-summary-practice",
@@ -67,6 +72,15 @@ const panelMarkup = (): string => `
     ${readout(p.start, ids.start, ids.setStart)}
     ${readout(p.end, ids.end, ids.setEnd)}
     <button id="${ids.fragAdd}" class="ytloop-deck-add" title="${t.fragments.addTitle}">${t.fragments.add}</button>
+  </div>
+
+  <div class="ytloop-tags">
+    <div class="ytloop-tag-list" id="${ids.tagList}"></div>
+    <button id="${ids.tagAdd}" class="ytloop-tag-add" title="${t.tags.addTitle}">${t.tags.add}</button>
+    <div class="ytloop-tag-editor" id="${ids.tagEditor}">
+      <input type="text" id="${ids.tagInput}" class="ytloop-tag-input" autocomplete="off" spellcheck="false">
+      <div class="ytloop-tag-options" id="${ids.tagOptions}" hidden></div>
+    </div>
   </div>
 
   <section class="ytloop-tempo">
