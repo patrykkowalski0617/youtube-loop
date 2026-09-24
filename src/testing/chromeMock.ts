@@ -1,3 +1,5 @@
+const MOCK_VERSION = "0.0.0";
+
 type Items = Record<string, unknown>;
 
 export interface ChromeMock {
@@ -34,6 +36,9 @@ export function installChromeMock(initial: Items = {}): ChromeMock {
   };
 
   const runtime = {
+    getManifest(): { version: string } {
+      return { version: MOCK_VERSION };
+    },
     sendMessage(message: { type: string }): Promise<unknown> {
       mock.sent.push(message);
       return Promise.resolve(mock.respondWith.value);

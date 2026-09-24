@@ -14,3 +14,4 @@ export * from "./panelWire";
 export * from "./playerButton";
 export * from "./savedCard";
 export * from "./timeline";
+export * from "./version";

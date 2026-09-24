@@ -2,6 +2,7 @@ import { SPEED_MODES } from "../core";
 import { t } from "../i18n";
 
 import { LOOP_SVG, PANEL_ID } from "./dom";
+import { extensionVersion } from "./version";
 
 export const ids = {
   drag: "ytloop-drag",
@@ -54,7 +55,7 @@ const modeOption = (mode: string, label: string): string => `
 
 const panelMarkup = (): string => `
   <header class="ytloop-head" id="${ids.drag}">
-    <span class="ytloop-brand">${LOOP_SVG}${p.title}</span>
+    <span class="ytloop-brand">${LOOP_SVG}${p.title}<small class="ytloop-version">${p.version(extensionVersion())}</small></span>
     <label class="ytloop-switch" title="${p.enable}">
       <input type="checkbox" id="${ids.enable}">
       <span class="ytloop-sr">${p.enable}</span>

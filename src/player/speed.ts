@@ -1,16 +1,17 @@
 import { clampSpeed, isRampAtTarget, nextRampSpeed, sameSpeed } from "../core";
 
-import { currentRamp, notify, speedActive, store } from "./store";
+import { currentRamp, NEUTRAL_SPEED, notify, speedActive, store } from "./store";
 
-const NEUTRAL_SPEED = 1;
+function isOwnRate(rate: number): boolean {
+  return store.appliedSpeed != null && sameSpeed(rate, store.appliedSpeed);
+}
 
 function setVideoRate(rate: number): void {
   if (!store.video) return;
-  store.applyingSpeed = true;
+  store.appliedSpeed = rate;
   try {
     store.video.playbackRate = rate;
   } catch {}
-  store.applyingSpeed = false;
 }
 
 export function resetSpeed(): void {
@@ -34,16 +35,33 @@ export function isAtSpeedTarget(): boolean {
   return isRampAtTarget(store.currentSpeed, currentRamp());
 }
 
+export function adoptVideoSpeed(): void {
+  const rate = store.video?.playbackRate ?? 0;
+  store.externalSpeed = rate > 0 && !isOwnRate(rate) ? rate : NEUTRAL_SPEED;
+  store.appliedSpeed = null;
+}
+
+export function releaseSpeed(): void {
+  setVideoRate(store.externalSpeed);
+}
+
 export function applySpeedMode(): void {
+  if (!store.settings.enabled) {
+    resetSpeed();
+    return;
+  }
   if (speedActive()) {
     resetSpeed();
-    if (store.settings.enabled) applySpeed();
+    applySpeed();
   } else {
-    setVideoRate(NEUTRAL_SPEED);
+    releaseSpeed();
   }
 }
 
-export function restoreSpeedAfterExternalChange(): void {
-  if (!store.video || !store.settings.enabled || !speedActive() || store.applyingSpeed) return;
-  if (!sameSpeed(store.video.playbackRate, store.currentSpeed)) applySpeed();
+export function onRateChange(): void {
+  const { video } = store;
+  if (!video || video.playbackRate <= 0 || isOwnRate(video.playbackRate)) return;
+  store.externalSpeed = video.playbackRate;
+  if (!store.settings.enabled || !speedActive()) return;
+  if (!sameSpeed(video.playbackRate, store.currentSpeed)) applySpeed();
 }

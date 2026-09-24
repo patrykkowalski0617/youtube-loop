@@ -86,3 +86,12 @@ Check this list before every cleanup.
   `src/ui/keyShield.ts` and detach the shield when they go away. Skipping the
   detach leaks a window listener on every drawer remount, and skipping the
   shield lets a typed space reach YouTube's player controls.
+- `src/player/speed.ts` compares an incoming rate against `store.appliedSpeed`
+  instead of raising a flag around the write. `ratechange` fires asynchronously,
+  so a flag set and cleared around `video.playbackRate = x` is already down when
+  the event lands, and the looper's own rate gets recorded as the viewer's
+  choice - which is what made a disabled looper keep playing at 0.5.
+- `adoptVideoSpeed()` runs on `loadedmetadata`, not only when the video element
+  is attached. YouTube reuses the same `<video>` across navigations and resets
+  its own speed to Normal, so without it the remembered "YouTube speed" survives
+  from the previous video and is handed back on the next release.

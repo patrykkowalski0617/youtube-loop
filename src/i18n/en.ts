@@ -22,6 +22,7 @@ export const en = {
     playFromBeginning: "Play from start",
     stop: "Stop",
     clear: "Clear the segment",
+    version: (v: string) => `v${v}`,
   },
   status: {
     loopActive: "Looping",

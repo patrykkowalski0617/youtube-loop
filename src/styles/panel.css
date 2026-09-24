@@ -62,6 +62,13 @@
   font-weight: var(--weight-bold);
 }
 
+#ytloop-panel .ytloop-version {
+  font-size: var(--text-micro);
+  font-weight: var(--weight-normal);
+  color: var(--fg-faint);
+  letter-spacing: 0;
+}
+
 #ytloop-panel .ytloop-brand svg {
   width: 15px;
   height: 15px;

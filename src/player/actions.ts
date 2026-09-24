@@ -34,7 +34,7 @@ import {
 import { getVideoTitle, watchUrl } from "../youtube";
 
 import { cancelTail, resetLoopRate, seekToStart } from "./loop";
-import { applySpeed, applySpeedMode, resetSpeed } from "./speed";
+import { applySpeed, applySpeedMode, releaseSpeed, resetSpeed } from "./speed";
 import { notify, speedActive, store } from "./store";
 
 function persistSettings(): void {
@@ -57,8 +57,10 @@ function applySpeedIfEnabled(): void {
 
 export function setEnabled(enabled: boolean): void {
   store.settings.enabled = enabled;
-  if (!enabled) cancelTail();
-  else if (speedActive()) applySpeedIfEnabled();
+  if (!enabled) {
+    cancelTail();
+    releaseSpeed();
+  } else if (speedActive()) applySpeedIfEnabled();
   commit();
 }
 
@@ -227,6 +229,7 @@ function applySettings(next: VideoSettings, keepFragmentsIfPresent: boolean): vo
   cancelTail();
   resetSpeed();
   if (store.settings.enabled && speedActive()) applySpeed();
+  else releaseSpeed();
 }
 
 export async function loadEntry(e: SavedEntry): Promise<boolean> {

@@ -7,6 +7,8 @@ import {
   type VideoStats,
 } from "../core";
 
+export const NEUTRAL_SPEED = 1;
+
 export type PlayState = "play" | "pause";
 
 export type ChangeKind = "settings" | "status" | "fragments" | "saved" | "playState" | "account";
@@ -20,7 +22,8 @@ export interface Store {
   stats: VideoStats;
   video: HTMLVideoElement | null;
   currentSpeed: number;
-  applyingSpeed: boolean;
+  externalSpeed: number;
+  appliedSpeed: number | null;
   inTail: boolean;
   tailTimer: ReturnType<typeof setTimeout> | null;
   desiredPlayState: PlayState | null;
@@ -33,8 +36,9 @@ export const store: Store = {
   global: defaultGlobalSettings(),
   stats: emptyStats(),
   video: null,
-  currentSpeed: 1,
-  applyingSpeed: false,
+  currentSpeed: NEUTRAL_SPEED,
+  externalSpeed: NEUTRAL_SPEED,
+  appliedSpeed: null,
   inTail: false,
   tailTimer: null,
   desiredPlayState: null,
