@@ -1,6 +1,6 @@
 import {
   assignLanes,
-  formatTime,
+  formatTimePrecise,
   type Fragment,
   isSameRange,
   laneCount,
@@ -54,7 +54,10 @@ function buildBar(placement: LanePlacement, duration: number): HTMLElement {
   bar.style.left = `${(fragment.start / duration) * FULL_PERCENT}%`;
   bar.style.width = `${((fragment.end - fragment.start) / duration) * FULL_PERCENT}%`;
   bar.style.setProperty(LANE_PROPERTY, String(lane));
-  const range = t.fragments.range(formatTime(fragment.start), formatTime(fragment.end));
+  const range = t.fragments.range(
+    formatTimePrecise(fragment.start),
+    formatTimePrecise(fragment.end),
+  );
   bar.title = `${fragment.comment ? `${fragment.comment} · ` : ""}${range} · ${noteGestureTitle(fragment)}`;
   if (isCurrent(fragment)) bar.classList.add(CURRENT_CLASS);
   bar.appendChild(el("span", LABEL_CLASS, fragment.comment));

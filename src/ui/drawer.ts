@@ -11,16 +11,14 @@ import {
   DRAWER_TAGS_ID,
   el,
 } from "./dom";
+import { mountDrawerShell, setDrawerOpen, unmountDrawerShell } from "./drawerShell";
 import { clearTagFilter, renderTagFilter, selectedTags } from "./drawerTags";
 import { shieldKeys } from "./keyShield";
 import { savedCard } from "./savedCard";
 import { clearPendingRemovals } from "./savedUndo";
 
-const OPEN_CLASS = "open";
-
 let query = "";
 let unshieldSearch: (() => void) | null = null;
-const CLOSE_ID = "ytloop-drawer-close";
 
 export async function renderSavedList(): Promise<void> {
   const list = await loadSavedList();
@@ -39,39 +37,11 @@ export async function renderSavedList(): Promise<void> {
   for (const e of shown) ul.appendChild(savedCard(e, played[e.videoId] ?? 0));
 }
 
-export function setDrawerOpen(open: boolean): void {
-  const d = document.getElementById(DRAWER_ID);
-  if (!d) return;
-  d.classList.toggle(OPEN_CLASS, open);
-  if (open) notify("saved");
+export function setSavedDrawerOpen(open: boolean): void {
+  setDrawerOpen(DRAWER_ID, open);
 }
 
-function toggleDrawer(): void {
-  const d = document.getElementById(DRAWER_ID);
-  if (d) setDrawerOpen(!d.classList.contains(OPEN_CLASS));
-}
-
-export function mountDrawer(): void {
-  if (document.getElementById(DRAWER_ID)) return;
-
-  const handle = el("button");
-  handle.id = DRAWER_HANDLE_ID;
-  handle.title = t.drawer.handle;
-  handle.appendChild(el("span", undefined, t.drawer.handle));
-  handle.addEventListener("click", toggleDrawer);
-  document.body.appendChild(handle);
-
-  const drawer = el("div");
-  drawer.id = DRAWER_ID;
-  const head = el("div", "ytloop-drawer-head");
-  const close = el("button", "ytloop-icon-btn", t.common.close);
-  close.id = CLOSE_ID;
-  close.title = t.drawer.close;
-  close.addEventListener("click", () => {
-    setDrawerOpen(false);
-  });
-  head.append(el("span", undefined, t.drawer.heading), close);
-
+function searchField(): HTMLInputElement {
   const search = el("input", "ytloop-drawer-search");
   search.id = DRAWER_SEARCH_ID;
   search.type = "search";
@@ -82,14 +52,26 @@ export function mountDrawer(): void {
     query = search.value;
     void renderSavedList();
   });
+  return search;
+}
 
+export function mountDrawer(): void {
+  const drawer = mountDrawerShell({
+    id: DRAWER_ID,
+    handleId: DRAWER_HANDLE_ID,
+    handleLabel: t.drawer.handle,
+    heading: t.drawer.heading,
+    closeTitle: t.drawer.close,
+    onOpen: () => {
+      notify("saved");
+    },
+  });
+  if (!drawer) return;
   const tagFilter = el("div", "ytloop-tag-filter");
   tagFilter.id = DRAWER_TAGS_ID;
-
   const list = el("ul");
   list.id = DRAWER_LIST_ID;
-  drawer.append(head, search, tagFilter, list);
-  document.body.appendChild(drawer);
+  drawer.append(searchField(), tagFilter, list);
 }
 
 export function unmountDrawer(): void {
@@ -98,6 +80,5 @@ export function unmountDrawer(): void {
   clearTagFilter();
   unshieldSearch?.();
   unshieldSearch = null;
-  document.getElementById(DRAWER_ID)?.remove();
-  document.getElementById(DRAWER_HANDLE_ID)?.remove();
+  unmountDrawerShell(DRAWER_ID);
 }

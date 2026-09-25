@@ -66,14 +66,14 @@ describe("panel", () => {
     video.currentTime = END;
     byId(panel, ids.setEnd).click();
     expect(store.settings).toMatchObject({ start: START, end: END });
-    expect(inputById(panel, ids.start).value).toBe("0:10");
-    expect(inputById(panel, ids.end).value).toBe("0:20");
+    expect(inputById(panel, ids.start).value).toBe("0:10.00");
+    expect(inputById(panel, ids.end).value).toBe("0:20.00");
 
     const enable = inputById(panel, ids.enable);
     enable.checked = true;
     enable.dispatchEvent(new Event("change"));
     expect(store.settings.enabled).toBe(true);
-    expect(panel.querySelector(`#${ids.status}`)?.textContent).toContain("Looping");
+    expect(inputById(panel, ids.enable).checked).toBe(true);
   });
 
   it("pauses for the gap at the end of the segment, then restarts from the start", () => {

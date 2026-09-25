@@ -1,4 +1,11 @@
-import { collection, doc, type Firestore, getDocs, setDoc } from "firebase/firestore/lite";
+import {
+  collection,
+  deleteDoc,
+  doc,
+  type Firestore,
+  getDocs,
+  setDoc,
+} from "firebase/firestore/lite";
 
 import { type RemoteVideo } from "./merge";
 
@@ -14,6 +21,14 @@ export async function fetchRemoteVideos(
 ): Promise<Record<string, unknown>> {
   const snap = await getDocs(videosCollection(db, uid));
   return Object.fromEntries(snap.docs.map((d) => [d.id, d.data()]));
+}
+
+export async function deleteRemoteVideo(
+  db: Firestore,
+  uid: string,
+  videoId: string,
+): Promise<void> {
+  await deleteDoc(doc(videosCollection(db, uid), videoId));
 }
 
 export async function pushRemoteVideo(

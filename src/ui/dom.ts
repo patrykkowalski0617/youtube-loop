@@ -5,6 +5,13 @@ export const DRAWER_HANDLE_ID = "ytloop-drawer-handle";
 export const DRAWER_LIST_ID = "ytloop-drawer-list";
 export const DRAWER_SEARCH_ID = "ytloop-drawer-search";
 export const DRAWER_TAGS_ID = "ytloop-drawer-tags";
+export const DRAWER_DOCK_ID = "ytloop-drawer-dock";
+export const PRACTICE_DRAWER_ID = "ytloop-practice";
+export const PRACTICE_HANDLE_ID = "ytloop-practice-handle";
+export const PRACTICE_TOTAL_ID = "ytloop-practice-total";
+export const CHART_ID = "ytloop-chart";
+export const ACCOUNT_ID = "ytloop-account";
+export const ACTIVE_BUTTON_CLASS = "ytloop-active";
 
 export const LOOP_SVG =
   '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">' +

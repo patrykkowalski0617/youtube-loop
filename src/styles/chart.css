@@ -1,15 +1,15 @@
-#ytloop-panel .ytloop-chart[hidden] {
+#ytloop-practice .ytloop-chart[hidden] {
   display: none;
 }
 
-#ytloop-panel .ytloop-chart {
+#ytloop-practice .ytloop-chart {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
 
-#ytloop-panel .ytloop-chart-head,
-#ytloop-panel .ytloop-chart-foot {
+#ytloop-practice .ytloop-chart-head,
+#ytloop-practice .ytloop-chart-foot {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -18,13 +18,13 @@
   font-size: var(--text-micro);
 }
 
-#ytloop-panel .ytloop-chart-sum,
-#ytloop-panel .ytloop-chart-fastest {
+#ytloop-practice .ytloop-chart-sum,
+#ytloop-practice .ytloop-chart-fastest {
   color: var(--fg-muted);
   font-variant-numeric: tabular-nums;
 }
 
-#ytloop-panel .ytloop-chart-bars {
+#ytloop-practice .ytloop-chart-bars {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: var(--space-1);
@@ -32,7 +32,7 @@
   height: 76px;
 }
 
-#ytloop-panel .ytloop-chart-col {
+#ytloop-practice .ytloop-chart-col {
   display: grid;
   grid-template-rows: auto 1fr auto;
   gap: var(--space-1);
@@ -41,7 +41,7 @@
   min-width: 0;
 }
 
-#ytloop-panel .ytloop-chart-tempo {
+#ytloop-practice .ytloop-chart-tempo {
   color: var(--tempo);
   font-size: var(--text-micro);
   font-variant-numeric: tabular-nums;
@@ -49,7 +49,7 @@
   white-space: nowrap;
 }
 
-#ytloop-panel .ytloop-chart-track {
+#ytloop-practice .ytloop-chart-track {
   display: flex;
   align-items: flex-end;
   height: 100%;
@@ -57,28 +57,28 @@
   background: var(--surface-sunken);
 }
 
-#ytloop-panel .ytloop-chart-bar {
+#ytloop-practice .ytloop-chart-bar {
   width: 100%;
   border-radius: var(--radius-sm);
   background: var(--fg-faint);
   transition: height var(--duration-base) var(--ease-out);
 }
 
-#ytloop-panel .ytloop-chart-col.today .ytloop-chart-bar {
+#ytloop-practice .ytloop-chart-col.today .ytloop-chart-bar {
   background: var(--accent);
 }
 
-#ytloop-panel .ytloop-chart-label {
+#ytloop-practice .ytloop-chart-label {
   color: var(--fg-faint);
   font-size: var(--text-micro);
   text-align: center;
 }
 
-#ytloop-panel .ytloop-chart-col.today .ytloop-chart-label {
+#ytloop-practice .ytloop-chart-col.today .ytloop-chart-label {
   color: var(--fg-muted);
 }
 
-#ytloop-panel .ytloop-undo-record {
+#ytloop-practice .ytloop-undo-record {
   flex: none;
   padding: 0 var(--space-2);
   border: 1px solid var(--border);
@@ -92,7 +92,7 @@
 }
 
 @media (hover: hover) {
-  #ytloop-panel .ytloop-undo-record:hover {
+  #ytloop-practice .ytloop-undo-record:hover {
     background: var(--state-hover);
     color: var(--fg);
   }

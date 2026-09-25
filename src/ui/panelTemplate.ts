@@ -20,11 +20,7 @@ export const ids = {
   speedTarget: "ytloop-speed-target",
   speedStep: "ytloop-speed-step",
   gotoStart: "ytloop-goto-start",
-  chart: "ytloop-chart",
   fragAdd: "ytloop-frag-add",
-  account: "ytloop-account",
-  practiceFold: "ytloop-fold-practice",
-  practiceSummary: "ytloop-summary-practice",
 } as const;
 
 export const MODE_RADIO_NAME = "ytloop-speed-mode";
@@ -34,9 +30,8 @@ const p = t.panel;
 
 const readout = (label: string, inputId: string, buttonId: string): string => `
   <div class="ytloop-mark">
-    <span class="ytloop-mark-label">${label}</span>
-    <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${p.timePlaceholder}" autocomplete="off" spellcheck="false">
-    <button id="${buttonId}" class="ytloop-now" title="${p.setToCurrentTime}">${p.now}</button>
+    <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${p.timePlaceholder}" aria-label="${label}" title="${label}" autocomplete="off" spellcheck="false">
+    <button id="${buttonId}" class="ytloop-now" title="${p.setToCurrentTime(label)}">${p.now}</button>
   </div>`;
 
 const numberField = (label: string, inputId: string): string => `
@@ -87,17 +82,6 @@ const panelMarkup = (): string => `
         ${numberField(p.gap, ids.tail)}
       </div>
   </section>
-
-  <details class="ytloop-fold" id="${ids.practiceFold}">
-    <summary>
-      <span>${p.practiceSection}</span>
-      <span class="ytloop-summary-value" id="${ids.practiceSummary}"></span>
-    </summary>
-    <div class="ytloop-fold-body">
-      <div class="ytloop-chart" id="${ids.chart}"></div>
-      <div class="ytloop-account" id="${ids.account}" hidden></div>
-    </div>
-  </details>
 
   <div class="ytloop-transport">
     <button id="${ids.gotoStart}" class="ytloop-play"></button>

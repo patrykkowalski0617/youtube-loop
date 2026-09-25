@@ -1,9 +1,8 @@
-import { formatTime, speedModeOf } from "../core";
+import { formatTimePrecise, speedModeOf } from "../core";
 import { t } from "../i18n";
 import { isAtSpeedTarget, isVideoPlaying, store } from "../player";
 
 import { updateBurst } from "./burst";
-import { renderChart } from "./chart";
 import { buttonById, byId, inputById, setIfNotFocused } from "./dom";
 import { ids, modeRadioId } from "./panelTemplate";
 
@@ -14,9 +13,12 @@ export function syncInputs(panel: HTMLElement): void {
   inputById(panel, ids.enable).checked = settings.enabled;
   setIfNotFocused(
     inputById(panel, ids.start),
-    settings.start != null ? formatTime(settings.start) : "",
+    settings.start != null ? formatTimePrecise(settings.start) : "",
   );
-  setIfNotFocused(inputById(panel, ids.end), settings.end != null ? formatTime(settings.end) : "");
+  setIfNotFocused(
+    inputById(panel, ids.end),
+    settings.end != null ? formatTimePrecise(settings.end) : "",
+  );
   setIfNotFocused(inputById(panel, ids.tail), String(global.tail));
 
   const mode = speedModeOf(settings);
@@ -36,13 +38,8 @@ export function syncPlayButton(panel: HTMLElement): void {
     : t.panel.playFromBeginning;
 }
 
-const practiceSummary = (): string =>
-  store.stats.seconds > 0 ? formatTime(store.stats.seconds) : t.status.noPractice;
-
 export function syncStatus(panel: HTMLElement): void {
-  byId(panel, ids.practiceSummary).textContent = practiceSummary();
   const atTarget = isAtSpeedTarget();
   panel.classList.toggle(MAXED_CLASS, atTarget);
   updateBurst(panel, atTarget);
-  renderChart(byId(panel, ids.chart));
 }

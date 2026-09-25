@@ -32,6 +32,16 @@ export async function writeKeys(items: Record<string, unknown>): Promise<void> {
   });
 }
 
+export async function removeKeys(keys: string[]): Promise<void> {
+  const a = area();
+  if (!a || keys.length === 0) return;
+  return new Promise((resolve) => {
+    a.remove(keys, () => {
+      resolve();
+    });
+  });
+}
+
 export async function readAll(): Promise<Record<string, unknown>> {
   const a = area();
   if (!a) return {};

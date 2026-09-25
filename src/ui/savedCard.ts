@@ -9,7 +9,7 @@ import { t } from "../i18n";
 import { loadEntry, store } from "../player";
 
 import { el } from "./dom";
-import { setDrawerOpen } from "./drawer";
+import { setSavedDrawerOpen } from "./drawer";
 import { savedTagsRow } from "./savedTags";
 import { isPendingRemoval, startRemoval, undoRow } from "./savedUndo";
 
@@ -54,7 +54,7 @@ function entryCard(e: SavedEntry, played: number): HTMLElement {
     main.appendChild(el("div", "ytloop-saved-stat", t.drawer.played(formatTime(played))));
   main.addEventListener("click", () => {
     void loadEntry(e).then((applied) => {
-      if (applied) setDrawerOpen(false);
+      if (applied) setSavedDrawerOpen(false);
     });
   });
 

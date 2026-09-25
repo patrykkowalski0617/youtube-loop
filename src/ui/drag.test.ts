@@ -51,7 +51,7 @@ describe("enableDrag", () => {
     installChromeMock();
     window.innerWidth = VIEWPORT_WIDTH;
     window.innerHeight = VIEWPORT_HEIGHT;
-    store.global = { ...defaultGlobalSettings(), panelOpen: true };
+    store.global = defaultGlobalSettings();
   });
 
   afterEach(uninstallChromeMock);

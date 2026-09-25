@@ -1,5 +1,6 @@
 import {
   attachVideo,
+  hasFragments,
   loadForVideo,
   loadGlobal,
   removeMarkers,
@@ -10,19 +11,20 @@ import {
 } from "../player";
 import { isSyncConfigured, messaging, SYNC_MESSAGE, type SyncMessage } from "../sync";
 import {
-  applyStoredFolds,
   applyStoredPanelPosition,
+  autoOpenPanel,
   injectPlayerButton,
   isEditableTarget,
   isEditingNote,
   mountDrawer,
   mountPanel,
+  mountPracticeDrawer,
   PANEL_ID,
   removeTimeline,
-  setPanelVisible,
   syncPanel,
   unmountDrawer,
   unmountPanel,
+  unmountPracticeDrawer,
   updateTimeline,
 } from "../ui";
 import { getVideoElement, getVideoId, isWatchPage, NAVIGATE_FINISH_EVENT } from "../youtube";
@@ -39,6 +41,7 @@ function leaveWatchPage(): void {
   removeMarkers();
   removeTimeline();
   unmountDrawer();
+  unmountPracticeDrawer();
 }
 
 async function init(): Promise<void> {
@@ -50,12 +53,10 @@ async function init(): Promise<void> {
   mountPanel();
   injectPlayerButton();
   mountDrawer();
-  const globalReady = loadGlobal().then(() => {
-    applyStoredPanelPosition();
-    applyStoredFolds();
-    setPanelVisible(store.global.panelOpen, false);
-  });
+  mountPracticeDrawer();
+  const globalReady = loadGlobal();
   await Promise.all([globalReady, loadForVideo(getVideoId())]);
+  autoOpenPanel(store.videoId, hasFragments());
   syncPanel("saved");
 }
 

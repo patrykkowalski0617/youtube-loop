@@ -75,31 +75,31 @@ export function setEnabled(enabled: boolean): void {
   commit();
 }
 
-const currentVideoTime = (): number | null =>
-  store.video ? roundToStep(store.video.currentTime) : null;
+const currentVideoTime = (): number | null => store.video?.currentTime ?? null;
+
+const atTimeStep = (value: number | null): number | null =>
+  value == null || !Number.isFinite(value) ? null : roundToStep(value);
+
+export function setStart(value: number | null): void {
+  store.settings.start = atTimeStep(value);
+  commit();
+}
+
+export function setEnd(value: number | null): void {
+  store.settings.end = atTimeStep(value);
+  commit();
+}
 
 export function setStartFromVideo(): void {
   const now = currentVideoTime();
   if (now == null) return;
-  store.settings.start = now;
-  commit();
+  setStart(now);
 }
 
 export function setEndFromVideo(): void {
   const now = currentVideoTime();
   if (now == null) return;
-  store.settings.end = now;
-  commit();
-}
-
-export function setStart(value: number | null): void {
-  store.settings.start = value;
-  commit();
-}
-
-export function setEnd(value: number | null): void {
-  store.settings.end = value;
-  commit();
+  setEnd(now);
 }
 
 export function setTail(value: number): void {
@@ -137,16 +137,6 @@ export function setSpeedStep(value: number): void {
   commit();
 }
 
-export function setPanelOpen(open: boolean, persist = true): void {
-  store.global.panelOpen = open;
-  if (persist) persistGlobal();
-}
-
-export function setPracticeOpen(open: boolean): void {
-  store.global.practiceOpen = open;
-  persistGlobal();
-}
-
 export function setPanelSpot(spot: PanelSpot): void {
   store.global.panelX = spot.x;
   store.global.panelY = spot.y;
@@ -174,6 +164,11 @@ function currentSnapshot(): SavedEntry | null {
 
 export async function removeSaved(videoId: string): Promise<void> {
   await removeSavedEntry(videoId);
+  if (videoId === store.videoId) {
+    applySettings(normalizeVideoSettings(null), false);
+    store.stats = emptyStats();
+    notify("settings");
+  }
   notify("saved");
 }
 

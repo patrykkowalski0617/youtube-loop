@@ -1,12 +1,9 @@
 import { fromPanelSpot } from "../core";
-import { setPanelOpen, store } from "../player";
+import { store } from "../player";
 
-import { byId, PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
+import { ACTIVE_BUTTON_CLASS, PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
 import { placePanel } from "./drag";
-import { ids } from "./panelTemplate";
 import { boxOf, viewportBox } from "./viewport";
-
-const ACTIVE_BUTTON_CLASS = "ytloop-active";
 
 export const getPanel = (): HTMLElement | null => document.getElementById(PANEL_ID);
 
@@ -15,19 +12,21 @@ export const isPanelVisible = (): boolean => {
   return panel != null && !panel.hidden;
 };
 
-export function setPanelVisible(visible: boolean, persist = true): void {
+export function setPanelVisible(visible: boolean): void {
   const panel = getPanel();
   if (!panel) return;
   panel.hidden = !visible;
   if (visible) applyStoredPanelPosition();
-  setPanelOpen(visible, persist);
   document.getElementById(PLAYER_BUTTON_ID)?.classList.toggle(ACTIVE_BUTTON_CLASS, visible);
 }
 
-export function applyStoredFolds(): void {
+let autoOpened: { videoId: string | null; panel: HTMLElement | null } | null = null;
+
+export function autoOpenPanel(videoId: string | null, open: boolean): void {
   const panel = getPanel();
-  if (!panel) return;
-  (byId(panel, ids.practiceFold) as HTMLDetailsElement).open = store.global.practiceOpen;
+  if (autoOpened?.videoId === videoId && autoOpened.panel === panel) return;
+  autoOpened = { videoId, panel };
+  setPanelVisible(open);
 }
 
 export function applyStoredPanelPosition(): void {

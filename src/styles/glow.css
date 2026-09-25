@@ -36,11 +36,6 @@
   color: var(--c-ember-ink);
 }
 
-#ytloop-panel.is-maxed .ytloop-status {
-  color: var(--c-ember);
-  text-shadow: 0 0 8px var(--ember-halo);
-}
-
 @keyframes ytloop-ember {
   0%,
   100% {

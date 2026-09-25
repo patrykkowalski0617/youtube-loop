@@ -23,6 +23,7 @@ import {
   videoSettingsKey,
   videoStatsKey,
 } from "./keys";
+import { purgeVideoRecord } from "./localMirror";
 
 export async function loadVideoSettings(videoId: string): Promise<VideoSettings> {
   return normalizeVideoSettings(await readKey(videoSettingsKey(videoId)));
@@ -100,6 +101,7 @@ export async function saveSavedList(list: SavedEntry[]): Promise<void> {
 export async function removeSavedEntry(videoId: string): Promise<SavedEntry[]> {
   const list = (await loadSavedList()).filter((e) => e.videoId !== videoId);
   await saveSavedList(list);
+  await purgeVideoRecord(videoId);
   return list;
 }
 

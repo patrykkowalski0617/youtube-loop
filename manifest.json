@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "YouTube Loop",
-  "version": "2.20.3",
+  "version": "2.23.0",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA1R87XnY2PV8Evv4gvDrhuozy+kNefjIHV8TKeN9JWdiq+FPUCU5xuf2oWAi1uygS5VPmPopBU9GCXAwS47ZXgGUUqWkd/ImqNrazLTtII6c0u6k8gMTNH9xvVlbkO9vNqlXs0GTTr4RcwXuyxfnnTUbhGM2i4n6iPRZuCgeskPVJV4hRBhjKS05aBIsUM80dyRo0cjIoZB+kYDFWz+oi7i2LIobPvW1NKxd/BkKOJjwBU60lTMVPq57EFYyV0OIiN09MHmw5u/6NSg17Ohq6i30hxZZHEMxZMVNItOf44W/6wQw0vNcBHaqqZGtgb3h5Ql9X0o9ie19g0ASY/OZeDQIDAQAB",
   "description": "Mark the start and end of a loop on a YouTube video and replay the chosen segment over and over.",
   "icons": {

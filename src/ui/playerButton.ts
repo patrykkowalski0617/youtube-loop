@@ -1,11 +1,10 @@
 import { t } from "../i18n";
 import { RIGHT_CONTROLS_SELECTOR } from "../youtube";
 
-import { LOOP_SVG, PLAYER_BUTTON_ID } from "./dom";
+import { ACTIVE_BUTTON_CLASS, LOOP_SVG, PLAYER_BUTTON_ID } from "./dom";
 import { mountPanel } from "./panel";
 import { isPanelVisible, setPanelVisible } from "./panelVisibility";
 
-const ACTIVE_CLASS = "ytloop-active";
 const FLASH_CLASS = "ytloop-flash";
 const FLASH_MS = 900;
 
@@ -31,5 +30,5 @@ export function injectPlayerButton(): void {
   btn.innerHTML = LOOP_SVG;
   btn.addEventListener("click", togglePanel);
   controls.insertBefore(btn, controls.firstChild);
-  btn.classList.toggle(ACTIVE_CLASS, isPanelVisible());
+  btn.classList.toggle(ACTIVE_BUTTON_CLASS, isPanelVisible());
 }

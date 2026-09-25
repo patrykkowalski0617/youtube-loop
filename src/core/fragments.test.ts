@@ -13,9 +13,9 @@ import {
 } from "./fragments";
 
 describe("isSameRange", () => {
-  it("treats times within 50 ms as equal", () => {
-    expect(isSameRange({ start: 1, end: 2 }, 1.04, 2)).toBe(true);
-    expect(isSameRange({ start: 1, end: 2 }, 1.06, 2)).toBe(false);
+  it("treats times within 5 ms as equal", () => {
+    expect(isSameRange({ start: 1, end: 2 }, 1.004, 2)).toBe(true);
+    expect(isSameRange({ start: 1, end: 2 }, 1.01, 2)).toBe(false);
     expect(isSameRange({ start: 1, end: 2 }, 1, 3)).toBe(false);
   });
 });
@@ -55,7 +55,7 @@ describe("withFragment", () => {
 
   it("does not add a duplicate range", () => {
     const list = normalizeFragments([{ id: "a", start: 10, end: 20 }]);
-    expect(withFragment(list, 10.01, 20)).toBe(list);
+    expect(withFragment(list, 10.001, 20)).toBe(list);
   });
 });
 

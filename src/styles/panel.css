@@ -158,15 +158,9 @@
 #ytloop-panel .ytloop-mark {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-1);
   min-width: 0;
-  padding: var(--space-2) var(--space-3);
-}
-
-#ytloop-panel .ytloop-mark-label {
-  flex: none;
-  color: var(--fg-faint);
-  font-size: var(--text-micro);
+  padding: var(--space-2);
 }
 
 #ytloop-panel .ytloop-deck-add {
@@ -228,7 +222,7 @@
 
 #ytloop-panel .ytloop-now {
   flex: none;
-  width: var(--control-height);
+  width: var(--control-height-icon);
   padding: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -254,54 +248,6 @@
   font-size: var(--text-body);
   font-weight: var(--weight-bold);
   cursor: pointer;
-}
-
-#ytloop-panel .ytloop-fold {
-  border-top: 1px solid var(--border);
-}
-
-#ytloop-panel .ytloop-fold summary {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  min-height: var(--control-height-lg);
-  padding: 0;
-  color: var(--fg-muted);
-  list-style: none;
-  cursor: pointer;
-}
-
-#ytloop-panel .ytloop-fold summary::-webkit-details-marker {
-  display: none;
-}
-
-#ytloop-panel .ytloop-fold summary::after {
-  content: "";
-  flex: none;
-  width: 6px;
-  height: 6px;
-  margin-left: auto;
-  border-right: 1.5px solid currentcolor;
-  border-bottom: 1.5px solid currentcolor;
-  transform: rotate(45deg) translate(-2px, -2px);
-  transition: transform var(--duration-fast) var(--ease-out);
-}
-
-#ytloop-panel .ytloop-fold[open] summary::after {
-  transform: rotate(225deg) translate(-2px, -2px);
-}
-
-#ytloop-panel .ytloop-summary-value {
-  color: var(--fg-faint);
-  font-size: var(--text-micro);
-  font-variant-numeric: tabular-nums;
-}
-
-#ytloop-panel .ytloop-fold-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding-block: var(--space-2) var(--space-3);
 }
 
 #ytloop-panel .ytloop-tempo {
@@ -412,10 +358,6 @@
 
   #ytloop-panel .ytloop-play:hover {
     background: color-mix(in oklab, var(--accent) 22%, transparent);
-  }
-
-  #ytloop-panel .ytloop-fold summary:hover {
-    color: var(--fg);
   }
 }
 

@@ -26,10 +26,8 @@ export const defaultVideoSettings = (): VideoSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   tail: DEFAULT_TAIL_SECONDS,
-  panelOpen: false,
   panelX: null,
   panelY: null,
-  practiceOpen: false,
 });
 
 const numberOr = (v: unknown, fallback: number): number =>
@@ -65,10 +63,8 @@ export function normalizeGlobalSettings(raw: unknown): GlobalSettings {
   const r = raw as Partial<Record<keyof GlobalSettings, unknown>>;
   return {
     tail: numberOr(r.tail, d.tail),
-    panelOpen: booleanOr(r.panelOpen, d.panelOpen),
     panelX: spotOrNull(r.panelX),
     panelY: spotOrNull(r.panelY),
-    practiceOpen: booleanOr(r.practiceOpen, d.practiceOpen),
   };
 }
 

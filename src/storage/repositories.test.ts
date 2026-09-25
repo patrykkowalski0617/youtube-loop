@@ -1,12 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import { defaultVideoSettings, type SavedEntry } from "../core";
-import { installChromeMock, uninstallChromeMock } from "../testing/chromeMock";
+import { type ChromeMock, installChromeMock, uninstallChromeMock } from "../testing/chromeMock";
 
-import { SAVED_LIST_KEY, videoSettingsKey } from "./keys";
+import { SAVED_LIST_KEY, SYNC_META_KEY, videoSettingsKey, videoStatsKey } from "./keys";
+import { loadSyncMeta } from "./localMirror";
 import {
   loadSavedList,
   loadVideoSettings,
+  removeSavedEntry,
   renameTagEverywhere,
   saveEntryTags,
 } from "./repositories";
@@ -72,5 +74,44 @@ describe("saveEntryTags", () => {
     await saveEntryTags(TAGGED_VIDEO, []);
     expect((await loadSavedList())[1]?.tags).toEqual([]);
     expect((await loadVideoSettings(OTHER_VIDEO)).tags).toEqual([]);
+  });
+});
+
+describe("removeSavedEntry", () => {
+  const PLAYED_SECONDS = 30;
+  const SYNCED_AT = 5;
+  let mock: ChromeMock;
+
+  beforeEach(() => {
+    mock = installChromeMock({
+      [SAVED_LIST_KEY]: [saved(TAGGED_VIDEO, []), saved(OTHER_VIDEO, [])],
+      [videoSettingsKey(TAGGED_VIDEO)]: {
+        ...defaultVideoSettings(),
+        fragments: [{ id: "f1", start: 1, end: 2, comment: "" }],
+      },
+      [videoStatsKey(TAGGED_VIDEO)]: { seconds: PLAYED_SECONDS },
+      [SYNC_META_KEY]: { videos: { [TAGGED_VIDEO]: SYNCED_AT }, lastSyncedAt: SYNCED_AT },
+    });
+  });
+
+  afterEach(() => {
+    uninstallChromeMock();
+  });
+
+  it("drops the entry and leaves the other videos in the list", async () => {
+    expect(await removeSavedEntry(TAGGED_VIDEO)).toEqual([saved(OTHER_VIDEO, [])]);
+  });
+
+  it("deletes the settings and the practice stats of that video", async () => {
+    await removeSavedEntry(TAGGED_VIDEO);
+    expect(videoSettingsKey(TAGGED_VIDEO) in mock.store).toBe(false);
+    expect(videoStatsKey(TAGGED_VIDEO) in mock.store).toBe(false);
+  });
+
+  it("records the removal so the cloud copy cannot bring it back", async () => {
+    await removeSavedEntry(TAGGED_VIDEO);
+    const meta = await loadSyncMeta();
+    expect(meta.removed).toEqual([TAGGED_VIDEO]);
+    expect(meta.videos).toEqual({});
   });
 });

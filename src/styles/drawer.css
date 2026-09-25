@@ -1,8 +1,16 @@
-#ytloop-drawer-handle {
+#ytloop-drawer-dock {
   position: fixed;
   top: 50%;
   right: 0;
   z-index: var(--z-drawer-handle);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  transform: translateY(-50%);
+}
+
+.ytloop-drawer-handle {
   padding: var(--space-4) var(--space-2);
   border: 0;
   border-radius: var(--radius-sm) 0 0 var(--radius-sm);
@@ -13,10 +21,9 @@
   font-weight: var(--weight-bold);
   writing-mode: vertical-rl;
   cursor: pointer;
-  transform: translateY(-50%);
 }
 
-#ytloop-drawer {
+.ytloop-drawer {
   position: fixed;
   top: 0;
   right: 0;
@@ -38,18 +45,17 @@
   transition: transform var(--duration-base) var(--ease-out);
 }
 
-#ytloop-drawer * {
+.ytloop-drawer * {
   box-sizing: border-box;
 }
 
-#ytloop-drawer.open {
+.ytloop-drawer.open {
   transform: translateX(0);
 }
 
-#ytloop-drawer .ytloop-drawer-head {
+.ytloop-drawer .ytloop-drawer-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: var(--space-2);
   padding-bottom: var(--space-2);
   border-bottom: 1px solid var(--border);
@@ -57,7 +63,25 @@
   font-weight: var(--weight-bold);
 }
 
-#ytloop-drawer .ytloop-icon-btn {
+.ytloop-drawer .ytloop-drawer-head > span:first-child {
+  flex: 1;
+}
+
+.ytloop-drawer .ytloop-drawer-value {
+  color: var(--fg-muted);
+  font-size: var(--text-micro);
+  font-weight: var(--weight-normal);
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-practice .ytloop-practice-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-3);
+}
+
+.ytloop-drawer .ytloop-icon-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -271,12 +295,12 @@
   }
 
   #ytloop-drawer .ytloop-saved-del:hover,
-  #ytloop-drawer .ytloop-icon-btn:hover {
+  .ytloop-drawer .ytloop-icon-btn:hover {
     background: var(--state-hover);
     color: var(--fg);
   }
 
-  #ytloop-drawer-handle:hover {
+  .ytloop-drawer-handle:hover {
     background: var(--accent);
   }
 }

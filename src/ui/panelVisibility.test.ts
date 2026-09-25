@@ -5,8 +5,13 @@ import { defaultGlobalSettings } from "../core";
 import { store } from "../player";
 import { installChromeMock, uninstallChromeMock } from "../testing/chromeMock";
 
-import { PANEL_ID } from "./dom";
-import { applyStoredPanelPosition } from "./panelVisibility";
+import { PANEL_ID, PLAYER_BUTTON_ID } from "./dom";
+import {
+  applyStoredPanelPosition,
+  autoOpenPanel,
+  isPanelVisible,
+  setPanelVisible,
+} from "./panelVisibility";
 
 const WIDE = 1000;
 const TALL = 800;
@@ -64,5 +69,52 @@ describe("applyStoredPanelPosition", () => {
     store.global = defaultGlobalSettings();
     applyStoredPanelPosition();
     expect(node.style.left).toBe("");
+  });
+});
+
+const VIDEO_ID = "video";
+const OTHER_VIDEO_ID = "other-video";
+
+describe("autoOpenPanel", () => {
+  beforeEach(() => {
+    installChromeMock();
+    store.global = defaultGlobalSettings();
+    panel();
+  });
+
+  afterEach(() => {
+    document.body.innerHTML = "";
+    uninstallChromeMock();
+  });
+
+  it("shows the panel on a video that has fragments and hides it on one without", () => {
+    autoOpenPanel(VIDEO_ID, true);
+    expect(isPanelVisible()).toBe(true);
+    autoOpenPanel(OTHER_VIDEO_ID, false);
+    expect(isPanelVisible()).toBe(false);
+  });
+
+  it("leaves a manual close alone while the same video stays open", () => {
+    autoOpenPanel(VIDEO_ID, true);
+    setPanelVisible(false);
+    autoOpenPanel(VIDEO_ID, true);
+    expect(isPanelVisible()).toBe(false);
+  });
+
+  it("decides again for a panel that was mounted anew", () => {
+    autoOpenPanel(VIDEO_ID, true);
+    setPanelVisible(false);
+    document.body.innerHTML = "";
+    panel();
+    autoOpenPanel(VIDEO_ID, true);
+    expect(isPanelVisible()).toBe(true);
+  });
+
+  it("marks the player button while the panel shows", () => {
+    const button = document.createElement("button");
+    button.id = PLAYER_BUTTON_ID;
+    document.body.appendChild(button);
+    autoOpenPanel(VIDEO_ID, true);
+    expect(button.classList.contains("ytloop-active")).toBe(true);
   });
 });

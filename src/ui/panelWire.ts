@@ -1,5 +1,5 @@
 import {
-  formatTime,
+  formatTimePrecise,
   isSpeedMode,
   parseDecimal,
   parseTime,
@@ -8,7 +8,7 @@ import {
   SPEED_SCRUB_STEP,
   TAIL_MIN,
   TAIL_SCRUB_STEP,
-  TIME_ROUNDING_STEP,
+  TIME_SCRUB_STEP,
 } from "../core";
 import {
   addFragment,
@@ -16,7 +16,6 @@ import {
   setEnabled,
   setEnd,
   setEndFromVideo,
-  setPracticeOpen,
   setSpeedMode,
   setSpeedStart,
   setSpeedStep,
@@ -24,7 +23,6 @@ import {
   setStart,
   setStartFromVideo,
   setTail,
-  store,
   toggleLoopPlayback,
 } from "../player";
 
@@ -50,10 +48,10 @@ function wireTimeInput(panel: HTMLElement, id: string, apply: (v: number | null)
     apply(parseTime(field.value));
   });
   makeScrubbable(field, {
-    step: TIME_ROUNDING_STEP,
+    step: TIME_SCRUB_STEP,
     range: { min: 0 },
     read: () => parseTime(field.value) ?? 0,
-    format: formatTime,
+    format: formatTimePrecise,
     commit: apply,
   });
 }
@@ -95,14 +93,6 @@ function wireSpeedMode(panel: HTMLElement): void {
   }
 }
 
-function wirePracticeFold(panel: HTMLElement): void {
-  const details = byId(panel, ids.practiceFold) as HTMLDetailsElement;
-  details.open = store.global.practiceOpen;
-  details.addEventListener("toggle", () => {
-    setPracticeOpen(details.open);
-  });
-}
-
 export function wirePanel(panel: HTMLElement): void {
   wireToggle(panel, ids.enable, setEnabled);
   wireSpeedMode(panel);
@@ -129,8 +119,6 @@ export function wirePanel(panel: HTMLElement): void {
   add.addEventListener("click", () => {
     if (addFragment()) flashState(add, ADDED_CLASS, FLASH_MS);
   });
-
-  wirePracticeFold(panel);
 
   enableDrag(byId(panel, ids.drag), panel);
 }

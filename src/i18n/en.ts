@@ -6,8 +6,8 @@ export const en = {
     start: "Start",
     end: "End",
     now: "⏱",
-    setToCurrentTime: "Set to current time",
-    timePlaceholder: "0:00",
+    setToCurrentTime: (mark: string) => `Set ${mark.toLowerCase()} to the current time`,
+    timePlaceholder: "0:00.00",
     gap: "Gap (s)",
     speedMode: {
       off: "Full speed",
@@ -18,13 +18,17 @@ export const en = {
     startSpeed: "From",
     targetSpeed: "To",
     step: "Step",
-    practiceSection: "Practice",
     playFromBeginning: "Play from start",
     stop: "Stop",
     version: (v: string) => `v${v}`,
   },
   status: {
     noPractice: "Nothing played yet",
+  },
+  practice: {
+    handle: "◴ Practice",
+    heading: "◴ Practice",
+    close: "Close",
   },
   chart: {
     lastDays: "Last 7 days",

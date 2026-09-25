@@ -7,8 +7,7 @@ import {
   type SyncState,
 } from "../sync";
 
-import { el } from "./dom";
-import { ids } from "./panelTemplate";
+import { ACCOUNT_ID, el } from "./dom";
 
 const SIGNED_IN_CLASS = "signed-in";
 
@@ -31,7 +30,7 @@ function accountLabel(s: SyncState): string {
 }
 
 export function renderAccount(panel: HTMLElement): void {
-  const row = panel.querySelector<HTMLElement>(`#${ids.account}`);
+  const row = panel.querySelector<HTMLElement>(`#${ACCOUNT_ID}`);
   if (!row) return;
   if (!isSyncConfigured || !state || state.status === "unconfigured") {
     row.hidden = true;

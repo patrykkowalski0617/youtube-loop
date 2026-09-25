@@ -1,6 +1,5 @@
 import { type ChangeKind, subscribe } from "../player";
 
-import { renderAccount, watchAccount } from "./account";
 import { resetBurst } from "./burst";
 import { PANEL_ID } from "./dom";
 import { renderSavedList } from "./drawer";
@@ -8,10 +7,18 @@ import { syncInputs, syncPlayButton, syncStatus } from "./panelSync";
 import { buildPanel } from "./panelTemplate";
 import { getPanel } from "./panelVisibility";
 import { wirePanel } from "./panelWire";
+import { renderPracticeDrawer } from "./practiceDrawer";
 
 let unsubscribe: (() => void) | null = null;
 
+const PRACTICE_KINDS: ChangeKind[] = ["settings", "status", "account"];
+
 export function syncPanel(kind: ChangeKind): void {
+  if (kind === "saved") {
+    void renderSavedList();
+    return;
+  }
+  if (PRACTICE_KINDS.includes(kind)) renderPracticeDrawer();
   const panel = getPanel();
   if (!panel) return;
   switch (kind) {
@@ -19,7 +26,6 @@ export function syncPanel(kind: ChangeKind): void {
       syncInputs(panel);
       syncStatus(panel);
       syncPlayButton(panel);
-      renderAccount(panel);
       break;
     case "status":
       syncStatus(panel);
@@ -27,11 +33,7 @@ export function syncPanel(kind: ChangeKind): void {
     case "playState":
       syncPlayButton(panel);
       break;
-    case "account":
-      renderAccount(panel);
-      break;
-    case "saved":
-      void renderSavedList();
+    default:
       break;
   }
 }
@@ -44,9 +46,6 @@ export function mountPanel(): HTMLElement | null {
   document.body.appendChild(panel);
   wirePanel(panel);
   unsubscribe ??= subscribe(syncPanel);
-  watchAccount(() => {
-    syncPanel("account");
-  });
   syncPanel("settings");
   return panel;
 }

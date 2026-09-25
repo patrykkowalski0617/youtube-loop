@@ -8,7 +8,7 @@ import { type ChromeMock, installChromeMock, uninstallChromeMock } from "../test
 import { flushAsync } from "../testing/flush";
 
 import { byId } from "./dom";
-import { mountDrawer, renderSavedList, setDrawerOpen, unmountDrawer } from "./drawer";
+import { mountDrawer, renderSavedList, setSavedDrawerOpen, unmountDrawer } from "./drawer";
 
 const CURRENT_ID = "current-video";
 const OTHER_ID = "other-video";
@@ -142,7 +142,7 @@ describe("drawer", () => {
 
   it("opens and closes", () => {
     const drawer = byId(document, "ytloop-drawer");
-    setDrawerOpen(true);
+    setSavedDrawerOpen(true);
     expect(drawer.classList.contains("open")).toBe(true);
     document.getElementById("ytloop-drawer-close")?.click();
     expect(drawer.classList.contains("open")).toBe(false);

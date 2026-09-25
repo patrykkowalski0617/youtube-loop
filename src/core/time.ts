@@ -1,18 +1,34 @@
-import { TIME_ROUNDING_STEP } from "./constants";
+import { TIME_DECIMALS, TIME_ROUNDING_STEP } from "./constants";
 
 const SECONDS_PER_MINUTE = 60;
 const SECONDS_PER_HOUR = 3600;
 const EMPTY_TIME = "--:--";
+const SECONDS_WIDTH = 2;
+const DECIMAL_POINT_WIDTH = 1;
 
 const pad2 = (n: number): string => String(n).padStart(2, "0");
 
-export function formatTime(sec: number | null | undefined): string {
-  if (sec == null || Number.isNaN(sec)) return EMPTY_TIME;
-  const total = Math.max(0, Math.floor(sec));
+const padSeconds = (s: number): string =>
+  s.toFixed(TIME_DECIMALS).padStart(SECONDS_WIDTH + DECIMAL_POINT_WIDTH + TIME_DECIMALS, "0");
+
+const clock = (total: number, seconds: (s: number) => string): string => {
   const h = Math.floor(total / SECONDS_PER_HOUR);
   const m = Math.floor((total % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
   const s = total % SECONDS_PER_MINUTE;
-  return h > 0 ? `${h}:${pad2(m)}:${pad2(s)}` : `${m}:${pad2(s)}`;
+  return h > 0 ? `${h}:${pad2(m)}:${seconds(s)}` : `${m}:${seconds(s)}`;
+};
+
+const isBlank = (sec: number | null | undefined): sec is null | undefined =>
+  sec == null || Number.isNaN(sec);
+
+export function formatTime(sec: number | null | undefined): string {
+  if (isBlank(sec)) return EMPTY_TIME;
+  return clock(Math.max(0, Math.floor(sec)), pad2);
+}
+
+export function formatTimePrecise(sec: number | null | undefined): string {
+  if (isBlank(sec)) return EMPTY_TIME;
+  return clock(roundToStep(Math.max(0, sec)), padSeconds);
 }
 
 export function parseTime(input: string | null | undefined): number | null {

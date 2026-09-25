@@ -1,4 +1,4 @@
-#ytloop-panel .ytloop-account {
+#ytloop-practice .ytloop-account {
   display: flex;
   align-items: center;
   gap: var(--space-2);
@@ -7,18 +7,18 @@
   font-size: var(--text-micro);
 }
 
-#ytloop-panel .ytloop-account-label {
+#ytloop-practice .ytloop-account-label {
   flex: 1;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
 
-#ytloop-panel .ytloop-account.signed-in .ytloop-account-label {
+#ytloop-practice .ytloop-account.signed-in .ytloop-account-label {
   color: var(--fg-muted);
 }
 
-#ytloop-panel .ytloop-account-btn {
+#ytloop-practice .ytloop-account-btn {
   flex: none;
   padding: 0 var(--space-2);
   border: 1px solid var(--border);
@@ -31,18 +31,18 @@
   cursor: pointer;
 }
 
-#ytloop-panel .ytloop-account-btn:disabled {
+#ytloop-practice .ytloop-account-btn:disabled {
   opacity: 0.45;
   cursor: default;
 }
 
-#ytloop-panel .ytloop-account-error {
+#ytloop-practice .ytloop-account-error {
   flex: none;
   color: var(--accent);
 }
 
 @media (hover: hover) {
-  #ytloop-panel .ytloop-account-btn:hover:not(:disabled) {
+  #ytloop-practice .ytloop-account-btn:hover:not(:disabled) {
     background: var(--state-hover);
     color: var(--fg);
   }

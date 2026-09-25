@@ -6,8 +6,7 @@ import { type ChromeMock, installChromeMock, uninstallChromeMock } from "../test
 import { flushAsync } from "../testing/flush";
 
 import { renderAccount, watchAccount } from "./account";
-import { byId } from "./dom";
-import { ids } from "./panelTemplate";
+import { ACCOUNT_ID, byId } from "./dom";
 
 const EMAIL = "someone@example.com";
 const ERROR_TEXT = "Missing or insufficient permissions";
@@ -30,7 +29,7 @@ const signedOut = (): SyncState => ({
 let mock: ChromeMock;
 let panel: HTMLElement;
 
-const row = (): HTMLElement => byId(document, ids.account);
+const row = (): HTMLElement => byId(document, ACCOUNT_ID);
 const button = (): HTMLButtonElement | null => row().querySelector("button");
 const label = (): string => row().querySelector(".ytloop-account-label")?.textContent ?? "";
 
@@ -45,7 +44,7 @@ async function arrive(state: SyncState): Promise<void> {
 describe("account row", () => {
   beforeEach(() => {
     mock = installChromeMock();
-    document.body.innerHTML = `<div id="panel"><div id="${ids.account}" hidden></div></div>`;
+    document.body.innerHTML = `<div id="panel"><div id="${ACCOUNT_ID}" hidden></div></div>`;
     panel = byId(document, "panel");
   });
 

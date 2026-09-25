@@ -64,6 +64,8 @@ export const speedActive = (): boolean =>
 
 export const hasRange = (): boolean => store.settings.start != null && store.settings.end != null;
 
+export const hasFragments = (): boolean => store.settings.fragments.length > 0;
+
 export const currentRamp = () => ({
   start: store.settings.speedStart,
   target: store.settings.speedTarget,

@@ -33,6 +33,11 @@ export function installChromeMock(initial: Items = {}): ChromeMock {
       Object.assign(mock.store, items);
       cb?.();
     },
+    remove(keys: string | string[], cb?: () => void): void {
+      for (const key of Array.isArray(keys) ? keys : [keys])
+        Reflect.deleteProperty(mock.store, key);
+      cb?.();
+    },
   };
 
   const runtime = {

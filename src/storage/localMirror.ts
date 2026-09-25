@@ -4,9 +4,10 @@ import {
   type SavedEntry,
   type VideoSettings,
   type VideoStats,
+  withoutKeys,
 } from "../core";
 
-import { readAll, readKey, writeKeys } from "./chromeStorage";
+import { readAll, readKey, removeKeys, writeKeys } from "./chromeStorage";
 import {
   SAVED_LIST_KEY,
   SYNC_META_KEY,
@@ -24,15 +25,20 @@ export interface LocalVideoRecord {
 
 export interface SyncMeta {
   videos: Record<string, number>;
+  removed: string[];
   lastSyncedAt: number | null;
 }
 
-const emptyMeta = (): SyncMeta => ({ videos: {}, lastSyncedAt: null });
+const emptyMeta = (): SyncMeta => ({ videos: {}, removed: [], lastSyncedAt: null });
+
+const removedIds = (raw: unknown): string[] =>
+  Array.isArray(raw) ? raw.filter((id): id is string => typeof id === "string") : [];
 
 export async function loadSyncMeta(): Promise<SyncMeta> {
   const raw = await readKey<Partial<SyncMeta>>(SYNC_META_KEY);
   return {
     videos: raw?.videos ?? emptyMeta().videos,
+    removed: removedIds(raw?.removed),
     lastSyncedAt: typeof raw?.lastSyncedAt === "number" ? raw.lastSyncedAt : null,
   };
 }
@@ -63,6 +69,14 @@ export async function loadAllVideos(): Promise<LocalVideoRecord[]> {
     stats: normalizeStats(all[videoStatsKey(videoId)]),
     saved: saved.get(videoId) ?? null,
   }));
+}
+
+export async function purgeVideoRecord(videoId: string): Promise<void> {
+  await removeKeys([videoSettingsKey(videoId), videoStatsKey(videoId)]);
+  const meta = await loadSyncMeta();
+  const videos = withoutKeys(meta.videos, [videoId]);
+  const removed = meta.removed.includes(videoId) ? meta.removed : [...meta.removed, videoId];
+  await saveSyncMeta({ ...meta, videos, removed });
 }
 
 export async function writeVideoRecord(record: LocalVideoRecord): Promise<void> {

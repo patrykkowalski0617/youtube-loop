@@ -121,3 +121,10 @@ var(--ytloop-tag-hue))`. A custom property containing `var()` is substituted
 - `applyStoredPanelPosition` skips a hidden panel: `offsetWidth` reads 0 while
   the `hidden` attribute is set, so the placement would be computed against a
   panel of no size. Showing the panel applies the position again.
+- Removing a saved video deletes `ytloop:<id>` and `ytloop:stat:<id>` and records
+  the id under `removed` in `ytloop:sync`. The tombstone is the only thing that
+  stops the next full sync from treating the surviving cloud document as the
+  newer copy and pulling the video back; `runFullSync` deletes those remote
+  documents and clears the list, and `pushVideos` deletes the remote document
+  for any id whose local record is gone. Dropping the tombstone makes deletion
+  look complete until the next sign-in.

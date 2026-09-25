@@ -95,8 +95,8 @@ describe("timeline strip", () => {
   it("shows the note on the bar and keeps the times in the tooltip", () => {
     updateTimeline();
     expect(bars()[0]?.querySelector(".ytloop-timeline-label")?.textContent).toBe("chorus");
-    expect(bars()[0]?.title).toBe("chorus · 0:00 – 1:40 · Double-click to edit the note");
-    expect(bars()[1]?.title).toBe("0:20 – 0:30 · Double-click to add a note");
+    expect(bars()[0]?.title).toBe("chorus · 0:00.00 – 1:40.00 · Double-click to edit the note");
+    expect(bars()[1]?.title).toBe("0:20.00 – 0:30.00 · Double-click to add a note");
   });
 
   it("gives the longer fragment the lane the strip draws highest", () => {
@@ -105,8 +105,8 @@ describe("timeline strip", () => {
       bars()
         .find((b) => b.title.includes(id))
         ?.style.getPropertyValue("--ytloop-lane") ?? "";
-    expect(laneOf("0:00 – 1:40")).toBe("0");
-    expect(laneOf("0:20 – 0:30")).toBe("1");
+    expect(laneOf("0:00.00 – 1:40.00")).toBe("0");
+    expect(laneOf("0:20.00 – 0:30.00")).toBe("1");
   });
 
   it("edits the note on a double click and saves it on Enter", async () => {

@@ -50,9 +50,9 @@ describe("parseDecimal", () => {
 });
 
 describe("roundToStep", () => {
-  it("rounds to a tenth of a second by default", () => {
-    expect(roundToStep(12.34)).toBeCloseTo(12.3);
-    expect(roundToStep(12.35)).toBeCloseTo(12.4);
+  it("rounds to a hundredth of a second by default", () => {
+    expect(roundToStep(12.344)).toBeCloseTo(12.34);
+    expect(roundToStep(12.345)).toBeCloseTo(12.35);
   });
 });
 

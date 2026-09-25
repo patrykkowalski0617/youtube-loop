@@ -1,4 +1,4 @@
-import { type SavedEntry } from "../core";
+import { type SavedEntry, withoutKeys } from "../core";
 import {
   loadAllVideos,
   loadSavedList,
@@ -11,7 +11,7 @@ import {
 } from "../storage";
 
 import { currentUid, firestore } from "./firebase";
-import { fetchRemoteVideos, pushRemoteVideo } from "./firestoreVideos";
+import { deleteRemoteVideo, fetchRemoteVideos, pushRemoteVideo } from "./firestoreVideos";
 import { fromRemoteVideo, mergeSavedList, pickWinner, toRemoteVideo } from "./merge";
 
 interface SyncContext {
@@ -40,9 +40,13 @@ export async function runFullSync(): Promise<number | null> {
   const now = Date.now();
   const ids = new Set([...ctx.local.keys(), ...Object.keys(ctx.remote)]);
   const pulledEntries: SavedEntry[] = [];
-  const videos: Record<string, number> = { ...ctx.meta.videos };
+  const removed = new Set(ctx.meta.removed);
+  const videos: Record<string, number> = withoutKeys(ctx.meta.videos, removed);
+
+  for (const videoId of removed) await deleteRemoteVideo(db, ctx.uid, videoId);
 
   for (const videoId of ids) {
+    if (removed.has(videoId)) continue;
     const local = ctx.local.get(videoId);
     const hasRemote = videoId in ctx.remote;
     const remote = hasRemote ? fromRemoteVideo(videoId, ctx.remote[videoId]) : null;
@@ -63,7 +67,7 @@ export async function runFullSync(): Promise<number | null> {
   if (pulledEntries.length) {
     await saveSavedList(mergeSavedList(await loadSavedList(), pulledEntries));
   }
-  await saveSyncMeta({ videos, lastSyncedAt: now });
+  await saveSyncMeta({ videos, removed: [], lastSyncedAt: now });
   return now;
 }
 
@@ -75,12 +79,23 @@ export async function pushVideos(videoIds: string[]): Promise<number | null> {
   const byId = new Map(records.map((r) => [r.videoId, r]));
   const now = Date.now();
   const videos = { ...meta.videos };
+  const removed = new Set(meta.removed);
+  const dropped: string[] = [];
   for (const videoId of videoIds) {
     const local = byId.get(videoId);
-    if (!local) continue;
+    if (!local) {
+      await deleteRemoteVideo(db, uid, videoId);
+      dropped.push(videoId);
+      removed.delete(videoId);
+      continue;
+    }
     await pushRemoteVideo(db, uid, videoId, toRemoteVideo(local, now));
     videos[videoId] = now;
   }
-  await saveSyncMeta({ videos, lastSyncedAt: now });
+  await saveSyncMeta({
+    videos: withoutKeys(videos, dropped),
+    removed: [...removed],
+    lastSyncedAt: now,
+  });
   return now;
 }

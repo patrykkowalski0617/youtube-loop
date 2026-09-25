@@ -35,10 +35,9 @@ describe("normalizeVideoSettings", () => {
 describe("normalizeGlobalSettings", () => {
   it("returns defaults for missing input and keeps valid fields", () => {
     expect(normalizeGlobalSettings(null)).toEqual(defaultGlobalSettings());
-    expect(normalizeGlobalSettings({ tail: 2, panelOpen: true, panelX: 0.4 })).toEqual({
+    expect(normalizeGlobalSettings({ tail: 2, panelX: 0.4 })).toEqual({
       ...defaultGlobalSettings(),
       tail: 2,
-      panelOpen: true,
       panelX: 0.4,
     });
   });
