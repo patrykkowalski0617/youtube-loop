@@ -142,3 +142,9 @@ docs/        plan, open threads, things that look removable but are not
 ```
 
 Working rules for contributors (and for Claude) live in `CLAUDE.md`.
+
+## Licence
+
+Copyright (c) 2026 Patryk Kowalski. All rights reserved. This code is
+proprietary: it may be read here, but not used, copied, modified or
+redistributed without written permission. See `LICENSE`.

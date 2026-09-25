@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.23.2 — 2026-09-25
+
+- Added a proprietary licence. The code stays readable in the repository but
+  carries no permission to use, copy or redistribute it.
+
 ## 2.14.0 — 2026-09-23
 
 - The saved-videos drawer has a search box. It filters on video titles and on
