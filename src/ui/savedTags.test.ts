@@ -58,6 +58,7 @@ describe("tags on a saved card", () => {
     });
     store.videoId = OTHER_ID;
     store.tags = [{ name: KNOWN_TAG, hue: KNOWN_HUE }];
+    store.settings = defaultVideoSettings();
   });
 
   afterEach(() => {
@@ -95,6 +96,21 @@ describe("tags on a saved card", () => {
     expect(savedTags(mock, VIDEO_ID)).toEqual([KNOWN_TAG]);
   });
 
+  it("offers a tag the watched video already carries", () => {
+    store.settings.tags = [KNOWN_TAG];
+    const node = row(VIDEO_ID, []);
+    openEditor(node);
+
+    expect(node.querySelector(".ytloop-tag-option")?.textContent).toBe(KNOWN_TAG);
+  });
+
+  it("skips a tag the edited video already carries", () => {
+    const node = row(VIDEO_ID, [KNOWN_TAG]);
+    openEditor(node);
+
+    expect(node.querySelector(".ytloop-tag-option")).toBeNull();
+  });
+
   it("takes a tag off that video", async () => {
     mock.store[SAVED_LIST_KEY] = [entry(VIDEO_ID, [KNOWN_TAG]), entry(OTHER_ID, [])];
     const node = row(VIDEO_ID, [KNOWN_TAG]);
@@ -102,6 +118,25 @@ describe("tags on a saved card", () => {
     await flushAsync();
 
     expect(savedTags(mock, VIDEO_ID)).toEqual([]);
+  });
+
+  it("forgets a tag no video carries any more", async () => {
+    mock.store[SAVED_LIST_KEY] = [entry(VIDEO_ID, [KNOWN_TAG]), entry(OTHER_ID, [])];
+    const node = row(VIDEO_ID, [KNOWN_TAG]);
+    node.querySelector<HTMLElement>(".ytloop-tag-remove")?.click();
+    await flushAsync();
+
+    expect(store.tags).toEqual([]);
+    expect(mock.store[TAGS_KEY]).toEqual([]);
+  });
+
+  it("keeps a tag another video still carries", async () => {
+    mock.store[SAVED_LIST_KEY] = [entry(VIDEO_ID, [KNOWN_TAG]), entry(OTHER_ID, [KNOWN_TAG])];
+    const node = row(VIDEO_ID, [KNOWN_TAG]);
+    node.querySelector<HTMLElement>(".ytloop-tag-remove")?.click();
+    await flushAsync();
+
+    expect(store.tags.map((tag) => tag.name)).toEqual([KNOWN_TAG]);
   });
 
   it("keeps a click inside the tag row from loading the video", () => {

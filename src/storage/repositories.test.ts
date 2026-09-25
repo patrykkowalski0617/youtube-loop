@@ -7,6 +7,7 @@ import { SAVED_LIST_KEY, SYNC_META_KEY, videoSettingsKey, videoStatsKey } from "
 import { loadSyncMeta } from "./localMirror";
 import {
   loadSavedList,
+  loadUsedTagNames,
   loadVideoSettings,
   removeSavedEntry,
   renameTagEverywhere,
@@ -74,6 +75,29 @@ describe("saveEntryTags", () => {
     await saveEntryTags(TAGGED_VIDEO, []);
     expect((await loadSavedList())[1]?.tags).toEqual([]);
     expect((await loadVideoSettings(OTHER_VIDEO)).tags).toEqual([]);
+  });
+});
+
+describe("loadUsedTagNames", () => {
+  afterEach(() => {
+    uninstallChromeMock();
+  });
+
+  it("collects the names from the saved list and from the video settings", async () => {
+    installChromeMock({
+      [videoSettingsKey(TAGGED_VIDEO)]: { ...defaultVideoSettings(), tags: [OLD_NAME] },
+      [videoSettingsKey(OTHER_VIDEO)]: { ...defaultVideoSettings(), tags: ["blues"] },
+      [SAVED_LIST_KEY]: [saved(TAGGED_VIDEO, [OLD_NAME]), saved(OTHER_VIDEO, ["swing"])],
+    });
+    expect(await loadUsedTagNames()).toEqual([OLD_NAME, "blues", "swing"]);
+  });
+
+  it("finds nothing once no video carries a tag", async () => {
+    installChromeMock({
+      [videoSettingsKey(TAGGED_VIDEO)]: { ...defaultVideoSettings(), tags: [] },
+      [SAVED_LIST_KEY]: [saved(TAGGED_VIDEO, [])],
+    });
+    expect(await loadUsedTagNames()).toEqual([]);
   });
 });
 

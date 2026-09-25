@@ -42,7 +42,7 @@ function editor(videoId: string, names: string[], done: () => void): HTMLElement
     if (ev.key === ESCAPE_KEY) close(false);
   });
   const suggest = (): void => {
-    renderSuggestions(options, input.value, (name) => {
+    renderSuggestions(options, input.value, names, (name) => {
       input.value = name;
       close(true);
     });

@@ -48,7 +48,7 @@ export const en = {
     addTitle: "Save the current fragment",
     addNoteOnBar: "Double-click to add a note",
     editNoteOnBar: "Double-click to edit the note",
-    notePlaceholder: "What to watch for",
+    notePlaceholder: "Your note",
     remove: "Remove fragment",
     range: (start: string, end: string) => `${start} – ${end}`,
   },

@@ -8,13 +8,16 @@ export const normalizeTagName = (raw: string): string =>
 
 export const sameTagName = (a: string, b: string): boolean => a.toLowerCase() === b.toLowerCase();
 
+export const hasTagName = (names: string[], name: string): boolean =>
+  names.some((taken) => sameTagName(taken, name));
+
 export function normalizeTagNames(raw: unknown): string[] {
   if (!Array.isArray(raw)) return [];
   const names: string[] = [];
   for (const item of raw) {
     if (typeof item !== "string") continue;
     const name = normalizeTagName(item);
-    if (name && !names.some((taken) => sameTagName(taken, name))) names.push(name);
+    if (name && !hasTagName(names, name)) names.push(name);
   }
   return names;
 }
@@ -83,10 +86,20 @@ export const withoutTagName = (names: string[], name: string): string[] =>
   names.filter((taken) => !sameTagName(taken, name));
 
 export const hasEveryTag = (names: string[], wanted: string[]): boolean =>
-  wanted.every((want) => names.some((name) => sameTagName(name, want)));
+  wanted.every((want) => hasTagName(names, want));
+
+export function keptTags(tags: Tag[], used: string[]): Tag[] {
+  const kept = tags.filter((tag) => hasTagName(used, tag.name));
+  return kept.length === tags.length ? tags : kept;
+}
+
+export function keptTagNames(names: string[], tags: Tag[]): string[] {
+  const kept = names.filter((name) => findTag(tags, name));
+  return kept.length === names.length ? names : kept;
+}
 
 export function renamedTagNames(names: string[], from: string, to: string): string[] {
-  if (!names.some((name) => sameTagName(name, from))) return names;
+  if (!hasTagName(names, from)) return names;
   return normalizeTagNames(names.map((name) => (sameTagName(name, from) ? to : name)));
 }
 

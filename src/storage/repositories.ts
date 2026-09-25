@@ -89,9 +89,24 @@ export async function loadPlayedSeconds(videoIds: string[]): Promise<Record<stri
   return out;
 }
 
+const asSavedList = (raw: unknown): SavedEntry[] =>
+  Array.isArray(raw) ? (raw as SavedEntry[]) : [];
+
 export async function loadSavedList(): Promise<SavedEntry[]> {
-  const raw = await readKey<unknown>(SAVED_LIST_KEY);
-  return Array.isArray(raw) ? (raw as SavedEntry[]) : [];
+  return asSavedList(await readKey<unknown>(SAVED_LIST_KEY));
+}
+
+function tagNamesUnder(key: string, value: unknown): string[] {
+  if (key === SAVED_LIST_KEY)
+    return asSavedList(value).flatMap((entry) => normalizeTagNames(entry.tags));
+  return videoIdFromSettingsKey(key) ? normalizeVideoSettings(value).tags : [];
+}
+
+export async function loadUsedTagNames(): Promise<string[]> {
+  const all = await readAll();
+  return normalizeTagNames(
+    Object.entries(all).flatMap(([key, value]) => tagNamesUnder(key, value)),
+  );
 }
 
 export async function saveSavedList(list: SavedEntry[]): Promise<void> {

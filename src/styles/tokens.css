@@ -95,6 +95,7 @@
   --timeline-fill: color-mix(in oklab, var(--c-ink-0) 62%, transparent);
   --timeline-fill-hover: var(--c-ink-0);
   --timeline-shade: color-mix(in oklab, var(--c-ink-950) 70%, transparent);
+  --timeline-note-hint: color-mix(in oklab, var(--c-ink-950) 55%, var(--c-ink-0));
 
   --z-markers: 30;
   --z-timeline: 31;

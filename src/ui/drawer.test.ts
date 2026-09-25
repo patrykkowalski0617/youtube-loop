@@ -13,6 +13,8 @@ import { mountDrawer, renderSavedList, setSavedDrawerOpen, unmountDrawer } from 
 const CURRENT_ID = "current-video";
 const OTHER_ID = "other-video";
 const PLAYED_SECONDS = 90;
+const TAG = "jazz";
+const TAG_HUE = 120;
 
 const entry = (over: Partial<SavedEntry>): SavedEntry => ({
   ...defaultVideoSettings(),
@@ -39,6 +41,7 @@ describe("drawer", () => {
       [videoStatsKey(CURRENT_ID)]: { seconds: PLAYED_SECONDS },
     });
     store.videoId = CURRENT_ID;
+    store.tags = [];
     mountDrawer();
   });
 
@@ -138,6 +141,19 @@ describe("drawer", () => {
     search.dispatchEvent(new Event("input"));
     await flushAsync();
     expect(document.querySelector(".ytloop-empty")?.textContent).toBe("Nothing matches that.");
+  });
+
+  it("lets go of a filter whose tag no longer exists", async () => {
+    mock.store[SAVED_LIST_KEY] = [entry({ tags: [TAG] }), entry({ videoId: OTHER_ID })];
+    store.tags = [{ name: TAG, hue: TAG_HUE }];
+    await renderSavedList();
+    byId(document, "ytloop-drawer-tags").querySelector<HTMLElement>(".ytloop-tag")?.click();
+    await flushAsync();
+    expect(items()).toHaveLength(1);
+
+    store.tags = [];
+    await renderSavedList();
+    expect(items()).toHaveLength(2);
   });
 
   it("opens and closes", () => {

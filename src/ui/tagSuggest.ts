@@ -10,10 +10,11 @@ const SWATCH_CLASS = "ytloop-tag-swatch";
 export function renderSuggestions(
   host: HTMLElement,
   query: string,
+  taken: string[],
   onPick: (name: string) => void,
 ): void {
   host.innerHTML = "";
-  const matches = suggestTags(store.tags, query, store.settings.tags);
+  const matches = suggestTags(store.tags, query, taken);
   host.hidden = !matches.length;
   for (const tag of matches) {
     const option = el("button", OPTION_CLASS);

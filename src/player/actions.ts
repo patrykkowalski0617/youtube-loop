@@ -7,6 +7,7 @@ import {
   DEFAULT_TAIL_SECONDS,
   emptyStats,
   type Fragment,
+  keptTags,
   normalizeTagName,
   normalizeVideoSettings,
   type PanelSpot,
@@ -30,6 +31,7 @@ import { t } from "../i18n";
 import {
   loadGlobalSettings,
   loadTags,
+  loadUsedTagNames,
   loadVideoSettings,
   loadVideoStats,
   mirrorToSaved,
@@ -162,6 +164,14 @@ function currentSnapshot(): SavedEntry | null {
   };
 }
 
+async function pruneTags(): Promise<void> {
+  const kept = keptTags(store.tags, await loadUsedTagNames());
+  if (kept === store.tags) return;
+  store.tags = kept;
+  await saveTags(kept);
+  notify("saved");
+}
+
 export async function removeSaved(videoId: string): Promise<void> {
   await removeSavedEntry(videoId);
   if (videoId === store.videoId) {
@@ -170,6 +180,7 @@ export async function removeSaved(videoId: string): Promise<void> {
     notify("settings");
   }
   notify("saved");
+  await pruneTags();
 }
 
 async function persistToSaved(patch: Partial<SavedEntry>, createSaved: boolean): Promise<void> {
@@ -214,6 +225,7 @@ export async function renameTag(name: string, next: string): Promise<void> {
 
 export async function removeTagFrom(videoId: string, tags: string[], name: string): Promise<void> {
   await applyEntryTags(videoId, withoutTagName(tags, name));
+  await pruneTags();
 }
 
 export function addFragment(): boolean {

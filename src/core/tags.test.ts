@@ -4,6 +4,9 @@ import { HUE_CIRCLE } from "./constants";
 import {
   findTag,
   hasEveryTag,
+  hasTagName,
+  keptTagNames,
+  keptTags,
   normalizeTagName,
   normalizeTagNames,
   normalizeTags,
@@ -120,5 +123,31 @@ describe("suggestions", () => {
 
   it("offers everything left when nothing is typed", () => {
     expect(suggestTags(TAGS, "  ", []).map((tag) => tag.name)).toEqual(["pentatonic", "jazz"]);
+  });
+});
+
+describe("looking a name up", () => {
+  it("ignores case and says no to a name nobody holds", () => {
+    expect(hasTagName(["jazz", "blues"], "JAZZ")).toBe(true);
+    expect(hasTagName(["jazz"], "swing")).toBe(false);
+  });
+});
+
+describe("dropping tags nothing uses", () => {
+  const TAGS = withTag(withTag([], "jazz", fixedRandom(0)), "blues", fixedRandom(MIDDLE));
+
+  it("keeps only the tags some video still carries", () => {
+    expect(keptTags(TAGS, ["BLUES"]).map((tag) => tag.name)).toEqual(["blues"]);
+    expect(keptTags(TAGS, [])).toEqual([]);
+  });
+
+  it("leaves a fully used catalogue alone", () => {
+    expect(keptTags(TAGS, ["blues", "jazz", "swing"])).toBe(TAGS);
+  });
+
+  it("drops filter selections whose tag is gone", () => {
+    expect(keptTagNames(["jazz", "swing"], TAGS)).toEqual(["jazz"]);
+    const names = ["JAZZ"];
+    expect(keptTagNames(names, TAGS)).toBe(names);
   });
 });

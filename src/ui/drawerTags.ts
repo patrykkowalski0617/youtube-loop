@@ -1,4 +1,4 @@
-import { sameTagName, withoutTagName, withTagName } from "../core";
+import { hasTagName, keptTagNames, withoutTagName, withTagName } from "../core";
 import { t } from "../i18n";
 import { store } from "../player";
 
@@ -15,18 +15,19 @@ export function clearTagFilter(): void {
 
 export function renderTagFilter(row: HTMLElement, onChange: () => void): void {
   row.innerHTML = "";
+  selected = keptTagNames(selected, store.tags);
   if (!store.tags.length) {
     row.appendChild(el("span", "ytloop-tag-empty", t.tags.none));
     return;
   }
   const toggle = (name: string): void => {
-    selected = selected.some((taken) => sameTagName(taken, name))
+    selected = hasTagName(selected, name)
       ? withoutTagName(selected, name)
       : withTagName(selected, name);
     onChange();
   };
   for (const tag of store.tags) {
-    const isSelected = selected.some((name) => sameTagName(name, tag.name));
+    const isSelected = hasTagName(selected, tag.name);
     row.appendChild(toggleTagChip(tag, isSelected, toggle));
   }
 }
