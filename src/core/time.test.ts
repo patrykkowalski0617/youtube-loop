@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { dayKey, formatTime, parseDecimal, parseTime, roundToStep } from "./time";
+import {
+  dayKey,
+  formatTime,
+  formatTimePrecise,
+  parseDecimal,
+  parseTime,
+  roundToStep,
+} from "./time";
 
 describe("formatTime", () => {
   it("renders minutes and seconds", () => {
@@ -20,6 +27,28 @@ describe("formatTime", () => {
   it("renders a placeholder for missing values", () => {
     expect(formatTime(null)).toBe("--:--");
     expect(formatTime(Number.NaN)).toBe("--:--");
+  });
+});
+
+describe("formatTimePrecise", () => {
+  it("renders hundredths of a second", () => {
+    expect(formatTimePrecise(83.45)).toBe("1:23.45");
+    expect(formatTimePrecise(5.3)).toBe("0:05.30");
+  });
+
+  it("renders hours when needed", () => {
+    expect(formatTimePrecise(3723.4)).toBe("1:02:03.40");
+  });
+
+  it("rounds before splitting, so seconds never reach sixty", () => {
+    expect(formatTimePrecise(59.999)).toBe("1:00.00");
+    expect(formatTimePrecise(3599.999)).toBe("1:00:00.00");
+  });
+
+  it("clamps negatives and renders a placeholder for missing values", () => {
+    expect(formatTimePrecise(-5)).toBe("0:00.00");
+    expect(formatTimePrecise(null)).toBe("--:--");
+    expect(formatTimePrecise(Number.NaN)).toBe("--:--");
   });
 });
 
