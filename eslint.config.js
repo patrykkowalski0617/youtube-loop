@@ -5,7 +5,7 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist/", "release/", "coverage/", "node_modules/", "example.html"] },
+  { ignores: ["dist/", "release/", "coverage/", "node_modules/", "docs/fixtures/"] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   ...tseslint.configs.stylisticTypeChecked,

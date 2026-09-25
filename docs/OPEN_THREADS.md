@@ -4,7 +4,6 @@ Stable ids; never renumber. Closed items move to the bottom with the date.
 
 | id  | thread                                                                                                                                                    | why deferred                                                                                                     | resumes when                                                             |
 | --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
-| T4  | Move `example.html` under `docs/fixtures/` or drop it.                                                                                                    | It is referenced only by humans; see `docs/KEEP.md`.                                                             | The user decides.                                                        |
 | T7  | Sync merges whole video documents, last write wins by `updatedAt`. Two devices editing the same video between pulls can drop one side's practice seconds. | Single-device use makes this theoretical.                                                                        | The user starts using a second device.                                   |
 | T8  | `firestore.rules` is in the repo but deployed by hand.                                                                                                    | No Firebase CLI wired into the project yet.                                                                      | The rules need to change again.                                          |
 | T9  | The service worker pulls on sign-in and on its own start, never while a tab stays open (no `onSnapshot` in the lite SDK).                                 | Enough for one device; realtime would mean the full Firestore build in MV3.                                      | The user wants live cross-device updates.                                |
@@ -14,6 +13,8 @@ Stable ids; never renumber. Closed items move to the bottom with the date.
 | T16 | A mark readout renders `h:mm:ss.hh` past the hour and can outgrow the half-width mark in the panel.                                                       | The videos in use are shorter, and dropping the hundredths above an hour would trade the new precision for fit.  | The user loops inside a video longer than an hour and the readout clips. |
 
 ## Closed
+
+- **T4** — Where the saved YouTube page lives. Closed 2026-09-25: moved to `docs/fixtures/` so it reads as reference material rather than source; deleting it would not shrink a clone, since the history already carries it.
 
 - **T3** — Licence. Closed 2026-09-25: the author keeps all rights, so `LICENSE` states proprietary, all rights reserved, and `package.json` is marked `UNLICENSED`.
 

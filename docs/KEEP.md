@@ -2,9 +2,10 @@
 
 Check this list before every cleanup.
 
-- `example.html` — a saved YouTube watch page (≈6 MB). Reference for the DOM
-  selectors in `src/youtube/`. Not loaded by anything; keep it out of the
-  bundle and out of lint.
+- `docs/fixtures/example.html` — a saved YouTube watch page (≈6 MB). Reference
+  for the DOM selectors in `src/youtube/`. Nothing imports it and no tool reads
+  it; it is there so the selectors can be checked without opening a browser.
+  Keep it out of the bundle and out of lint.
 - `src/content/index.ts` listens to `yt-navigate-finish` on both `window` and
   `document`. YouTube has dispatched it on either target depending on the
   build; both are needed.

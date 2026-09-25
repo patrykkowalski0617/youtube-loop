@@ -24,7 +24,7 @@ Tests: Vitest. Lint: ESLint + Prettier. Node version in `.nvmrc`.
 - `src/i18n/` — every user-visible string.
 - `src/styles/` — CSS. `tokens.css` holds every colour and shared measure; other files use `var(--…)` only.
 - `src/testing/` — helpers used only by tests (a `chrome.*` mock). Never imported by production modules.
-- `docs/` — plan, open threads, and things that look removable but are not.
+- `docs/` — plan, open threads, things that look removable but are not, and `fixtures/` for reference material no tool reads.
 
 Every folder has an `index.ts` that only re-exports (`export *`). Import a unit
 through its folder (`../core`), never through a deep path.

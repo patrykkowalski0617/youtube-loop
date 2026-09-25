@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.23.3 — 2026-09-25
+
+- Moved the saved YouTube page used for checking DOM selectors into
+  `docs/fixtures/`, where it reads as reference material instead of source.
+
 ## 2.23.2 — 2026-09-25
 
 - Added a proprietary licence. The code stays readable in the repository but
