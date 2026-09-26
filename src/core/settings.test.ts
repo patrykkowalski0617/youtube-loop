@@ -50,6 +50,17 @@ describe("normalizeGlobalSettings", () => {
   });
 });
 
+describe("normalizeGlobalSettings language", () => {
+  it("keeps a stored language tag", () => {
+    expect(normalizeGlobalSettings({ lang: "pl" }).lang).toBe("pl");
+  });
+
+  it("leaves the language unset when nothing usable is stored", () => {
+    expect(normalizeGlobalSettings({ lang: 7 }).lang).toBeNull();
+    expect(normalizeGlobalSettings({}).lang).toBeNull();
+  });
+});
+
 describe("pickVideoSettings", () => {
   it("drops fields that are not part of the per-video settings", () => {
     const out = pickVideoSettings({ ...defaultVideoSettings(), videoId: "x" } as never);

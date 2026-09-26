@@ -2,6 +2,7 @@ import { SPEED_MODES } from "../core";
 import { t } from "../i18n";
 
 import { LOOP_SVG, PANEL_ID } from "./dom";
+import { markLanguage } from "./language";
 import { extensionVersion } from "./version";
 
 export const ids = {
@@ -26,12 +27,10 @@ export const ids = {
 export const MODE_RADIO_NAME = "ytloop-speed-mode";
 export const modeRadioId = (mode: string): string => `ytloop-mode-${mode}`;
 
-const p = t.panel;
-
 const readout = (label: string, inputId: string, buttonId: string): string => `
   <div class="ytloop-mark">
-    <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${p.timePlaceholder}" aria-label="${label}" title="${label}" autocomplete="off" spellcheck="false">
-    <button id="${buttonId}" class="ytloop-now" title="${p.setToCurrentTime(label)}">${p.now}</button>
+    <input type="text" id="${inputId}" class="ytloop-readout" placeholder="${t.panel.timePlaceholder}" aria-label="${label}" title="${label}" autocomplete="off" spellcheck="false">
+    <button id="${buttonId}" class="ytloop-now" title="${t.panel.setToCurrentTime(label)}">${t.panel.now}</button>
   </div>`;
 
 const numberField = (label: string, inputId: string): string => `
@@ -46,7 +45,9 @@ const modeOption = (mode: string, label: string): string => `
     <span>${label}</span>
   </label>`;
 
-const panelMarkup = (): string => `
+const panelMarkup = (): string => {
+  const p = t.panel;
+  return `
   <header class="ytloop-head" id="${ids.drag}">
     <span class="ytloop-brand">${LOOP_SVG}${p.title}<small class="ytloop-version">${p.version(extensionVersion())}</small></span>
     <button id="${ids.close}" class="ytloop-icon-btn" title="${p.hidePanel}">${t.common.close}</button>
@@ -86,10 +87,12 @@ const panelMarkup = (): string => `
   <div class="ytloop-transport">
     <button id="${ids.gotoStart}" class="ytloop-play"></button>
   </div>`;
+};
 
 export function buildPanel(): HTMLDivElement {
   const panel = document.createElement("div");
   panel.id = PANEL_ID;
+  markLanguage(panel);
   panel.innerHTML = panelMarkup();
   return panel;
 }

@@ -31,7 +31,7 @@
   z-index: var(--z-drawer);
   display: flex;
   flex-direction: column;
-  width: var(--drawer-width);
+  width: var(--drawer-width-wide);
   max-width: 90vw;
   padding: var(--space-3);
   border-left: 1px solid var(--border);
@@ -74,13 +74,6 @@
   font-variant-numeric: tabular-nums;
 }
 
-#ytloop-practice .ytloop-practice-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
-  padding-top: var(--space-3);
-}
-
 .ytloop-drawer .ytloop-icon-btn {
   display: inline-flex;
   align-items: center;
@@ -96,10 +89,20 @@
   cursor: pointer;
 }
 
+#ytloop-drawer .ytloop-drawer-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding-top: var(--space-3);
+  padding-right: var(--space-3);
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
 #ytloop-drawer .ytloop-drawer-search {
   width: 100%;
   height: var(--control-height-lg);
-  margin-top: var(--space-2);
   padding: 0 var(--space-2);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -120,12 +123,10 @@
 
 #ytloop-drawer ul {
   display: flex;
-  flex: 1;
   flex-direction: column;
   gap: var(--space-1);
   margin: 0;
-  padding: var(--space-2) 0 0;
-  overflow-y: auto;
+  padding: 0;
   list-style: none;
 }
 

@@ -2,6 +2,7 @@ import { getVideoElement } from "../youtube";
 
 import { onTimeUpdate } from "./loop";
 import { updateMarkers } from "./markers";
+import { markPaused, markResumed } from "./practice";
 import { adoptVideoSpeed, onRateChange } from "./speed";
 import { notify, store } from "./store";
 
@@ -10,7 +11,13 @@ const onMediaLoaded = (): void => {
   updateMarkers();
 };
 
-const notifyPlayState = (): void => {
+const onPlay = (): void => {
+  markResumed();
+  notify("playState");
+};
+
+const onPause = (): void => {
+  markPaused();
   notify("playState");
 };
 
@@ -21,8 +28,8 @@ export function attachVideo(): void {
   adoptVideoSpeed();
   video.addEventListener("timeupdate", onTimeUpdate);
   video.addEventListener("loadedmetadata", onMediaLoaded);
-  video.addEventListener("play", notifyPlayState);
-  video.addEventListener("pause", notifyPlayState);
+  video.addEventListener("play", onPlay);
+  video.addEventListener("pause", onPause);
   video.addEventListener("ratechange", onRateChange);
 }
 

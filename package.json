@@ -1,6 +1,6 @@
 {
   "name": "youtube-loop",
-  "version": "2.23.3",
+  "version": "2.25.2",
   "private": true,
   "license": "UNLICENSED",
   "description": "Mark the start and end of a loop on a YouTube video and replay the chosen segment over and over.",

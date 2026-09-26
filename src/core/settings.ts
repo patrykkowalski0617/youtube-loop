@@ -26,6 +26,7 @@ export const defaultVideoSettings = (): VideoSettings => ({
 
 export const defaultGlobalSettings = (): GlobalSettings => ({
   tail: DEFAULT_TAIL_SECONDS,
+  lang: null,
   panelX: null,
   panelY: null,
 });
@@ -63,6 +64,7 @@ export function normalizeGlobalSettings(raw: unknown): GlobalSettings {
   const r = raw as Partial<Record<keyof GlobalSettings, unknown>>;
   return {
     tail: numberOr(r.tail, d.tail),
+    lang: typeof r.lang === "string" ? r.lang : d.lang,
     panelX: spotOrNull(r.panelX),
     panelY: spotOrNull(r.panelY),
   };

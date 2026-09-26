@@ -2,7 +2,6 @@ import {
   type GlobalSettings,
   normalizeFragments,
   normalizeGlobalSettings,
-  normalizeStats,
   normalizeTagNames,
   normalizeTags,
   normalizeVideoSettings,
@@ -11,17 +10,15 @@ import {
   type SavedEntry,
   type Tag,
   type VideoSettings,
-  type VideoStats,
 } from "../core";
 
-import { readAll, readKey, readKeys, writeKeys } from "./chromeStorage";
+import { readAll, readKey, writeKeys } from "./chromeStorage";
 import {
   GLOBAL_SETTINGS_KEY,
   SAVED_LIST_KEY,
   TAGS_KEY,
   videoIdFromSettingsKey,
   videoSettingsKey,
-  videoStatsKey,
 } from "./keys";
 import { purgeVideoRecord } from "./localMirror";
 
@@ -72,21 +69,6 @@ export async function saveEntryTags(videoId: string, tags: string[]): Promise<vo
   const settings = await loadVideoSettings(videoId);
   await saveVideoSettings(videoId, { ...settings, tags });
   await mirrorToSaved(videoId, { tags }, null);
-}
-
-export async function loadVideoStats(videoId: string): Promise<VideoStats> {
-  return normalizeStats(await readKey(videoStatsKey(videoId)));
-}
-
-export async function saveVideoStats(videoId: string, stats: VideoStats): Promise<void> {
-  await writeKeys({ [videoStatsKey(videoId)]: stats });
-}
-
-export async function loadPlayedSeconds(videoIds: string[]): Promise<Record<string, number>> {
-  const res = await readKeys(videoIds.map(videoStatsKey));
-  const out: Record<string, number> = {};
-  for (const id of videoIds) out[id] = normalizeStats(res[videoStatsKey(id)]).seconds;
-  return out;
 }
 
 const asSavedList = (raw: unknown): SavedEntry[] =>

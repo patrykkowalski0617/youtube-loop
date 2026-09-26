@@ -2,23 +2,23 @@ import { type ChangeKind, subscribe } from "../player";
 
 import { resetBurst } from "./burst";
 import { PANEL_ID } from "./dom";
-import { renderSavedList } from "./drawer";
 import { syncInputs, syncPlayButton, syncStatus } from "./panelSync";
 import { buildPanel } from "./panelTemplate";
 import { getPanel } from "./panelVisibility";
 import { wirePanel } from "./panelWire";
-import { renderPracticeDrawer } from "./practiceDrawer";
+import { refreshTab } from "./sideDrawer";
 
 let unsubscribe: (() => void) | null = null;
 
-const PRACTICE_KINDS: ChangeKind[] = ["settings", "status", "account"];
+const STATS_KINDS: ChangeKind[] = ["settings", "status"];
 
 export function syncPanel(kind: ChangeKind): void {
   if (kind === "saved") {
-    void renderSavedList();
+    refreshTab("saved");
     return;
   }
-  if (PRACTICE_KINDS.includes(kind)) renderPracticeDrawer();
+  if (kind === "account") refreshTab("settings");
+  if (STATS_KINDS.includes(kind)) refreshTab("stats");
   const panel = getPanel();
   if (!panel) return;
   switch (kind) {

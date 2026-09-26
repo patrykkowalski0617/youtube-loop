@@ -20,6 +20,11 @@ function togglePanel(): void {
   }, FLASH_MS);
 }
 
+export function relabelPlayerButton(): void {
+  const btn = document.getElementById(PLAYER_BUTTON_ID);
+  if (btn) btn.title = t.playerButton.title;
+}
+
 export function injectPlayerButton(): void {
   const controls = document.querySelector(RIGHT_CONTROLS_SELECTOR);
   if (!controls || document.getElementById(PLAYER_BUTTON_ID)) return;

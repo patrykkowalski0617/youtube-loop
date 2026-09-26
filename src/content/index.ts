@@ -1,3 +1,4 @@
+import { onLanguageChange } from "../i18n";
 import {
   attachVideo,
   hasFragments,
@@ -11,20 +12,20 @@ import {
 } from "../player";
 import { isSyncConfigured, messaging, SYNC_MESSAGE, type SyncMessage } from "../sync";
 import {
+  applyLanguage,
   applyStoredPanelPosition,
   autoOpenPanel,
   injectPlayerButton,
   isEditableTarget,
   isEditingNote,
-  mountDrawer,
   mountPanel,
-  mountPracticeDrawer,
+  mountSideDrawer,
   PANEL_ID,
   removeTimeline,
+  resetSavedTab,
   syncPanel,
-  unmountDrawer,
   unmountPanel,
-  unmountPracticeDrawer,
+  unmountSideDrawer,
   updateTimeline,
 } from "../ui";
 import { getVideoElement, getVideoId, isWatchPage, NAVIGATE_FINISH_EVENT } from "../youtube";
@@ -40,8 +41,8 @@ function leaveWatchPage(): void {
   unmountPanel();
   removeMarkers();
   removeTimeline();
-  unmountDrawer();
-  unmountPracticeDrawer();
+  resetSavedTab();
+  unmountSideDrawer();
 }
 
 async function init(): Promise<void> {
@@ -50,12 +51,11 @@ async function init(): Promise<void> {
     return;
   }
   attachVideo();
+  await loadGlobal();
   mountPanel();
   injectPlayerButton();
-  mountDrawer();
-  mountPracticeDrawer();
-  const globalReady = loadGlobal();
-  await Promise.all([globalReady, loadForVideo(getVideoId())]);
+  mountSideDrawer();
+  await loadForVideo(getVideoId());
   autoOpenPanel(store.videoId, hasFragments());
   syncPanel("saved");
 }
@@ -105,6 +105,7 @@ function bootstrap(): void {
   window.addEventListener("keydown", onKeydown, true);
   window.addEventListener("resize", applyStoredPanelPosition);
   watchPulledData();
+  onLanguageChange(applyLanguage);
   const observer = new MutationObserver(() => {
     if (!isWatchPage()) return;
     if (!getVideoElement() || !document.getElementById(PANEL_ID)) void init();

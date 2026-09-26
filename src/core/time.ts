@@ -56,3 +56,8 @@ export function roundToStep(sec: number, step = TIME_ROUNDING_STEP): number {
 export function dayKey(d: Date = new Date()): string {
   return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 }
+
+export function dayFromKey(key: string): Date {
+  const parts = key.split("-").map(Number);
+  return new Date(parts[0] ?? 0, (parts[1] ?? 1) - 1, parts[2] ?? 1);
+}

@@ -1,5 +1,57 @@
 # Changelog
 
+## 2.25.2 — 2026-09-26
+
+- The drawer's scrollbar no longer sits on top of the right-hand column. The
+  scrolling body keeps a gutter whether or not the bar is showing, so the layout
+  does not shift either.
+- Counts in a bar list are written as ×7 instead of spelling out the word. In
+  Polish the spelled form wrapped onto a second line inside a column sized for
+  English.
+
+## 2.25.1 — 2026-09-26
+
+- Saved videos is the first tab in the side drawer and the one it opens on. The
+  library is what the drawer is reached for most often; the statistics are a
+  place you go deliberately.
+
+## 2.25.0 — 2026-09-26
+
+- The two side drawers became one, with tabs for Statistics, Saved videos and
+  Settings. A single handle now opens everything, so the dock no longer stacks
+  two labels and the practice figures, the library and the options sit behind one
+  surface instead of three.
+- The extension speaks Polish as well as English. The language lives in the
+  settings tab: one row showing the active language in its own tongue, opening a
+  list of the supported ones, each written in its own tongue with a check on the
+  active entry. Picking a language applies it at once and re-renders every label
+  without a reload; the choice is stored and survives a restart. With nothing
+  stored the browser locale decides, falling back to English.
+- Sign-in and sync moved out of the statistics view into the settings tab, where
+  they belong.
+
+## 2.24.0 — 2026-09-25
+
+- The practice drawer was rebuilt around measured data instead of two unlabelled
+  numbers. Practice time is now timed with the wall clock while the video plays
+  rather than derived from segment length divided by playback rate, so pauses,
+  gaps and abandoned passes no longer distort it. Every figure carries a label
+  and a sentence saying what it counts.
+- New measurements: finished and abandoned repetitions, completion rate, average
+  repetition and segment length, practice sessions split by a ten-minute break,
+  current and longest streak, hour-of-day distribution, repetitions per tempo,
+  watched-but-not-looped time, paused and gap time, week-against-week trends,
+  per-fragment practice time and the day the target tempo was first held.
+- Tempo is recorded in fixed-speed mode too, and the all-time best tempo no
+  longer expires with the thirty-day window.
+- The chart reads in English, prints its values and dates on the bars instead of
+  hiding them in tooltips, carries a legend, and can show 7, 30 or 90 days. A
+  scope switch shows either the current video or every video at once, with a
+  ranking and a breakdown by tag.
+- The saved list can be sorted by most played, recently played, title or the
+  previous recently-saved order, and each card says when it was last played.
+- Undo now removes the whole last repetition, not only its tempo record.
+
 ## 2.23.3 — 2026-09-25
 
 - Moved the saved YouTube page used for checking DOM selectors into

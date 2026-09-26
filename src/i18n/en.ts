@@ -25,21 +25,206 @@ export const en = {
   status: {
     noPractice: "Nothing played yet",
   },
-  practice: {
-    handle: "◴ Practice",
-    heading: "◴ Practice",
+  side: {
+    handle: "◴ Loop",
+    title: "YouTube Loop",
     close: "Close",
+    tabStats: "Statistics",
+    tabSaved: "Saved videos",
+    tabSettings: "Settings",
+  },
+  settings: {
+    heading: "Settings",
+    languageGlyph: "◱",
+    languageLabel: "Language",
+    languageTitle: "Change the language of this extension",
+    languageMenu: "Choose a language",
+    languageHint: "Every label in the panel, the drawer and the tooltips follows this setting.",
+    accountHeading: "Account and sync",
+    chevron: "›",
+    check: "✓",
+  },
+  practice: {
+    today: (time: string) => `Today ${time}`,
+    empty: "Nothing measured yet. Turn the loop on and let one pass reach the end.",
+    scopeVideo: "This video",
+    scopeAll: "All videos",
+    range: (days: number) => `${days}d`,
+    rangeTitle: (days: number) => `Show the last ${days} days`,
+    undoRep: "↶ Don't count the last repetition",
+    undoRepTitle: "Remove the repetition that was just counted, with its time and tempo",
   },
   chart: {
-    lastDays: "Last 7 days",
+    heading: "Practice per day",
+    hint: "Bar height is practice time. The number above each bar is the fastest tempo held for a whole repetition that day.",
     zeroTime: "0:00",
-    dayTooltip: (day: string, time: string) => `${day} · ${time}`,
-    bestTooltip: (tempo: string) => ` · best ${tempo}x`,
+    dayTooltip: (day: string, weekday: string, time: string, reps: number) =>
+      `${weekday}, ${day} - ${time} in ${reps} repetitions`,
+    bestTooltip: (tempo: string) => ` - best tempo ${tempo}x`,
     tempo: (tempo: string) => `${tempo}x`,
-    fastest: (tempo: string) => `Fastest tempo: ${tempo}x`,
-    noTempo: "No tempo yet",
-    undoRecord: "↶ Don't count last record",
-    undoRecordTitle: "Discard the most recent fastest-tempo record",
+    legendTime: "Practice time",
+    legendTempo: "Best tempo of the day",
+  },
+  stats: {
+    sectionPractice: "Practice time",
+    sectionReps: "Repetitions",
+    sectionSessions: "Sessions",
+    sectionTempo: "Tempo",
+    sectionOther: "Other time",
+    sectionTrend: "Last 7 days vs the 7 before",
+    sectionLibrary: "Library",
+    none: "-",
+    never: "Never",
+    total: {
+      label: "Total practice",
+      hint: "Every finished repetition ever counted, all time.",
+    },
+    inRange: {
+      label: "In this range",
+      hint: "Practice time inside the selected number of days.",
+    },
+    today: {
+      label: "Today",
+      hint: "Practice time counted since midnight.",
+    },
+    perActiveDay: {
+      label: "Per active day",
+      hint: "Average practice time on the days you actually played.",
+    },
+    activeDays: {
+      label: "Active days",
+      hint: "Days in this range with at least one finished repetition.",
+    },
+    streak: {
+      label: "Current streak",
+      hint: "Days in a row with practice, counting back from today.",
+    },
+    longestStreak: {
+      label: "Longest streak",
+      hint: "The longest run of consecutive practice days on record.",
+    },
+    reps: {
+      label: "Repetitions",
+      hint: "Loop passes that reached the end of the segment in this range.",
+    },
+    repsTotal: {
+      label: "Repetitions ever",
+      hint: "Finished passes counted since the first day, all time.",
+    },
+    completion: {
+      label: "Finished",
+      hint: "Share of started passes that reached the end instead of being cut short.",
+    },
+    aborted: {
+      label: "Cut short",
+      hint: "Passes abandoned before the end - stopped, scrubbed or re-marked.",
+    },
+    perRep: {
+      label: "Per repetition",
+      hint: "Measured length of one finished pass on average, slow tempo included.",
+    },
+    segment: {
+      label: "Segment length",
+      hint: "Average distance between the start and end marks you looped.",
+    },
+    sessions: {
+      label: "Sessions",
+      hint: "Blocks of practice separated by a break longer than 10 minutes.",
+    },
+    perSession: {
+      label: "Average session",
+      hint: "Practice time per session in this range.",
+    },
+    longestSession: {
+      label: "Longest session",
+      hint: "The most practice time in a single uninterrupted block.",
+    },
+    bestTempoEver: {
+      label: "Best tempo ever",
+      hint: "Highest tempo held for a whole repetition. Never expires.",
+    },
+    bestTempoRange: {
+      label: "Best in range",
+      hint: "Highest tempo held for a whole repetition inside the selected days.",
+    },
+    targetTempo: {
+      label: "Target tempo",
+      hint: "The tempo the ramp is aiming at.",
+    },
+    toTarget: {
+      label: "To target",
+      hint: "How close your best tempo is to that target.",
+    },
+    targetReached: {
+      label: "Target reached",
+      hint: "The day the target tempo was first held for a whole repetition.",
+    },
+    tempoEdges: {
+      label: "Warm-up to end",
+      hint: "First and last tempo held on the most recent day you practised.",
+    },
+    watched: {
+      label: "Watched, not looped",
+      hint: "Time the video played with the loop switched off.",
+    },
+    idle: {
+      label: "Paused and gaps",
+      hint: "Time paused while looping, plus the gap between repetitions.",
+    },
+    abandoned: {
+      label: "Abandoned",
+      hint: "Time spent in passes that never reached the end.",
+    },
+    trendTime: {
+      label: "Practice time",
+      hint: "Last 7 days against the 7 days before them.",
+    },
+    trendReps: {
+      label: "Repetitions",
+      hint: "Finished repetitions this week against last week.",
+    },
+    trendTempo: {
+      label: "Best tempo",
+      hint: "Best tempo this week against last week.",
+    },
+    videos: {
+      label: "Videos tracked",
+      hint: "Videos with any practice recorded on this device.",
+    },
+    activeVideos: {
+      label: "Active in range",
+      hint: "Videos you practised inside the selected days.",
+    },
+    tempoHistogram: {
+      label: "Repetitions by tempo",
+      hint: "How many finished repetitions you played at each tempo.",
+    },
+    hours: {
+      label: "When you practise",
+      hint: "Practice time by hour of the day.",
+    },
+    fragments: {
+      label: "Fragments",
+      hint: "Practice time per saved fragment, matched by its start and end marks.",
+    },
+    topVideos: {
+      label: "Most practised",
+      hint: "Videos ranked by practice time in this range.",
+    },
+    tags: {
+      label: "Time by tag",
+      hint: "Practice time of every video carrying the tag.",
+    },
+    neglected: "Least recently played",
+    unnamedFragment: (start: string, end: string) => `${start} - ${end}`,
+    repsShort: (count: number) => `×${count}`,
+    repsCount: (count: number) => `${count} reps`,
+    hourLabel: (hour: string) => `${hour}:00`,
+    lastPlayed: (when: string) => `last ${when}`,
+    trend: (current: string, previous: string) => `${current} vs ${previous}`,
+    percent: (value: string) => `${value}%`,
+    times: (value: string) => `${value}x`,
+    edges: (first: string, last: string) => `${first}x → ${last}x`,
   },
   fragments: {
     heading: "Fragments",
@@ -53,13 +238,16 @@ export const en = {
     range: (start: string, end: string) => `${start} – ${end}`,
   },
   drawer: {
-    handle: "★ Saved",
-    heading: "★ Saved videos",
-    close: "Close",
     empty: "No saved videos yet.",
     searchPlaceholder: "Search titles, tags and notes",
     noMatches: "Nothing matches that.",
     played: (time: string) => `▶ ${time} played`,
+    neverPlayed: "Never played",
+    sortBy: "Sort by",
+    sortSaved: "Recently saved",
+    sortPlayed: "Most played",
+    sortLastPlayed: "Recently played",
+    sortTitle: "Title A-Z",
     moreNotes: (count: number) => `+${count}`,
     remove: "Remove",
     removeIn: (seconds: number) => `Removing in ${seconds}s`,
@@ -91,4 +279,4 @@ export const en = {
     close: "✕",
     noTitle: "(no title)",
   },
-} as const;
+};

@@ -30,23 +30,51 @@ export interface SavedEntry extends VideoSettings {
   savedAt: number;
 }
 
-export interface SpeedRecord {
-  day: string;
-  speed: number;
-  prevDayBest: number;
+export interface DayStats {
+  seconds: number;
+  partialSeconds: number;
+  idleSeconds: number;
+  watchSeconds: number;
+  reps: number;
+  aborted: number;
+  segmentSum: number;
+  bestTempo: number;
+  firstTempo: number;
+  lastTempo: number;
+  tempos: Record<string, number>;
+  hours: Record<string, number>;
 }
 
-export type DayMap = Record<string, number>;
+export interface SessionRecord {
+  startedAt: number;
+  endedAt: number;
+  seconds: number;
+  reps: number;
+}
+
+export interface FragmentStats {
+  seconds: number;
+  reps: number;
+  bestTempo: number;
+  lastPlayedAt: number;
+}
 
 export interface VideoStats {
   seconds: number;
-  days: DayMap;
-  daysBestSpeed: DayMap;
-  speedRecords: SpeedRecord[];
+  reps: number;
+  bestTempo: number;
+  targetTempo: number;
+  targetReachedAt: string | null;
+  firstPlayedAt: number | null;
+  lastPlayedAt: number | null;
+  days: Record<string, DayStats>;
+  sessions: SessionRecord[];
+  fragments: Record<string, FragmentStats>;
 }
 
 export interface GlobalSettings {
   tail: number;
+  lang: string | null;
   panelX: number | null;
   panelY: number | null;
 }

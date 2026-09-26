@@ -18,7 +18,6 @@ import {
   type SavedEntry,
   type SpeedMode,
   speedModeFlags,
-  undoLastSpeedRecord,
   type VideoSettings,
   withFragment,
   withFragmentComment,
@@ -27,7 +26,7 @@ import {
   withTag,
   withTagName,
 } from "../core";
-import { t } from "../i18n";
+import { detectLanguage, isLanguage, type Language, setLanguage, t } from "../i18n";
 import {
   loadGlobalSettings,
   loadTags,
@@ -41,12 +40,12 @@ import {
   saveGlobalSettings,
   saveTags,
   saveVideoSettings,
-  saveVideoStats,
   stageSettingsForNavigation,
 } from "../storage";
 import { getVideoTitle, watchUrl } from "../youtube";
 
-import { cancelTail, resetLoopRate, seekToStart } from "./loop";
+import { cancelTail, resetLoopRate, seekToStart, stopPass } from "./loop";
+import { endPractice, undoLastRep } from "./practice";
 import { applySpeed, applySpeedMode, releaseSpeed, resetSpeed } from "./speed";
 import { notify, speedActive, store } from "./store";
 
@@ -71,6 +70,7 @@ function applySpeedIfEnabled(): void {
 export function setEnabled(enabled: boolean): void {
   store.settings.enabled = enabled;
   if (!enabled) {
+    stopPass();
     cancelTail();
     releaseSpeed();
   } else if (speedActive()) applySpeedIfEnabled();
@@ -139,6 +139,17 @@ export function setSpeedStep(value: number): void {
   commit();
 }
 
+export function setAppLanguage(lang: Language): void {
+  store.global.lang = lang;
+  persistGlobal();
+  setLanguage(lang);
+}
+
+function applyStoredLanguage(): void {
+  const stored = store.global.lang;
+  setLanguage(isLanguage(stored) ? stored : detectLanguage(navigator.languages));
+}
+
 export function setPanelSpot(spot: PanelSpot): void {
   store.global.panelX = spot.x;
   store.global.panelY = spot.y;
@@ -149,9 +160,7 @@ export function persistPanelPosition(): void {
 }
 
 export function undoLastRecord(): void {
-  store.stats = undoLastSpeedRecord(store.stats);
-  if (store.videoId) void saveVideoStats(store.videoId, store.stats);
-  notify("status");
+  undoLastRep();
 }
 
 function currentSnapshot(): SavedEntry | null {
@@ -177,6 +186,7 @@ export async function removeSaved(videoId: string): Promise<void> {
   if (videoId === store.videoId) {
     applySettings(normalizeVideoSettings(null), false);
     store.stats = emptyStats();
+    store.statsUndo = null;
     notify("settings");
   }
   notify("saved");
@@ -250,6 +260,7 @@ export function setFragmentComment(id: string, comment: string): void {
 }
 
 export function loadFragment(f: Fragment): void {
+  stopPass();
   store.settings.start = f.start;
   store.settings.end = f.end;
   cancelTail();
@@ -264,6 +275,7 @@ export function loadFragment(f: Fragment): void {
 }
 
 function applySettings(next: VideoSettings, keepFragmentsIfPresent: boolean): void {
+  stopPass();
   const fragments =
     keepFragmentsIfPresent && store.settings.fragments.length
       ? store.settings.fragments
@@ -287,7 +299,9 @@ export async function loadEntry(e: SavedEntry): Promise<boolean> {
 }
 
 export async function loadForVideo(videoId: string | null): Promise<void> {
+  endPractice();
   store.videoId = videoId;
+  store.statsUndo = null;
   cancelTail();
   resetLoopRate();
   store.settings = normalizeVideoSettings(null);
@@ -310,5 +324,6 @@ export async function loadGlobal(): Promise<void> {
   const [global, tags] = await Promise.all([loadGlobalSettings(), loadTags()]);
   store.global = global;
   store.tags = tags;
+  applyStoredLanguage();
   notify("settings");
 }

@@ -1,99 +1,83 @@
 // @vitest-environment jsdom
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
-import { dayKey, emptyStats } from "../core";
-import { store } from "../player";
-import { installChromeMock, uninstallChromeMock } from "../testing/chromeMock";
+import { CHART_DAYS, dayKey, emptyDay, emptyStats, MS_PER_DAY, statsReport } from "../core";
 
-import { renderChart } from "./chart";
-import { byId } from "./dom";
+import { chartSection } from "./chart";
 
-const TODAY = dayKey();
-const YESTERDAY = dayKey(new Date(Date.now() - 24 * 3600 * 1000));
-const TODAY_SECONDS = 600;
-const YESTERDAY_SECONDS = 300;
+const NOW = new Date("2026-09-26T12:00:00");
+const keyAgo = (days: number): string => dayKey(new Date(NOW.getTime() - days * MS_PER_DAY));
 
-let chart: HTMLElement;
-
-const columns = (): HTMLElement[] => [...chart.querySelectorAll<HTMLElement>(".ytloop-chart-col")];
-const text = (selector: string): string =>
-  chart.querySelector<HTMLElement>(selector)?.textContent ?? "";
-
-describe("renderChart", () => {
-  beforeEach(() => {
-    installChromeMock();
-    document.body.innerHTML = '<div id="chart"></div>';
-    chart = byId(document, "chart");
-    store.videoId = "video";
-    store.stats = {
+const report = (range: number) =>
+  statsReport(
+    {
       ...emptyStats(),
-      seconds: TODAY_SECONDS + YESTERDAY_SECONDS,
-      days: { [TODAY]: TODAY_SECONDS, [YESTERDAY]: YESTERDAY_SECONDS },
-      daysBestSpeed: { [TODAY]: 1.25 },
-    };
+      days: {
+        [keyAgo(0)]: { ...emptyDay(), seconds: 120, reps: 12, bestTempo: 1.1 },
+        [keyAgo(1)]: { ...emptyDay(), seconds: 60, reps: 6 },
+      },
+    },
+    range,
+    NOW,
+  );
+
+let host: HTMLElement;
+
+const columns = (): HTMLElement[] => [...host.querySelectorAll<HTMLElement>(".ytloop-chart-col")];
+
+beforeEach(() => {
+  document.body.innerHTML = "";
+  host = document.createElement("div");
+  host.append(chartSection(report(CHART_DAYS)));
+  document.body.append(host);
+});
+
+describe("the practice chart", () => {
+  it("draws one column per day in the range", () => {
+    expect(columns()).toHaveLength(CHART_DAYS);
   });
 
-  afterEach(uninstallChromeMock);
-
-  it("stays hidden until something has been played", () => {
-    store.stats = emptyStats();
-    renderChart(chart);
-    expect(chart.hidden).toBe(true);
-    expect(chart.innerHTML).toBe("");
-  });
-
-  it("draws one column per day of the week with today last", () => {
-    renderChart(chart);
-    const cols = columns();
-    expect(cols).toHaveLength(7);
-    expect(cols.at(-1)?.classList.contains("today")).toBe(true);
-    expect(cols.at(-1)?.title).toContain(TODAY);
-  });
-
-  it("scales bars against the busiest day and leaves empty days flat", () => {
-    renderChart(chart);
-    const heights = columns().map(
-      (c) => c.querySelector<HTMLElement>(".ytloop-chart-bar")?.style.height,
+  it("scales the bars against the busiest day and leaves empty days flat", () => {
+    expect(columns().at(-1)?.querySelector<HTMLElement>(".ytloop-chart-bar")?.style.height).toBe(
+      "100%",
     );
-    expect(heights.at(-1)).toBe("100%");
-    expect(heights.at(-2)).toBe("50%");
-    expect(heights[0]).toBe("0%");
+    expect(columns()[0]?.querySelector<HTMLElement>(".ytloop-chart-bar")?.style.height).toBe("0px");
   });
 
-  it("keeps a barely-practised day visible as a stub", () => {
-    store.stats.days[YESTERDAY] = 1;
-    renderChart(chart);
-    const bar = columns().at(-2)?.querySelector<HTMLElement>(".ytloop-chart-bar");
-    expect(bar?.style.height).toBe("8%");
+  it("prints the time on the bar rather than hiding it in a tooltip", () => {
+    expect(columns().at(-1)?.querySelector(".ytloop-chart-value")?.textContent).toBe("2:00");
   });
 
-  it("sums the week in the header and labels the day's tempo", () => {
-    renderChart(chart);
-    expect(text(".ytloop-chart-sum")).toBe("15:00");
-    expect(columns().at(-1)?.querySelector(".ytloop-chart-tempo")?.textContent).toBe("1.25x");
+  it("prints the best tempo of the day above the bar", () => {
+    expect(columns().at(-1)?.querySelector(".ytloop-chart-tempo")?.textContent).toBe("1.10x");
   });
 
-  it("reports the overall fastest tempo", () => {
-    renderChart(chart);
-    expect(text(".ytloop-chart-fastest")).toBe("Fastest tempo: 1.25x");
-    store.stats.daysBestSpeed = {};
-    renderChart(chart);
-    expect(text(".ytloop-chart-fastest")).toBe("No tempo yet");
+  it("names the weekday in English and marks today", () => {
+    const today = columns().at(-1);
+    expect(today?.classList.contains("today")).toBe(true);
+    expect(today?.querySelector(".ytloop-chart-label")?.textContent).toBe("Sat");
   });
 
-  it("offers the undo button only while there is a record to drop", () => {
-    renderChart(chart);
-    expect(chart.querySelector("#ytloop-undo-record")).toBeNull();
-    store.stats.speedRecords = [{ day: TODAY, speed: 1.25, prevDayBest: 1 }];
-    renderChart(chart);
-    expect(chart.querySelector("#ytloop-undo-record")).not.toBeNull();
+  it("says what the day held in the column's tooltip", () => {
+    expect(columns().at(-1)?.title).toBe("Sat, Sep 26 - 2:00 in 12 repetitions - best tempo 1.10x");
   });
 
-  it("drops the last record when the undo button is clicked", () => {
-    store.stats.speedRecords = [{ day: TODAY, speed: 1.25, prevDayBest: 1 }];
-    renderChart(chart);
-    chart.querySelector<HTMLElement>("#ytloop-undo-record")?.click();
-    expect(store.stats.speedRecords).toHaveLength(0);
-    expect(store.stats.daysBestSpeed[TODAY]).toBe(1);
+  it("explains both layers in a legend", () => {
+    const legend = [...host.querySelectorAll(".ytloop-chart-legend-item")].map(
+      (item) => item.textContent,
+    );
+    expect(legend).toEqual(["Practice time", "Best tempo of the day"]);
+  });
+
+  it("drops the per-bar numbers and thins the dates on a long range", () => {
+    host.innerHTML = "";
+    host.append(chartSection(report(90)));
+    expect(columns()).toHaveLength(90);
+    expect(columns().at(-1)?.querySelector(".ytloop-chart-value")?.textContent).toBe("");
+    const labelled = columns().filter(
+      (col) => (col.querySelector(".ytloop-chart-label")?.textContent ?? "") !== "",
+    );
+    expect(labelled.length).toBeLessThan(CHART_DAYS + 1);
+    expect(labelled.at(-1)).toBe(columns().at(-1));
   });
 });

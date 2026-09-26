@@ -1,21 +1,26 @@
 import {
   LOOP_END_TOLERANCE_SECONDS,
-  recordLoopCompletion,
+  matchFragmentId,
+  MS_PER_SECOND,
   SCRUB_BEFORE_START_TOLERANCE_SECONDS,
 } from "../core";
-import { saveVideoStats } from "../storage";
 
+import { abandonPass, addGap, completeRep, practiceTick } from "./practice";
 import { applySpeed, resetSpeed, stepSpeed } from "./speed";
-import { notify, type PlayState, speedActive, store } from "./store";
+import { NEUTRAL_SPEED, notify, type PlayState, speedActive, store } from "./store";
 
 const ENFORCE_PLAY_STATE_TRIES = 6;
 const ENFORCE_PLAY_STATE_INTERVAL_MS = 40;
-const MS_PER_SECOND = 1000;
 
 const segmentStart = (): number => store.settings.start ?? 0;
 
 export function resetLoopRate(): void {
   store.loopRateMin = Number.POSITIVE_INFINITY;
+}
+
+export function stopPass(): void {
+  abandonPass();
+  resetLoopRate();
 }
 
 export function cancelTail(): void {
@@ -80,16 +85,17 @@ export function toggleLoopPlayback(): void {
 function completeLoopPass(): void {
   const { video, settings } = store;
   if (settings.start == null || settings.end == null) return;
-  const rate = video && video.playbackRate > 0 ? video.playbackRate : 1;
-  store.stats = recordLoopCompletion(store.stats, {
-    segmentSeconds: settings.end - settings.start,
-    rate,
-    sustainedRate: store.loopRateMin,
-    trackTempo: settings.speedEnabled,
+  const rate = video && video.playbackRate > 0 ? video.playbackRate : NEUTRAL_SPEED;
+  const segmentSeconds = settings.end - settings.start;
+  completeRep({
+    segmentSeconds,
+    expectedSeconds: segmentSeconds / rate,
+    tempo: Number.isFinite(store.loopRateMin) ? store.loopRateMin : rate,
+    trackTempo: speedActive(),
+    targetTempo: settings.speedEnabled ? settings.speedTarget : settings.constSpeed,
+    fragmentId: matchFragmentId(settings.fragments, settings.start, settings.end),
   });
   resetLoopRate();
-  if (store.videoId) void saveVideoStats(store.videoId, store.stats);
-  notify("status");
 }
 
 function startTail(seconds: number): void {
@@ -100,13 +106,19 @@ function startTail(seconds: number): void {
   store.tailTimer = setTimeout(() => {
     store.tailTimer = null;
     store.inTail = false;
+    addGap(seconds);
     if (store.settings.enabled) restartLoop();
   }, seconds * MS_PER_SECOND);
 }
 
+const inLoopPass = (): boolean =>
+  store.settings.enabled && !store.inTail && store.settings.end != null;
+
 export function onTimeUpdate(): void {
   const { video, settings, inTail } = store;
-  if (!settings.enabled || !video || inTail) return;
+  if (!video) return;
+  practiceTick(inLoopPass());
+  if (!settings.enabled || inTail) return;
   const { start, end } = settings;
   if (end == null) return;
   if (video.playbackRate > 0) store.loopRateMin = Math.min(store.loopRateMin, video.playbackRate);

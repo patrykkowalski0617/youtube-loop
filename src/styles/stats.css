@@ -1,0 +1,324 @@
+#ytloop-drawer .ytloop-tab-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  justify-content: space-between;
+}
+
+#ytloop-drawer .ytloop-tabs {
+  display: flex;
+  width: 100%;
+  margin-top: var(--space-2);
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+}
+
+#ytloop-drawer .ytloop-tabs .ytloop-segmented-btn {
+  flex: 1;
+  border-radius: 0;
+  font-size: var(--text-body);
+  line-height: var(--control-height-lg);
+}
+
+#ytloop-drawer .ytloop-tabs .ytloop-segmented-btn.selected {
+  background: transparent;
+  box-shadow: inset 0 -2px 0 var(--accent);
+  color: var(--fg);
+  font-weight: var(--weight-bold);
+}
+
+#ytloop-drawer .ytloop-segmented {
+  display: inline-flex;
+  padding: var(--space-hair);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+#ytloop-drawer .ytloop-segmented-btn {
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height-sm);
+  cursor: pointer;
+}
+
+#ytloop-drawer .ytloop-segmented-btn.selected {
+  background: var(--accent);
+  color: var(--c-ink-0);
+}
+
+#ytloop-drawer .ytloop-stat-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+#ytloop-drawer .ytloop-stat-heading {
+  margin: 0;
+  color: var(--fg);
+  font-size: var(--text-title);
+  font-weight: var(--weight-bold);
+}
+
+#ytloop-drawer .ytloop-stat-hint {
+  margin: 0;
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+  line-height: var(--leading);
+}
+
+#ytloop-drawer .ytloop-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+#ytloop-drawer .ytloop-stat-tile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-hair);
+  padding: var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+#ytloop-drawer .ytloop-stat-label {
+  color: var(--fg-muted);
+  font-size: var(--text-micro);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-label);
+}
+
+#ytloop-drawer .ytloop-stat-value {
+  color: var(--fg);
+  font-size: var(--text-readout);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+
+#ytloop-drawer .ytloop-bar-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+#ytloop-drawer .ytloop-bar-row {
+  display: grid;
+  grid-template-columns: var(--bar-label-width) 1fr var(--bar-value-width);
+  gap: var(--space-2);
+  align-items: center;
+}
+
+#ytloop-drawer .ytloop-bar-label {
+  overflow: hidden;
+  color: var(--fg-muted);
+  font-size: var(--text-micro);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+#ytloop-drawer .ytloop-bar-track {
+  height: var(--bar-track-height);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+}
+
+#ytloop-drawer .ytloop-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--tempo);
+}
+
+#ytloop-drawer .ytloop-bar-fill.accent {
+  background: var(--accent);
+}
+
+#ytloop-drawer .ytloop-bar-value {
+  color: var(--fg);
+  font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+
+#ytloop-drawer .ytloop-bar-note {
+  grid-column: 2 / -1;
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+}
+
+#ytloop-drawer .ytloop-empty {
+  margin: 0;
+  color: var(--fg-faint);
+  font-size: var(--text-body);
+}
+
+#ytloop-drawer .ytloop-undo-record {
+  align-self: flex-start;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-faint);
+  font-family: inherit;
+  font-size: var(--text-micro);
+  line-height: var(--control-height);
+  cursor: pointer;
+}
+
+#ytloop-drawer .ytloop-drawer-sort {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--fg-faint);
+  font-size: var(--text-micro);
+}
+
+#ytloop-drawer .ytloop-drawer-sort select {
+  flex: 1;
+  height: var(--control-height);
+  padding: 0 var(--space-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-micro);
+}
+
+@media (hover: hover) {
+  #ytloop-drawer .ytloop-segmented-btn:hover,
+  #ytloop-drawer .ytloop-undo-record:hover {
+    background: var(--state-hover);
+    color: var(--fg);
+  }
+
+  #ytloop-drawer .ytloop-segmented-btn.selected:hover {
+    background: var(--accent-strong);
+    color: var(--c-ink-0);
+  }
+}
+
+#ytloop-drawer .ytloop-setting-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+#ytloop-drawer .ytloop-setting-field {
+  position: relative;
+}
+
+#ytloop-drawer .ytloop-setting-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  height: var(--control-height-lg);
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--fg);
+  font-family: inherit;
+  font-size: var(--text-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+#ytloop-drawer .ytloop-setting-glyph {
+  color: var(--fg-faint);
+}
+
+#ytloop-drawer .ytloop-setting-label {
+  flex: 1;
+}
+
+#ytloop-drawer .ytloop-setting-value {
+  color: var(--fg-muted);
+}
+
+#ytloop-drawer .ytloop-setting-chevron {
+  color: var(--fg-faint);
+  transition: transform var(--duration-fast) var(--ease-out);
+}
+
+#ytloop-drawer .ytloop-setting-field.open .ytloop-setting-chevron {
+  transform: rotate(90deg);
+}
+
+#ytloop-drawer .ytloop-lang-menu {
+  position: absolute;
+  top: calc(100% + var(--space-1));
+  left: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: var(--menu-min-width);
+  padding: var(--space-hair);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: 0 6px 18px var(--shadow-cast);
+}
+
+#ytloop-drawer .ytloop-setting-field.up .ytloop-lang-menu {
+  top: auto;
+  bottom: calc(100% + var(--space-1));
+}
+
+#ytloop-drawer .ytloop-lang-menu[hidden] {
+  display: none;
+}
+
+#ytloop-drawer .ytloop-lang-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  height: var(--control-height);
+  padding: 0 var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--fg-muted);
+  font-family: inherit;
+  font-size: var(--text-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+#ytloop-drawer .ytloop-lang-option.selected {
+  color: var(--fg);
+  font-weight: var(--weight-bold);
+}
+
+#ytloop-drawer .ytloop-lang-option:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+#ytloop-drawer .ytloop-lang-check {
+  color: var(--accent);
+}
+
+@media (hover: hover) {
+  #ytloop-drawer .ytloop-setting-row:hover {
+    border-color: var(--border-strong);
+  }
+
+  #ytloop-drawer .ytloop-lang-option:hover {
+    background: var(--state-hover);
+    color: var(--fg);
+  }
+}

@@ -22,6 +22,7 @@ export interface Store {
   global: GlobalSettings;
   tags: Tag[];
   stats: VideoStats;
+  statsUndo: VideoStats | null;
   video: HTMLVideoElement | null;
   currentSpeed: number;
   externalSpeed: number;
@@ -38,6 +39,7 @@ export const store: Store = {
   global: defaultGlobalSettings(),
   tags: [],
   stats: emptyStats(),
+  statsUndo: null,
   video: null,
   currentSpeed: NEUTRAL_SPEED,
   externalSpeed: NEUTRAL_SPEED,

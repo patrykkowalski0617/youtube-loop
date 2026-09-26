@@ -8,7 +8,14 @@ import { type ChromeMock, installChromeMock, uninstallChromeMock } from "../test
 import { flushAsync } from "../testing/flush";
 
 import { byId } from "./dom";
-import { mountDrawer, renderSavedList, setSavedDrawerOpen, unmountDrawer } from "./drawer";
+import { renderSavedList, resetSavedTab } from "./savedTab";
+import {
+  isSideDrawerOpen,
+  mountSideDrawer,
+  setActiveTab,
+  setSideDrawerOpen,
+  unmountSideDrawer,
+} from "./sideDrawer";
 
 const CURRENT_ID = "current-video";
 const OTHER_ID = "other-video";
@@ -30,7 +37,7 @@ const items = (): HTMLElement[] => [
   ...document.querySelectorAll<HTMLElement>("#ytloop-drawer-list .ytloop-saved-item"),
 ];
 
-describe("drawer", () => {
+describe("saved tab", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     mock = installChromeMock({
@@ -42,16 +49,19 @@ describe("drawer", () => {
     });
     store.videoId = CURRENT_ID;
     store.tags = [];
-    mountDrawer();
+    mountSideDrawer();
+    setSideDrawerOpen(true);
+    setActiveTab("saved");
   });
 
   afterEach(() => {
-    unmountDrawer();
+    resetSavedTab();
+    unmountSideDrawer();
     uninstallChromeMock();
   });
 
   it("mounts once, handle included", () => {
-    mountDrawer();
+    mountSideDrawer();
     expect(document.querySelectorAll("#ytloop-drawer")).toHaveLength(1);
     expect(document.getElementById("ytloop-drawer-handle")).not.toBeNull();
   });
@@ -67,10 +77,10 @@ describe("drawer", () => {
     expect(items()[1]?.classList.contains("current")).toBe(false);
   });
 
-  it("shows played time only for a video that was played", async () => {
+  it("shows played time for a video that was played and says so when it was not", async () => {
     await renderSavedList();
     expect(items()[0]?.querySelector(".ytloop-saved-stat")?.textContent).toBe("▶ 1:30 played");
-    expect(items()[1]?.querySelector(".ytloop-saved-stat")).toBeNull();
+    expect(items()[1]?.querySelector(".ytloop-saved-stat")?.textContent).toBe("Never played");
   });
 
   it("lists the notes written on that video's fragments", async () => {
@@ -157,11 +167,10 @@ describe("drawer", () => {
   });
 
   it("opens and closes", () => {
-    const drawer = byId(document, "ytloop-drawer");
-    setSavedDrawerOpen(true);
-    expect(drawer.classList.contains("open")).toBe(true);
-    document.getElementById("ytloop-drawer-close")?.click();
-    expect(drawer.classList.contains("open")).toBe(false);
+    setSideDrawerOpen(true);
+    expect(isSideDrawerOpen()).toBe(true);
+    byId(document, "ytloop-drawer").querySelector<HTMLElement>(".ytloop-icon-btn")?.click();
+    expect(isSideDrawerOpen()).toBe(false);
   });
 
   it("applies a saved entry to the video already open", async () => {

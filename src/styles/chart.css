@@ -1,47 +1,21 @@
-#ytloop-practice .ytloop-chart[hidden] {
-  display: none;
-}
-
-#ytloop-practice .ytloop-chart {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-}
-
-#ytloop-practice .ytloop-chart-head,
-#ytloop-practice .ytloop-chart-foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-2);
-  color: var(--fg-faint);
-  font-size: var(--text-micro);
-}
-
-#ytloop-practice .ytloop-chart-sum,
-#ytloop-practice .ytloop-chart-fastest {
-  color: var(--fg-muted);
-  font-variant-numeric: tabular-nums;
-}
-
-#ytloop-practice .ytloop-chart-bars {
+#ytloop-drawer .ytloop-chart-bars {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(var(--ytloop-chart-columns), 1fr);
   gap: var(--space-1);
   align-items: end;
-  height: 76px;
+  height: var(--chart-height);
 }
 
-#ytloop-practice .ytloop-chart-col {
+#ytloop-drawer .ytloop-chart-col {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr auto auto;
   gap: var(--space-1);
   align-items: end;
   height: 100%;
   min-width: 0;
 }
 
-#ytloop-practice .ytloop-chart-tempo {
+#ytloop-drawer .ytloop-chart-tempo {
   color: var(--tempo);
   font-size: var(--text-micro);
   font-variant-numeric: tabular-nums;
@@ -49,7 +23,7 @@
   white-space: nowrap;
 }
 
-#ytloop-practice .ytloop-chart-track {
+#ytloop-drawer .ytloop-chart-track {
   display: flex;
   align-items: flex-end;
   height: 100%;
@@ -57,43 +31,52 @@
   background: var(--surface-sunken);
 }
 
-#ytloop-practice .ytloop-chart-bar {
+#ytloop-drawer .ytloop-chart-bar {
   width: 100%;
   border-radius: var(--radius-sm);
   background: var(--fg-faint);
   transition: height var(--duration-base) var(--ease-out);
 }
 
-#ytloop-practice .ytloop-chart-col.today .ytloop-chart-bar {
+#ytloop-drawer .ytloop-chart-col.today .ytloop-chart-bar {
   background: var(--accent);
 }
 
-#ytloop-practice .ytloop-chart-label {
+#ytloop-drawer .ytloop-chart-value,
+#ytloop-drawer .ytloop-chart-label {
   color: var(--fg-faint);
   font-size: var(--text-micro);
+  font-variant-numeric: tabular-nums;
   text-align: center;
+  white-space: nowrap;
 }
 
-#ytloop-practice .ytloop-chart-col.today .ytloop-chart-label {
+#ytloop-drawer .ytloop-chart-col.today .ytloop-chart-label,
+#ytloop-drawer .ytloop-chart-col.today .ytloop-chart-value {
   color: var(--fg-muted);
 }
 
-#ytloop-practice .ytloop-undo-record {
-  flex: none;
-  padding: 0 var(--space-2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: transparent;
+#ytloop-drawer .ytloop-chart-legend {
+  display: flex;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
   color: var(--fg-faint);
-  font-family: inherit;
   font-size: var(--text-micro);
-  line-height: var(--control-height-sm);
-  cursor: pointer;
 }
 
-@media (hover: hover) {
-  #ytloop-practice .ytloop-undo-record:hover {
-    background: var(--state-hover);
-    color: var(--fg);
-  }
+#ytloop-drawer .ytloop-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+#ytloop-drawer .ytloop-chart-swatch {
+  width: var(--tag-swatch-size);
+  height: var(--tag-swatch-size);
+  border-radius: var(--radius-sm);
+  background: var(--fg-faint);
+}
+
+#ytloop-drawer .ytloop-chart-swatch.tempo {
+  background: var(--tempo);
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  dayFromKey,
   dayKey,
   formatTime,
   formatTimePrecise,
@@ -88,5 +89,19 @@ describe("roundToStep", () => {
 describe("dayKey", () => {
   it("formats a local date as YYYY-MM-DD", () => {
     expect(dayKey(new Date(2026, 0, 5))).toBe("2026-01-05");
+  });
+});
+
+describe("dayFromKey", () => {
+  it("returns the local midnight the key stands for", () => {
+    const date = dayFromKey("2026-01-05");
+    expect(date.getFullYear()).toBe(2026);
+    expect(date.getMonth()).toBe(0);
+    expect(date.getDate()).toBe(5);
+    expect(date.getHours()).toBe(0);
+  });
+
+  it("round-trips through dayKey without drifting a day", () => {
+    expect(dayKey(dayFromKey("2026-03-29"))).toBe("2026-03-29");
   });
 });

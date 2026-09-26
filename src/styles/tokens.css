@@ -35,6 +35,7 @@
   --shadow-cast: color-mix(in oklab, var(--c-ink-950) 30%, transparent);
   --undo-fill: color-mix(in oklab, var(--fg) 13%, var(--bg));
 
+  --space-hair: 2px;
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -53,6 +54,7 @@
   --weight-normal: 400;
   --weight-bold: 600;
   --leading: 1.4;
+  --tracking-label: 0.04em;
 
   --control-height-sm: 18px;
   --control-height-icon: 22px;
@@ -62,6 +64,13 @@
   --panel-width: 324px;
   --panel-aside: var(--control-height-lg);
   --drawer-width: 320px;
+  --drawer-width-wide: 420px;
+  --menu-min-width: 160px;
+  --chart-height: 92px;
+  --bar-track-height: 8px;
+  --bar-label-width: 62px;
+  --bar-value-width: 56px;
+  --ytloop-chart-columns: 7;
 
   --duration-fast: 120ms;
   --duration-base: 220ms;

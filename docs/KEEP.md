@@ -129,3 +129,8 @@ var(--ytloop-tag-hue))`. A custom property containing `var()` is substituted
   documents and clears the list, and `pushVideos` deletes the remote document
   for any id whose local record is gone. Dropping the tombstone makes deletion
   look complete until the next sign-in.
+
+- `src/i18n/index.ts` exports `languages`, `runtime` and `types`, not `en.ts` and
+  `pl.ts`. The dictionaries are reached through `DICTIONARIES` in `languages.ts`,
+  so the active language is the only way to read a string and no module can pin
+  itself to one language by importing its dictionary directly.
